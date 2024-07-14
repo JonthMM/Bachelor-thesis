@@ -300,7 +300,7 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
     # Initialisiere die Liste für die Ergebnisse der automatischen Koordinatenextraktion
     results = []
 
-    # Muster, die für die Identifikation von Koordinatenformate verwendet werden, welche, wenn sie alleine auftreten Ignoriert werden sollen
+    # Muster, die für die Identifikation von Koordinatenformate verwendet werden, welche, wenn sie alleine auftreten ignoriert werden sollen
     decimal_pattern = r'\b(?<!\.)\d{1,3}\.\d{6}\b'
     decimal_dir_pattern = r'\b(?!0\.)\d{1,3}\.\d{2}\s*[NSEW]\b'
     number_dir_pattern = r'\b(?!0\.)\d{1,6}(?<!\d8\d{2}0)\s*[NSEW]\b'
@@ -350,14 +350,14 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
                     if include:
                         final_coordinates.add(coord)
 
-                # Ignoriere einzelne Koordinaten der gegebenen Muster , wenn sie die einzigen ihrer Art sind
+                # Ignoriere einzelne Koordinaten der gegebenen Muster, wenn sie die einzigen ihrer Art sind
                 for pattern, coord_set in all_found_types.items():
                     if len(coord_set) == 1:
                         coord_to_ignore = next(iter(coord_set))
                         if coord_to_ignore in final_coordinates:
                             final_coordinates.remove(coord_to_ignore)
                             ignored_coordinates.append(coord_to_ignore)
-                            # Logging Ausgabe, wenn und welche einzelne Koordinaten ignoriert wurrden und in welcher PDF
+                            # Logging Ausgabe, wenn und welche einzelne Koordinate ignoriert wurden und in welcher PDF
                             logging.info(
                                 f"Ignored single coordinate {coord_to_ignore} in '{pdf_basename}' as per pattern.")
 

@@ -1,9 +1,6 @@
 # openpyxl zum Arbeiten mit Excel Dateien
 import openpyxl
 
-# Benötigt, um Zeichen zu entfernen, welche nicht von openpyxl verarbeitet werden können
-from openpyxl.utils.exceptions import IllegalCharacterError
-
 def remove_illegal_characters(excel_data):
     """
     Entfernt Zeichen, die von Openpyxl nicht unterstützt werden und somit nicht in der Excel-Datei verwendet werden
