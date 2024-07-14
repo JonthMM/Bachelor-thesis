@@ -13,7 +13,7 @@ pdf_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\151-169\Influences 
 
 def clean_and_remove_control_characters(text):
     """
-    Entfernt alle ASCII-Steuerzeichen, ersetzt '(cid:6)', '(cid:57\)' und '¢' durch "′" und andere '(cid:\d+)' mit Hilfe der re.sub() Funktion
+    Entfernt alle ASCII-Steuerzeichen, ersetzt '(cid:6)', '(cid:57\)' und '¢' durch "′" und andere '(cid:\d+)' mithilfe der re.sub() Funktion
     durch "°". um bereits (durch das Hilfscript "find_special_characters" bekannte Sonderzeichen zu umgehen.
     https://www.w3schools.com/python/python_regex.asp
 
