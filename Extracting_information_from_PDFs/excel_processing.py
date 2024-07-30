@@ -5,6 +5,7 @@ def remove_illegal_characters(excel_data):
     """
     Entfernt Zeichen, die von Openpyxl nicht unterstützt werden und somit nicht in der Excel-Datei verwendet werden
     können aus den Informationen, welche in die Excel-Datei übernommen werden sollen.
+    https://www.w3schools.com/python/ref_func_ord.asp
 
     Args:
         excel_data (str): Der String, aus dem für openpyxl illegale Zeichen entfernt werden sollen.
@@ -19,6 +20,7 @@ def find_first_empty_row(sheet, columns):
     Findet die erste leere Zeile in angegebenen Spalten eines Excel-Arbeitsblatts zur Festlegung eines Startpunktes
     zum Einfügen der relevanten Informationen.
     Dies ist nötig, um so flexibel wie möglich mit jeder möglichen Excel-Tabelle arbeiten zu können
+    https://openpyxl.readthedocs.io/en/stable/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet
 
     Args:
         sheet (openpyxl.worksheet.worksheet.Worksheet): Das Arbeitsblatt, in dem gesucht wird.
@@ -35,6 +37,8 @@ def find_first_empty_row(sheet, columns):
 def update_excel_with_extracted_data(excel_path, extracted_data):
     """
     Aktualisiert die Excel-Datei mit den vorher durch das Modul "pdf_processing" extrahierten Daten aus den PDFs.
+    https://openpyxl.readthedocs.io/en/stable/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet.cell#
+    https://openpyxl.readthedocs.io/en/stable/tutorial.html
 
     Args:
         excel_path (str): Pfad zur Excel-Datei.

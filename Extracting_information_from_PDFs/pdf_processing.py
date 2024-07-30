@@ -14,6 +14,7 @@ def remove_illegal_characters(excel_data):
     """
     Entfernt Zeichen, die von Openpyxl nicht unterstützt werden und somit nicht in der Excel-Datei verwendet werden
     können aus den Informationen, welche in die Excel-Datei übernommen werden sollen
+    https://www.w3schools.com/python/ref_func_ord.asp
 
     Args:
         excel_data (str): Der String, aus dem für openpyxl illegale Zeichen entfernt werden sollen.

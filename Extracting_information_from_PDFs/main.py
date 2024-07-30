@@ -10,6 +10,7 @@ from excel_processing import update_excel_with_extracted_data
 
 3. "time period with drought (if mentioned)" und "time period analyzed" als Suchoption ergänzen (wahrscheinlich eingeschränkt als (Jahr-Jahr) such-pattern, wird nicht alles finden aber immerhin keine redundanzen durch Spezialisierung
 
+4. Experimentell oder field study (observational) hinzufügen
 Eventuell:
 Logik so ändern, dass nur die umliegenden 3 Zeilen von Koordinaten gespeichert und ausgegeben werden, wenn def find_study_site(lines): keinen Erfolg hatte
 
