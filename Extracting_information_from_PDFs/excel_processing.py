@@ -4,7 +4,7 @@ import openpyxl
 def remove_illegal_characters(excel_data):
     """
     Entfernt Zeichen, die von Openpyxl nicht unterstützt werden und somit nicht in der Excel-Datei verwendet werden
-    können aus den Informationen, welche in die Excel-Datei übernommen werden sollen.
+    können aus den Informationen, welche in die Excel-Datei übernommen werden sollen
     https://www.w3schools.com/python/ref_func_ord.asp
 
     Args:
@@ -13,6 +13,8 @@ def remove_illegal_characters(excel_data):
     Returns:
         str: Der bereinigte String ohne für openpyxl illegale Zeichen.
     """
+    
+    # Entferne alle ASCII-Steuerzeichen welche von Openpyxl nicht unterstützt werden mithilfe von ord()
     return ''.join(char for char in excel_data if ord(char) in range(32, 127))
 
 def find_first_empty_row(sheet, columns):
