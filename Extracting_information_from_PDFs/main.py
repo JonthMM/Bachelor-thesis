@@ -61,6 +61,8 @@ Done:
 """
 
 # Einrichten des Loggings für Informationen, hierbei wird die Zeit angegeben (asctime), sowieso um welchen Typ von logg-ausgabe es sich handelt (levelname) und natürlich die nachricht welche Ausgegeben werden soll (message)
+# https://docs.python.org/3/library/logging.config.html
+# https://docs.python.org/3/library/logging.html#logging.INFO
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Pfad zum Ordner mit den PDF-Dateien
