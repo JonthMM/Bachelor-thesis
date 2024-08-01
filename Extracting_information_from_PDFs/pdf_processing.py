@@ -8,6 +8,7 @@ import re
 from pdfminer.high_level import extract_text
 
 # Logging zum besseren Verständnis der Ergebnisse bzw. Ausgaben
+# Hier wird dabei nur auf logging.info() zuürckgegriffen: https://docs.python.org/3/library/logging.html#logging.INFO
 import logging
 
 def remove_illegal_characters(excel_data):
