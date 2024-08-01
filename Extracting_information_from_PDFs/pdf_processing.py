@@ -23,7 +23,8 @@ def remove_illegal_characters(excel_data):
     Returns:
         str: Der bereinigte String ohne für openpyxl illegale Zeichen.
     """
-
+    
+    # Entferne alle ASCII-Steuerzeichen welche von Openpyxl nicht unterstützt werden mithilfe von ord()
     return ''.join(char for char in excel_data if ord(char) in range(32, 127))
 
 
@@ -32,6 +33,7 @@ def clean_and_remove_control_characters(text):
     Entfernt alle ASCII-Steuerzeichen, ersetzt '(cid:6)', '(cid:57\)' und '¢' durch "′" und andere '(cid:\d+)' mithilfe der re.sub() Funktion
     durch "°". um bereits (durch das Hilfsscript "find_special_characters") bekannte Sonderzeichen zu umgehen.
     https://www.w3schools.com/python/python_regex.asp
+    https://www.w3schools.com/python/ref_func_ord.asp
 
     Args:
         text (str): Der Text, aus dem Steuerzeichen und bestimmte andere Zeichen entfernt werden sollen.
@@ -47,7 +49,7 @@ def clean_and_remove_control_characters(text):
     cleaned_text = text.replace('¢', '′')
 
 
-    # Entferne alle anderen ASCII-Steuerzeichen
+    # Entferne alle anderen ASCII-Steuerzeichen mithilfe von ord()
     cleaned_text = ''.join(char for char in text if ord(char) >= 32 or ord(char) == 10)
 
     return cleaned_text
