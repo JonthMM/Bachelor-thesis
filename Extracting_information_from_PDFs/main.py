@@ -60,7 +60,7 @@ Done:
     13.1. Args und Returns bei jeder Funktion hinzufügen
 """
 
-# Einrichten des Loggings, hierbei wird die Zeit angegeben (asctime), sowieso um welchen Typ von logg-ausgabe es sich handelt (levelname) und natürlich die nachricht welche Ausgegeben werden soll (message)
+# Einrichten des Loggings für Informationen, hierbei wird die Zeit angegeben (asctime), sowieso um welchen Typ von logg-ausgabe es sich handelt (levelname) und natürlich die nachricht welche Ausgegeben werden soll (message)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Pfad zum Ordner mit den PDF-Dateien
