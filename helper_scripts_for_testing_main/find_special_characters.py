@@ -16,6 +16,7 @@ def clean_and_remove_control_characters(text):
     Entfernt alle ASCII-Steuerzeichen, ersetzt '(cid:6)', '(cid:57\)' und '¢' durch "′" und andere '(cid:\d+)' mithilfe der re.sub() Funktion
     durch "°". um bereits (durch das Hilfscript "find_special_characters" bekannte Sonderzeichen zu umgehen.
     https://www.w3schools.com/python/python_regex.asp
+    https://www.w3schools.com/python/ref_func_ord.asp
 
     Args:
         text (str): Der Text, aus dem Steuerzeichen und bestimmte andere Zeichen entfernt werden sollen.
