@@ -8,7 +8,7 @@ import re
 from pdfminer.high_level import extract_text
 
 # Logging zum besseren Verständnis der Ergebnisse bzw. Ausgaben
-# Hier wird dabei nur auf logging.info() zuürckgegriffen: https://docs.python.org/3/library/logging.html#logging.INFO
+# Hier wird dabei nur auf logging.info() zurückgegriffen: https://docs.python.org/3/library/logging.html#logging.INFO
 import logging
 
 def remove_illegal_characters(excel_data):
@@ -247,7 +247,8 @@ def find_study_site(lines):
 def find_drought_quantification(lines, pdf_file):
     """
     Sucht nach bestimmten Begriffen, die sich auf die Quantifizierung von Dürren beziehen, und gibt die relevanten Zeilen zurück.
-    Hierbei wird in jeder PDF ein mal nach jedem Begriff gesucht und dann, wenn er ein- oder keinmal vorkam der nächste Begriff.
+    Hierbei wird in jeder PDF ein mal nach jedem Begriff gesucht und dann, wenn er ein- oder keinmal vorgekommen ist wird der nächste Begriff gesucht usw..
+    https://www.w3schools.com/python/python_regex.asp
 
     Args:
         lines (list): Die Textzeilen einer PDF.
@@ -293,6 +294,9 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
     """
     Diese Funktion extrahiert Koordinaten aus PDF-Dateien in einem spezifizierten Ordner.
     Duplikate und einzelne, isolierte Koordinaten werden dabei ignoriert.
+    https://docs.python.org/3/library/os.html#os.listdir
+    https://docs.python.org/3/library/os.path.html#module-os.path
+    https://www.w3schools.com/python/python_regex.asp
 
     Args:
         folder_path (str): Pfad zum Ordner, der die PDF-Dateien enthält.
