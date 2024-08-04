@@ -6,6 +6,7 @@ from excel_processing import update_excel_with_extracted_data
 
 """ 
 To DO:
+1. "Study Type" als Suchoption ergänzen: "Experimental", "Observational" oder "modeling"
 
 2. "How was drought quantified" Als suchoption hinzufügen: PET, SPI, SPEI, PDSI, precipitation usw. als Schlüsselwörter + Zeilen davor und danach - in Bearbeitung, läuft schon ist aber Ausbaufähig
 
