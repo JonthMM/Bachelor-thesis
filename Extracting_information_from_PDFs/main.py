@@ -67,7 +67,7 @@ Done:
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Pfad zum Ordner mit den PDF-Dateien
-folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\151-169'
+folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\76-100'
 
 # Pfad zur Excel-Datei
 excel_path = r'D:\Uni\Bachelorarbeit/2024Apr_Mana_Review_v2i - Kopie.xlsx'

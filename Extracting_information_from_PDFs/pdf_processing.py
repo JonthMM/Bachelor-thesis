@@ -259,19 +259,19 @@ def find_drought_quantification(lines, pdf_file):
     """
 
     # Die zu suchenden Begriffe werden in dieser Liste gespeichert:
-    keywords = ['PET', 'SPI', 'SPEI', 'PDSI', 'low soil moisture', 'soil water content', 'VPD', 'reduced rainfall', 'plant water stress']
+    keywords = ['PET', 'SPI', 'SPEI', 'PDSI', 'low soil moisture', 'soil water content', 'VPD', 'reduced rainfall', 'plant water stress', 'drought']
     # Diese Liste soll später alle relevanten Zeilen, also diese wo ein Keyword drin steckt plus 3 Zeilen danach speichern
     drought_lines = []
     # Diese Liste speichert alle gefundenen Begriffe einer PDF aus der "keywords" Liste
-    found_keywords = []
+    drought_quantification_keywords = []
 
     # Hier wird jede Zeile einer PDF nach den Begriffen in der "keywords" Liste durchsucht
     for keyword in keywords:
         keyword_found = False
         for i, line in enumerate(lines):
             if re.search(r'\b' + re.escape(keyword) + r'\b', line):
-                # Wurde ein Begriff gefunden, wird er zu "found_keywords" hinzugefügt
-                found_keywords.append(keyword)
+                # Wurde ein Begriff gefunden, wird er zu "drought_quantification_keywords" hinzugefügt
+                drought_quantification_keywords.append(keyword)
                 # und die Zeile, in welche der Begriff gefunden wurde und die darauffolgenden drei werden gespeichert
                 context_lines = lines[max(0, i - 1):i + 3]
                 drought_lines.append(" | ".join(context_lines).strip())
@@ -284,8 +284,8 @@ def find_drought_quantification(lines, pdf_file):
     if drought_lines:
         # Die relevanten Zeilen werden zu einem einzigen String zusammengefügt, wobei jede Zeile durch " | " getrennt ist.
         # Dabei entfernt `.strip()` alle überflüssigen Leerzeichen
-        # "found_keywords" wird außerdem ebenfalls zurückgegeben, die alle Keywords enthält, die in der PDF gefunden wurden.
-        return " | ".join(drought_lines).strip(), found_keywords
+        # "drought_quantification_keywords" wird außerdem ebenfalls zurückgegeben, die alle Keywords enthält, die in der PDF gefunden wurden.
+        return " | ".join(drought_lines).strip(), drought_quantification_keywords
         # Wenn keine relevante Zeile in der PDF gefunden wurde (d.h., "drought_lines" ist leer),
         # gibt die Funktion ein Tupel zurück, das zwei "None" Werte enthält.
     return None, None
@@ -378,11 +378,11 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
                         lines_with_coordinates.append(" | ".join(context_lines).strip())
 
                 # Ausführen der Hilfsfunktion zum Herausfinden, wie Dürre definiert wurde
-                drought_quantified, found_keywords = find_drought_quantification(lines, pdf_file)
+                drought_quantified, drought_quantification_keywords = find_drought_quantification(lines, pdf_file)
 
                 # Speichere die Ergebnisse bei gefundenen validen Koordinaten (Name des Papers, die validen Koordinaten, die Kontextzeilen von gefundenen Koordinaten und wie Dürre definiert wurde)
                 if final_coordinates:
-                    results.append((pdf_basename, ', '.join(final_coordinates), '; '.join(lines_with_coordinates), drought_quantified, found_keywords))
+                    results.append((pdf_basename, ', '.join(final_coordinates), '; '.join(lines_with_coordinates), drought_quantified, drought_quantification_keywords))
                 # Speichere die Ergebnisse, wenn keine validen Koordinaten gefunden wurden
                 else:
                     # Aufrufen der Hilfsfunktion "find_study_site(lines)" um die Bereiche der Studien zu finden, in welcher sie durchgeführt wurden
@@ -391,11 +391,11 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
                     # so bereinigt, dass es mit openpyxl weiterverarbeitet werden kann und die Ergebnisse gespeichert.
                     if study_site_context:
                         cleaned_lines_with_coordinates = remove_illegal_characters(study_site_context)
-                        results.append((pdf_basename, 'Keine Koordinaten gefunden', cleaned_lines_with_coordinates, drought_quantified, found_keywords))
+                        results.append((pdf_basename, 'Keine Koordinaten gefunden', cleaned_lines_with_coordinates, drought_quantified, drought_quantification_keywords))
                         logging.info(f"Study site found in '{pdf_file}' but no valid coordinates")
                     # Wenn nichts von der Hilfsfunktion "find_study_site(lines)" gefunden wurde, wird dies als Ergebnis festgehalten und als Logging Information ausgegeben
                     else:
-                        results.append((pdf_basename, 'Keine Koordinaten gefunden', '', drought_quantified, found_keywords))
+                        results.append((pdf_basename, 'Keine Koordinaten gefunden', '', drought_quantified, drought_quantification_keywords))
                         logging.info(f"No coordinates or study site found in '{pdf_file}'")
 
             # Absicherungslogging, falls es einen Fehler gab, der verhindert, dass in den PDFs nach Informationen gesucht werden kann

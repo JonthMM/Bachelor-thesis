@@ -58,7 +58,7 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
     start_row = find_first_empty_row(worksheet, [2, 6, 10])
 
     # Trage die aus den PDFs extrahierten Informationen in die Excel-Datei ein
-    for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, found_keywords) in enumerate(extracted_data):
+    for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, drought_quantification_keywords) in enumerate(extracted_data):
         worksheet.cell(row=start_row + i, column=2, value=pdf_basename)
 
         # Kopiere, falls vorhanden, die Koordinaten immer in Spalte F (location coordinates)
