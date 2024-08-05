@@ -8,7 +8,9 @@ import re
 from pdfminer.high_level import extract_text
 
 # Logging zum besseren Verständnis der Ergebnisse bzw. Ausgaben
-# Hier wird dabei nur auf logging.info() zurückgegriffen: https://docs.python.org/3/library/logging.html#logging.INFO
+# Hier wird dabei auf logging.info() und logging.error() zurückgegriffen:
+# https://docs.python.org/3/library/logging.html#logging.INFO
+# https://docs.python.org/3/library/logging.html#logging.error
 import logging
 
 def remove_illegal_characters(excel_data):
@@ -243,6 +245,43 @@ def find_study_site(lines):
             return " | ".join(context_lines).strip()
     return None
 
+"""
+def find_analyzed_years(lines):
+    
+    Erklärung
+
+     Args:
+        
+
+    Returns:
+        str or None: 
+    
+    return 
+    
+def find_years_with_drought(lines):
+    
+    Erklärung
+
+     Args:
+        
+
+    Returns:
+        str or None: 
+    
+    return 
+
+def find_study_type(lines):
+    
+    Erklärung
+
+     Args:
+        
+
+    Returns:
+        
+    
+    return
+"""
 
 def find_drought_quantification(lines, pdf_file):
     """
@@ -377,26 +416,8 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
                         context_lines = lines[max(0, lines.index(line) - 2):lines.index(line) + 1]
                         lines_with_coordinates.append(" | ".join(context_lines).strip())
 
-                # Ausführen der Hilfsfunktion zum Herausfinden, wie Dürre definiert wurde
-                drought_quantified, drought_quantification_keywords = find_drought_quantification(lines, pdf_file)
-
-                # Speichere die Ergebnisse bei gefundenen validen Koordinaten (Name des Papers, die validen Koordinaten, die Kontextzeilen von gefundenen Koordinaten und wie Dürre definiert wurde)
-                if final_coordinates:
-                    results.append((pdf_basename, ', '.join(final_coordinates), '; '.join(lines_with_coordinates), drought_quantified, drought_quantification_keywords))
-                # Speichere die Ergebnisse, wenn keine validen Koordinaten gefunden wurden
-                else:
-                    # Aufrufen der Hilfsfunktion "find_study_site(lines)" um die Bereiche der Studien zu finden, in welcher sie durchgeführt wurden
-                    study_site_context = find_study_site(lines)
-                    # Wenn etwas von der Hilfsfunktion "find_study_site(lines)" gefunden wurde, wird das Ergebnis
-                    # so bereinigt, dass es mit openpyxl weiterverarbeitet werden kann und die Ergebnisse gespeichert.
-                    if study_site_context:
-                        cleaned_lines_with_coordinates = remove_illegal_characters(study_site_context)
-                        results.append((pdf_basename, 'Keine Koordinaten gefunden', cleaned_lines_with_coordinates, drought_quantified, drought_quantification_keywords))
-                        logging.info(f"Study site found in '{pdf_file}' but no valid coordinates")
-                    # Wenn nichts von der Hilfsfunktion "find_study_site(lines)" gefunden wurde, wird dies als Ergebnis festgehalten und als Logging Information ausgegeben
-                    else:
-                        results.append((pdf_basename, 'Keine Koordinaten gefunden', '', drought_quantified, drought_quantification_keywords))
-                        logging.info(f"No coordinates or study site found in '{pdf_file}'")
+                # Ergebnis verarbeiten und speichern
+                process_extraction_results(pdf_basename, final_coordinates, lines_with_coordinates, lines, pdf_file, results)
 
             # Absicherungslogging, falls es einen Fehler gab, der verhindert, dass in den PDFs nach Informationen gesucht werden kann
             except Exception as e:
@@ -404,3 +425,46 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
                 results.append((pdf_basename, 'Keine Koordinaten gefunden', '', None, None))
 
     return results
+
+def process_extraction_results(pdf_basename, final_coordinates, lines_with_coordinates, lines, pdf_file, results):
+    """
+    Verarbeitet die extrahierten Ergebnisse und speichert sie in der Ergebnisliste.
+    Erleichtert das hinzufügen von weiteren extrahierten Informationen deutlich
+
+    Args:
+        pdf_basename (str): Basisname der PDF-Datei für "Paper".
+        final_coordinates (set): Menge der endgültigen Koordinaten ohne Duplikate für "location coordinates".
+        lines_with_coordinates (list): Liste der Kontextzeilen der Koordinaten für "Area Name".
+        lines (list): Liste aller Zeilen im bereinigten Text zum Durchsuchen.
+        pdf_file (str): Pfad zu den einzelnen PDF-Dateien.
+        results (list): Liste zur Speicherung der Ergebnisse um diese mit Excel weiterzuverarbeiten.
+
+    Returns:
+        list: Aktualisierte Ergebnisliste mit den extrahierten Informationen aus der PDF-Datei.
+    """
+    # Ausführen der Hilfsfunktion zum Herausfinden, wie Dürre definiert wurde
+    drought_quantified, drought_quantification_keywords = find_drought_quantification(lines, pdf_file)
+
+    #TO-DO: Alle 3 neuen Werte mit Hilfsfunktionen extrahieren und zu result.append hinzufügen sowie in main.py zur print überprüfung
+    #years_with_drought = find_years_with_drought(lines)
+    #analyzed_years = find_analyzed_years(lines)
+    #study_type = find_study_type(lines)
+
+
+    # Speichere die Ergebnisse bei gefundenen validen Koordinaten (Name des Papers, die validen Koordinaten, die Kontextzeilen von gefundenen Koordinaten und wie Dürre definiert wurde)
+    if final_coordinates:
+        results.append((pdf_basename, ', '.join(final_coordinates), '; '.join(lines_with_coordinates), drought_quantified, drought_quantification_keywords))
+    # Speichere die Ergebnisse, wenn keine validen Koordinaten gefunden wurden
+    else:
+        # Aufrufen der Hilfsfunktion "find_study_site(lines)" um die Bereiche der Studien zu finden, in welcher sie durchgeführt wurden
+        study_site_context = find_study_site(lines)
+        # Wenn etwas von der Hilfsfunktion "find_study_site(lines)" gefunden wurde, wird das Ergebnis
+        # so bereinigt, dass es mit openpyxl weiterverarbeitet werden kann und die Ergebnisse gespeichert.
+        if study_site_context:
+            cleaned_lines_with_coordinates = remove_illegal_characters(study_site_context)
+            results.append((pdf_basename, 'Keine Koordinaten gefunden', cleaned_lines_with_coordinates, drought_quantified, drought_quantification_keywords))
+            logging.info(f"Study site found in '{pdf_file}' but no valid coordinates")
+        # Wenn nichts von der Hilfsfunktion "find_study_site(lines)" gefunden wurde, wird dies als Ergebnis festgehalten und als Logging Information ausgegeben
+        else:
+            results.append((pdf_basename, 'Keine Koordinaten gefunden', '', drought_quantified, drought_quantification_keywords))
+            logging.info(f"No coordinates or study site found in '{pdf_file}'")

@@ -52,33 +52,32 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
 
     # Öffnen dem angegebenen Arbeitsblatt (sheet) der angegebenen Excel-Datei mithilfe von openpyxl
     workbook = openpyxl.load_workbook(excel_path)
-    worksheet = workbook['secondAppr']
+    worksheet = workbook['relevantInfo']
 
-    # Finde die erste leere Zeile in den Spalten B (Paper), F (location coordinates) und J (Area name)
+    # Finde die erste leere Zeile in den Spalten A (Paper), C (location coordinates) und D (Area name)
     start_row = find_first_empty_row(worksheet, [2, 6, 10])
 
     # Trage die aus den PDFs extrahierten Informationen in die Excel-Datei ein
     for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, drought_quantification_keywords) in enumerate(extracted_data):
-        worksheet.cell(row=start_row + i, column=2, value=pdf_basename)
+        worksheet.cell(row=start_row + i, column=1, value=pdf_basename)
 
-        # Kopiere, falls vorhanden, die Koordinaten immer in Spalte F (location coordinates)
+        # Kopiere, falls vorhanden, die Koordinaten immer in Spalte C (location coordinates)
         if coordinates != 'Keine Koordinaten gefunden' and len(coordinates.split(', ')) > 1:
             unique_coordinates = ', '.join(sorted(set(coordinates.split(', '))))
-            worksheet.cell(row=start_row + i, column=6, value=unique_coordinates)
+            worksheet.cell(row=start_row + i, column=3, value=unique_coordinates)
 
-            # Kopiere, falls vorhanden, die Kontextzeilen der gefundenen Koordinaten immer in Spalte J (Area name)
-            cleaned_lines_with_coordinates = remove_illegal_characters(lines_with_coordinates)
-            worksheet.cell(row=start_row + i, column=10, value=cleaned_lines_with_coordinates)
+            # Kopiere, falls vorhanden, die Kontextzeilen der gefundenen Koordinaten immer in Spalte D (Area name)
+            worksheet.cell(row=start_row + i, column=4, value=remove_illegal_characters(lines_with_coordinates))
 
-        # Kopiere, falls keine Koordinaten gefunden wurden die Information darüber immer in Spalte F (location coordinates)
+        # Kopiere, falls keine Koordinaten gefunden wurden die Information darüber immer in Spalte C (location coordinates)
         else:
-            worksheet.cell(row=start_row + i, column=6, value=coordinates)
-            # Kopiere, falls keine Koordinaten gefunden, die Kontextzeilen den gefundenen Bereich der Studie immer in Spalte J (Area name)
-            worksheet.cell(row=start_row + i, column=10, value=remove_illegal_characters(lines_with_coordinates))
+            worksheet.cell(row=start_row + i, column=3, value=coordinates)
+            # Kopiere, falls keine Koordinaten gefunden, die Kontextzeilen den gefundenen Bereich der Studie immer in Spalte D (Area name)
+            worksheet.cell(row=start_row + i, column=4, value=remove_illegal_characters(lines_with_coordinates))
 
-        # Kopiere, falls ein Schlüsselwort zur Definition von Dürre gefunden wurden die Information darüber wie, immer in Spalte R (how was drought quantified)
+        # Kopiere, falls ein Schlüsselwort zur Definition von Dürre gefunden wurden die Information darüber wie, immer in Spalte J (how was drought quantified)
         if drought_quantified:
-            worksheet.cell(row=start_row + i, column=18, value=remove_illegal_characters(drought_quantified))
+            worksheet.cell(row=start_row + i, column=10, value=remove_illegal_characters(drought_quantified))
 
     # Speichere die durchgeführten Änderungen in der Excel-Datei
     workbook.save(excel_path)
