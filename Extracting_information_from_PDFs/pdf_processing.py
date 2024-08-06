@@ -46,10 +46,10 @@ def clean_and_remove_control_characters(text):
 
     # Ersetze "(cid:6)", "(cid:57)" und "¢" durch "′" sowie generalisiert alle anderen cid Sonderzeichen durch "°"
     text = re.sub(r'\(cid:6\)', '′', text)
-    cleaned_text = re.sub(r'\(cid:57\)', '′', text)
-    cleaned_text = re.sub(r'\(cid:\d+\)', '°', cleaned_text)
-    cleaned_text = text.replace('¢', '′')
-
+    text = re.sub(r'\(cid:57\)', '′', text)
+    text = re.sub(r'\(cid:5\)', '′', text)
+    text = re.sub(r'\(cid:\d+\)', '°', text)
+    text = text.replace('¢', '′')
 
     # Entferne alle anderen ASCII-Steuerzeichen mithilfe von ord()
     cleaned_text = ''.join(char for char in text if ord(char) >= 32 or ord(char) == 10)
@@ -497,8 +497,6 @@ def process_extraction_results(pdf_basename, final_coordinates, lines_with_coord
     """
     # Ausführen der Hilfsfunktion zum Herausfinden, wie Dürre definiert wurde
     drought_quantified, drought_quantification_keywords = find_drought_quantification(lines, pdf_file)
-
-
 
     #TO-DO: Die 2 neuen Werte mit Hilfsfunktionen extrahieren und zu result.append hinzufügen sowie in main.py zur print überprüfung
     #years_with_drought = find_years_with_drought(lines)
