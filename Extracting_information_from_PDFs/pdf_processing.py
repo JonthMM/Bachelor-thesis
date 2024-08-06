@@ -269,24 +269,42 @@ def find_years_with_drought(lines):
         str or None: 
     
     return 
-
-def find_study_type(lines):
-    
+"""
+def find_study_type(lines, pdf_file):
+    """
     Erklärung
 
-     Args:
+    Args:
         
 
     Returns:
-        
+
+    """
+    study_types = {
+        'observational': ['observational', 'observed'],
+        'experimental': ['experimental', 'experimentally'],
+        'modeling': ['model', 'modeling']
+    }
+
+    # Erstelle eine Liste aller Stichwörter zum Suchen
+    search_terms = [term for sublist in study_types.values() for term in sublist]
     
-    return
-"""
+    # Kombiniere die Stichwörter zu einem einzigen regulären Ausdruck
+    study_type_pattern = re.compile(r'\b(?:' + '|'.join(study_types) + r')\b', re.IGNORECASE)
+
+    for line in lines:
+        match = study_type_pattern.search(line)
+        if match:
+            study_type = match.group(0).lower()
+            return study_type
+
+    return None
+
 
 def find_drought_quantification(lines, pdf_file):
     """
     Sucht nach bestimmten Begriffen, die sich auf die Quantifizierung von Dürren beziehen, und gibt die relevanten Zeilen zurück.
-    Hierbei wird in jeder PDF ein mal nach jedem Begriff gesucht und dann, wenn er ein- oder keinmal vorgekommen ist wird der nächste Begriff gesucht usw..
+    Hierbei wird in jeder PDF ein mal nach jedem Begriff gesucht und dann, wenn er ein- oder keinmal vorgekommen ist, wird der nächste Begriff gesucht usw....
     https://www.w3schools.com/python/python_regex.asp
 
     Args:
@@ -306,19 +324,15 @@ def find_drought_quantification(lines, pdf_file):
 
     # Hier wird jede Zeile einer PDF nach den Begriffen in der "keywords" Liste durchsucht
     for keyword in keywords:
-        keyword_found = False
         for i, line in enumerate(lines):
+            # re.escape um sicherzustellen, dass alle Sonderzeichen als Literale behandelt werden und keine Regex-Metazeichen
             if re.search(r'\b' + re.escape(keyword) + r'\b', line):
                 # Wurde ein Begriff gefunden, wird er zu "drought_quantification_keywords" hinzugefügt
                 drought_quantification_keywords.append(keyword)
                 # und die Zeile, in welche der Begriff gefunden wurde und die darauffolgenden drei werden gespeichert
                 context_lines = lines[max(0, i - 1):i + 3]
                 drought_lines.append(" | ".join(context_lines).strip())
-                keyword_found = True
                 break
-        if keyword_found:
-            # Logging Ausgabe, wenn ein Begriff gefunden wurde, dass und welcher Begriff in einer PDF durch den obigen code gefunden wurde
-            logging.info(f"Drought was quantified via: '{keyword}' in '{pdf_file}'")
 
     if drought_lines:
         # Die relevanten Zeilen werden zu einem einzigen String zusammengefügt, wobei jede Zeile durch " | " getrennt ist.
@@ -426,6 +440,45 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
 
     return results
 
+def logging_extraction_results(pdf_file, coordinates, study_site, drought_quantified, study_type):
+    """
+    Diese Funktion protokolliert die Ergebnisse der Extraktion in einer bestimmten Reihenfolge.
+
+    Args:
+        pdf_file (str): Der Dateiname der PDF.
+        coordinates (str): Gefundene Koordinaten oder 'Keine Koordinaten gefunden'.
+        study_site (str): Gefundene Studienregion oder 'Keine Studienregion gefunden'.
+        drought_quantified (list): Eine Liste der gefundenen Schlüsselwörter zur Dürre-Quantifizierung.
+        study_type (str): Der Studientyp, falls gefunden, sonst None.
+
+    Returns:
+        None
+    """
+    logging.info(f"Processing '{pdf_file}:'")
+
+    if coordinates != 'Keine Koordinaten gefunden':
+        logging.info(f"Coordinates found: '{coordinates}'")
+    else:
+        logging.info(f"No coordinates found")
+
+    if study_site != '':
+        logging.info(f"Study site found: '{study_site}'")
+    else:
+        logging.info(f"No study site found")
+
+    if drought_quantified:
+        logging.info(f"Drought quantified via: '{', '.join(drought_quantified)}'")
+    else:
+        logging.info(f"No drought quantification found")
+
+    if study_type:
+        logging.info(f"Study type: '{study_type}'")
+    else:
+        logging.info(f"No study type found")
+
+    # Füge eine Leerzeile hinzu, um die Ausgabe zu trennen
+    logging.info("")
+
 def process_extraction_results(pdf_basename, final_coordinates, lines_with_coordinates, lines, pdf_file, results):
     """
     Verarbeitet die extrahierten Ergebnisse und speichert sie in der Ergebnisliste.
@@ -445,15 +498,26 @@ def process_extraction_results(pdf_basename, final_coordinates, lines_with_coord
     # Ausführen der Hilfsfunktion zum Herausfinden, wie Dürre definiert wurde
     drought_quantified, drought_quantification_keywords = find_drought_quantification(lines, pdf_file)
 
-    #TO-DO: Alle 3 neuen Werte mit Hilfsfunktionen extrahieren und zu result.append hinzufügen sowie in main.py zur print überprüfung
+
+
+    #TO-DO: Die 2 neuen Werte mit Hilfsfunktionen extrahieren und zu result.append hinzufügen sowie in main.py zur print überprüfung
     #years_with_drought = find_years_with_drought(lines)
     #analyzed_years = find_analyzed_years(lines)
-    #study_type = find_study_type(lines)
 
+    # Ausführen der Hilfsfunktion zum Herausfinden des Studientyps
+    study_type = find_study_type(lines, pdf_file)
+
+    coordinates_found = bool(final_coordinates)
+    study_site_found = bool(lines_with_coordinates)
+
+    coordinates_str = ', '.join(final_coordinates) if coordinates_found else 'Keine Koordinaten gefunden'
+    study_site_str = '; '.join(lines_with_coordinates) if study_site_found else ''
+
+    logging_extraction_results(pdf_file, coordinates_str, study_site_str, drought_quantification_keywords, study_type)
 
     # Speichere die Ergebnisse bei gefundenen validen Koordinaten (Name des Papers, die validen Koordinaten, die Kontextzeilen von gefundenen Koordinaten und wie Dürre definiert wurde)
     if final_coordinates:
-        results.append((pdf_basename, ', '.join(final_coordinates), '; '.join(lines_with_coordinates), drought_quantified, drought_quantification_keywords))
+        results.append((pdf_basename, ', '.join(final_coordinates), '; '.join(lines_with_coordinates), drought_quantified, drought_quantification_keywords, study_type))
     # Speichere die Ergebnisse, wenn keine validen Koordinaten gefunden wurden
     else:
         # Aufrufen der Hilfsfunktion "find_study_site(lines)" um die Bereiche der Studien zu finden, in welcher sie durchgeführt wurden
@@ -462,9 +526,7 @@ def process_extraction_results(pdf_basename, final_coordinates, lines_with_coord
         # so bereinigt, dass es mit openpyxl weiterverarbeitet werden kann und die Ergebnisse gespeichert.
         if study_site_context:
             cleaned_lines_with_coordinates = remove_illegal_characters(study_site_context)
-            results.append((pdf_basename, 'Keine Koordinaten gefunden', cleaned_lines_with_coordinates, drought_quantified, drought_quantification_keywords))
-            logging.info(f"Study site found in '{pdf_file}' but no valid coordinates")
+            results.append((pdf_basename, 'Keine Koordinaten gefunden', cleaned_lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type))
         # Wenn nichts von der Hilfsfunktion "find_study_site(lines)" gefunden wurde, wird dies als Ergebnis festgehalten und als Logging Information ausgegeben
         else:
-            results.append((pdf_basename, 'Keine Koordinaten gefunden', '', drought_quantified, drought_quantification_keywords))
-            logging.info(f"No coordinates or study site found in '{pdf_file}'")
+            results.append((pdf_basename, 'Keine Koordinaten gefunden', '', drought_quantified, drought_quantification_keywords, study_type))

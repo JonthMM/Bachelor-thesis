@@ -78,14 +78,16 @@ extracted_data = extract_coordinates_from_pdfs_in_folder(folder_path)
 # Aktualisiere die Excel-Datei mit den extrahierten Daten
 update_excel_with_extracted_data(excel_path, extracted_data)
 
-#TO-DO: Die 3 neuen Informationen years_with_drought,analyzed_years und study_type hinzufügen
+#TO-DO: Die 2 neuen Informationen years_with_drought,analyzed_years
 # Ausgabe der extrahierten Informationen im Terminal zur Überprüfung
-for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, found_keywords) in enumerate(extracted_data):
+for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, found_keywords, study_type) in enumerate(extracted_data):
     print(f"Paper: '{pdf_basename}'")
     print(f"Location coordinates: {coordinates}")
     print(f"Vorkommende Zeilen im Text: '{lines_with_coordinates}'")
     print(f"Dürre quantifiziert: '{drought_quantified}'")
     if found_keywords:
         print(f"Dürre quantifiziert: '{found_keywords}'")
+    if study_type:
+        print(f"Studientyp: '{study_type}'")
     if i != len(extracted_data) - 1:
         print()

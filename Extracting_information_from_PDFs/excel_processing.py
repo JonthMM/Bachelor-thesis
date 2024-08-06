@@ -58,7 +58,7 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
     start_row = find_first_empty_row(worksheet, [2, 6, 10])
 
     # Trage die aus den PDFs extrahierten Informationen in die Excel-Datei ein
-    for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, drought_quantification_keywords) in enumerate(extracted_data):
+    for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type) in enumerate(extracted_data):
         worksheet.cell(row=start_row + i, column=1, value=pdf_basename)
 
         # Kopiere, falls vorhanden, die Koordinaten immer in Spalte C (location coordinates)
@@ -78,6 +78,10 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
         # Kopiere, falls ein Schlüsselwort zur Definition von Dürre gefunden wurden die Information darüber wie, immer in Spalte J (how was drought quantified)
         if drought_quantified:
             worksheet.cell(row=start_row + i, column=10, value=remove_illegal_characters(drought_quantified))
+
+        # Kopiere, falls ein Schlüsselwort zum Studientyp gefunden wurde, kopiere den Wert immer in Spalte H (study type)
+        if study_type:
+            worksheet.cell(row=start_row + i, column=8, value=study_type)
 
     # Speichere die durchgeführten Änderungen in der Excel-Datei
     workbook.save(excel_path)
