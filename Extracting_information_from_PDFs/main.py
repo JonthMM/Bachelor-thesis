@@ -85,9 +85,8 @@ for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, f
     print(f"Location coordinates: {coordinates}")
     print(f"Vorkommende Zeilen im Text: '{lines_with_coordinates}'")
     print(f"Dürre quantifiziert: '{drought_quantified}'")
+    print(f"Studientyp: '{study_type}'")
     if found_keywords:
         print(f"Dürre quantifiziert: '{found_keywords}'")
-    if study_type:
-        print(f"Studientyp: '{study_type}'")
     if i != len(extracted_data) - 1:
         print()
