@@ -238,7 +238,7 @@ def find_study_site(lines):
                 or re.search(r'\bstudy region\b', line, re.IGNORECASE)
                 or re.search(r'\bBioregional  description\b', line, re.IGNORECASE)
                 or re.search(r'\bStudy landscapes\b', line, re.IGNORECASE)
-                or re.search(r'\bSite description\b', line, re.IGNORECASE)
+                or re.search(r'\bsite description\b', line, re.IGNORECASE)
         ):
             # Kontextzeilen (also die Zeile, in welcher der Fund ist und die darauffolgenden 4) speichern
             context_lines = lines[i:i + 4]
@@ -440,49 +440,57 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
 
     return results
 
-def logging_extraction_results(pdf_file, coordinates, study_site, drought_quantified, study_type):
+def logging_extraction_results(pdf_basename, coordinates, study_site_lines, study_site_context, drought_quantified, study_type):
     """
-    Diese Funktion protokolliert die Ergebnisse der Extraktion in einer bestimmten Reihenfolge.
+    Diese Funktion protokolliert die Ergebnisse der Extraktion in einer sinnvollen Reihenfolge übersichtlich und loggt sie entsprechend.
 
     Args:
-        pdf_file (str): Der Dateiname der PDF.
+        pdf_basename (str): Der bereinigte Dateiname der PDF.
         coordinates (str): Gefundene Koordinaten oder 'Keine Koordinaten gefunden'.
-        study_site (str): Gefundene Studienregion oder 'Keine Studienregion gefunden'.
+        study_site_lines (str): Gefundene Studienregion basierend auf Kontextzeilen oder 'Keine Studienregion gefunden'.
+        study_site_context (str): Gefundene Studienregion basierend auf dem Kontext oder 'Keine Studienregion gefunden'.
         drought_quantified (list): Eine Liste der gefundenen Schlüsselwörter zur Dürre-Quantifizierung.
         study_type (str): Der Studientyp, falls gefunden, sonst None.
 
     Returns:
         None
     """
-    logging.info(f"Processing '{pdf_file}:'")
+    # Logging des Artikelnamens um sicherzugehen um welchen wissenschaftlichen Artikel es sich handelt
+    logging.info(f"Processing '{pdf_basename}:'")
 
+    # Logging ob und wenn ja welche Koordinaten gefunden wurden
     if coordinates != 'Keine Koordinaten gefunden':
         logging.info(f"Coordinates found: '{coordinates}'")
     else:
         logging.info(f"No coordinates found")
 
-    if study_site != '':
-        logging.info(f"Study site found: '{study_site}'")
+    # Logging von entweder den gefundenen Studienregionen basierend auf Kontextzeilen oder den durch die Funktion "find_study_site" gefunden Zeilen
+    if study_site_lines != 'Keine Studienregion gefunden':
+        logging.info(f"Study site found: '{study_site_lines}'")
+    elif study_site_context != 'Keine Studienregion gefunden':
+        logging.info(f"Study site found: '{study_site_context}'")
     else:
         logging.info(f"No study site found")
 
+    # Logging ob und wie Dürre definiert wurde
     if drought_quantified:
         logging.info(f"Drought quantified via: '{', '.join(drought_quantified)}'")
     else:
         logging.info(f"No drought quantification found")
 
+    # Logging ob und wenn welchen Studientypen ein Arikel hat
     if study_type:
         logging.info(f"Study type: '{study_type}'")
     else:
         logging.info(f"No study type found")
 
-    # Füge eine Leerzeile hinzu, um die Ausgabe zu trennen
+    #Logging einer Leerzeile zur Trennung zweier PDFs für einen besseren Überblick
     logging.info("")
 
 def process_extraction_results(pdf_basename, final_coordinates, lines_with_coordinates, lines, pdf_file, results):
     """
     Verarbeitet die extrahierten Ergebnisse und speichert sie in der Ergebnisliste.
-    Erleichtert das hinzufügen von weiteren extrahierten Informationen deutlich
+    Erleichtert das Hinzufügen von weiteren extrahierten Informationen deutlich
 
     Args:
         pdf_basename (str): Basisname der PDF-Datei für "Paper".
@@ -505,13 +513,26 @@ def process_extraction_results(pdf_basename, final_coordinates, lines_with_coord
     # Ausführen der Hilfsfunktion zum Herausfinden des Studientyps
     study_type = find_study_type(lines, pdf_file)
 
+    # Überprüfen, ob Koordinaten und oder Study Areas gefunden wurden
     coordinates_found = bool(final_coordinates)
-    study_site_found = bool(lines_with_coordinates)
+    study_site_lines_found  = bool(lines_with_coordinates)
 
+    # Wenn gültige Koordinaten gefunden wurden, werden diese als String zusammengefügt,
+    # andernfalls wird 'Keine Koordinaten gefunden' gesetzt, um fürs logging zu vergleichen.
     coordinates_str = ', '.join(final_coordinates) if coordinates_found else 'Keine Koordinaten gefunden'
-    study_site_str = '; '.join(lines_with_coordinates) if study_site_found else ''
+    # Wenn Kontextzeilen mit Koordinaten gefunden wurden, werden diese als String zusammengefügt,
+    # andernfalls wird 'Keine Studienregion gefunden' gesetzt, um fürs logging zu vergleichen.
+    study_site_lines_str = '; '.join(
+        lines_with_coordinates) if study_site_lines_found else 'Keine Studienregion gefunden'
 
-    logging_extraction_results(pdf_file, coordinates_str, study_site_str, drought_quantification_keywords, study_type)
+    # Aufrufen der Hilfsfunktion "find_study_site(lines)" um die Study Area zu finden
+    study_site_context = find_study_site(lines)
+    study_site_context_str = remove_illegal_characters(
+        study_site_context) if study_site_context else 'Keine Studienregion gefunden'
+
+    # Loggt die Ergebnisse der Extraktion mithilfe der logging_extraction_results() Funktion
+    logging_extraction_results(pdf_basename, coordinates_str, study_site_lines_str, study_site_context_str,
+                               drought_quantification_keywords, study_type)
 
     # Speichere die Ergebnisse bei gefundenen validen Koordinaten (Name des Papers, die validen Koordinaten, die Kontextzeilen von gefundenen Koordinaten und wie Dürre definiert wurde)
     if final_coordinates:
