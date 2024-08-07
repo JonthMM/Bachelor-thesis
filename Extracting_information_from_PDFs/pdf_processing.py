@@ -7,6 +7,9 @@ import re
 # PDFMiner zum Extrahieren der Texte aus den PDFs
 from pdfminer.high_level import extract_text
 
+# defaultdict um Zählungen durchführen
+from collections import defaultdict
+
 # Logging zum besseren Verständnis der Ergebnisse bzw. Ausgaben
 # Hier wird dabei auf logging.info() und logging.error() zurückgegriffen:
 # https://docs.python.org/3/library/logging.html#logging.INFO
@@ -36,6 +39,7 @@ def clean_and_remove_control_characters(text):
     durch "°". um bereits (durch das Hilfsscript "find_special_characters") bekannte Sonderzeichen zu umgehen.
     https://www.w3schools.com/python/python_regex.asp
     https://www.w3schools.com/python/ref_func_ord.asp
+    https://docs.python.org/3/library/re.html#re.sub
 
     Args:
         text (str): Der Text, aus dem Steuerzeichen und bestimmte andere Zeichen entfernt werden sollen.
@@ -61,6 +65,7 @@ def find_matches(line):
     """
     Findet Koordinaten in einer gegebenen Zeile des bereinigten Textes einer PDF aus einem Ordner.
     https://www.w3schools.com/python/python_regex.asp
+    https://docs.python.org/3/library/re.html#re.findall
 
     Args:
         line (str): Eine einzelne Textzeile, in der nach Koordinatenmustern gesucht wird.
@@ -209,6 +214,8 @@ def find_study_site(lines):
     Sucht nach den bestimmten Begriffen, welche einen relevanten Eintrag in die Spalte "Area name" der Excel Tabelle darstellen und gibt die darauffolgenden vier Zeilen zurück.
     Wichtig!: Dies wird nur ausgeführt, wenn keine Koordinaten gefunden wurden!
     https://www.w3schools.com/python/python_regex.asp
+    https://docs.python.org/3/library/re.html#re.search
+    https://docs.python.org/3/library/re.html#re.IGNORECASE
 
      Args:
         lines (list): Eine Liste von Textzeilen, in der nach Schlüsselwörtern für den Bereich einer Studie gesucht wird.
@@ -245,12 +252,27 @@ def find_study_site(lines):
             return " | ".join(context_lines).strip()
     return None
 
+
+
 """
+def find_forest_types(lines):
+
+    Erklärung
+    Für "ecosystem type" in excel
+    Args:
+        
+
+    Returns:
+    
+    "forest types" suchen und dann context lines
+    
+    return 
+
 def find_analyzed_years(lines):
     
     Erklärung
-
-     Args:
+    FDr "time period analyzed" in excel
+    Args:
         
 
     Returns:
@@ -261,8 +283,8 @@ def find_analyzed_years(lines):
 def find_years_with_drought(lines):
     
     Erklärung
-
-     Args:
+    Für "time period with drought (if mentioned)" in excel
+    Args:
         
 
     Returns:
@@ -270,36 +292,50 @@ def find_years_with_drought(lines):
     
     return 
 """
-def find_study_type(lines, pdf_file):
+
+
+def find_study_type(lines, pdf_file, threshold=10):
     """
-    Erklärung
+    Diese Funktion durchsucht die Zeilen eines Textes nach Schlüsselwörtern,
+    die auf verschiedene Studientypen hinweisen, und gibt eine Liste aller
+    gefundenen Studientypen zurück, die eine bestimmte Häufigkeit überschreiten.
+    https://stackoverflow.com/questions/52862907/checking-if-a-value-in-a-python-dictionary-is-below-a-threshold-in-order-to-incr
+    https://docs.python.org/3/library/re.html#re.compile
+    https://docs.python.org/3/library/re.html#re.escape
+    https://docs.python.org/3/library/re.html#re.IGNORECASE
 
     Args:
-        
+        lines (list): Eine Liste von Textzeilen, in der nach Schlüsselwörtern für den Studientyp gesucht wird
+        pdf_file (str): Der Name der PDF-Datei (zur Dokumentation).
+        threshold (int): Der Schwellenwert für die Häufigkeit von Stichwörtern, um eine Kategorie zuzuordnen.
 
     Returns:
-
+        list of str: Eine Liste der gefundenen Studientypen, die den angegebenen Schwellenwert überschreiten.
     """
+
     study_types = {
-        'observational': ['observational', 'observed'],
-        'experimental': ['experimental', 'experimentally'],
-        'modeling': ['model', 'modeling']
+        'observational': ['observational', 'observed', 'field study', 'observation', 'monitoring', 'survey', 'data collection'],
+        'experimental': ['experimental', 'experimentally', 'experiment', 'treatment', 'controlled', 'variable', 'manipulation'],
+        'modeling': ['model', 'modeling', 'simulation', 'algorithm', 'predictive']
     }
 
     # Erstelle eine Liste aller Stichwörter zum Suchen
     search_terms = [term for sublist in study_types.values() for term in sublist]
     
     # Kombiniere die Stichwörter zu einem einzigen regulären Ausdruck
-    study_type_pattern = re.compile(r'\b(?:' + '|'.join(study_types) + r')\b', re.IGNORECASE)
+    study_type_pattern = {key: re.compile(r'\b(?:' + '|'.join(map(re.escape, terms)) + r')\b', re.IGNORECASE)
+                    for key, terms in study_types.items()}
 
+    # Zähle die Vorkommen der Stichwörter in den Zeilen des Textes
+    scores = defaultdict(int)
     for line in lines:
-        match = study_type_pattern.search(line)
-        if match:
-            study_type = match.group(0).lower()
-            return study_type
+        for study_type, pattern in study_type_pattern.items():
+            scores[study_type] += len(pattern.findall(line))
 
-    return None
+    # Bestimme die Kategorien, deren Scores über dem Schwellenwert liegen
+    relevant_categories = [category for category, score in scores.items() if score >= threshold]
 
+    return relevant_categories
 
 def find_drought_quantification(lines, pdf_file):
     """
@@ -308,7 +344,7 @@ def find_drought_quantification(lines, pdf_file):
     https://www.w3schools.com/python/python_regex.asp
 
     Args:
-        lines (list): Die Textzeilen einer PDF.
+        lines (list): Eine Liste von Textzeilen, in der nach Schlüsselwörtern für die quantifizierung von Dürre gesucht wird
         pdf_file (str): Der Dateiname der PDF, aus der die Zeilen stammen.
 
     Returns:
@@ -316,7 +352,7 @@ def find_drought_quantification(lines, pdf_file):
     """
 
     # Die zu suchenden Begriffe werden in dieser Liste gespeichert:
-    keywords = ['PET', 'SPI', 'SPEI', 'PDSI', 'low soil moisture', 'soil water content', 'VPD', 'reduced rainfall', 'plant water stress', 'drought']
+    keywords = ['PET', 'SPI', 'SPEI', 'PDSI', 'low soil moisture', 'soil water content', 'VPD', 'reduced rainfall', 'low precipitation', 'plant water stress', 'drought', 'dry season', 'dry period']
     # Diese Liste soll später alle relevanten Zeilen, also diese wo ein Keyword drin steckt plus 3 Zeilen danach speichern
     drought_lines = []
     # Diese Liste speichert alle gefundenen Begriffe einer PDF aus der "keywords" Liste
@@ -350,6 +386,8 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
     https://docs.python.org/3/library/os.html#os.listdir
     https://docs.python.org/3/library/os.path.html#module-os.path
     https://www.w3schools.com/python/python_regex.asp
+    https://docs.python.org/3/library/re.html#re.split
+    https://docs.python.org/3/library/re.html#re.match
 
     Args:
         folder_path (str): Pfad zum Ordner, der die PDF-Dateien enthält.

@@ -81,7 +81,9 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
 
         # Kopiere, falls ein Schlüsselwort zum Studientyp gefunden wurde, kopiere den Wert immer in Spalte H (study type)
         if study_type:
-            worksheet.cell(row=start_row + i, column=8, value=study_type)
+            # Konvertiere die Liste der Studientypen in eine Zeichenkette
+            study_type_str = ', '.join(study_type)
+            worksheet.cell(row=start_row + i, column=8, value=study_type_str)
 
     # Speichere die durchgeführten Änderungen in der Excel-Datei
     workbook.save(excel_path)

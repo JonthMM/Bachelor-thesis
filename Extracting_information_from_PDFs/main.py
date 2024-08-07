@@ -67,7 +67,7 @@ Done:
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Pfad zum Ordner mit den PDF-Dateien
-folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\151-169'
+folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\50-75'
 
 # Pfad zur Excel-Datei
 excel_path = r'D:\Uni\Bachelorarbeit/2024Apr_Mana_Review_v2i - Kopie.xlsx'
@@ -82,10 +82,10 @@ update_excel_with_extracted_data(excel_path, extracted_data)
 # Ausgabe der extrahierten Informationen im Terminal zur Überprüfung
 for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, found_keywords, study_type) in enumerate(extracted_data):
     print(f"Paper: '{pdf_basename}'")
+    print(f"Studientyp: '{study_type}'")
     print(f"Location coordinates: {coordinates}")
     print(f"Vorkommende Zeilen im Text: '{lines_with_coordinates}'")
     print(f"Dürre quantifiziert: '{drought_quantified}'")
-    print(f"Studientyp: '{study_type}'")
     if found_keywords:
         print(f"Dürre quantifiziert: '{found_keywords}'")
     if i != len(extracted_data) - 1:
