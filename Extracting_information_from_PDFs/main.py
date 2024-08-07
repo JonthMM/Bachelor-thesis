@@ -6,13 +6,16 @@ from excel_processing import update_excel_with_extracted_data
 
 """ 
 To DO:
-1. "Study Type" als Suchoption ergänzen: "Experimental", "Observational" oder "modeling"
 
-2. "How was drought quantified" Als suchoption hinzufügen: PET, SPI, SPEI, PDSI, precipitation usw. als Schlüsselwörter + Zeilen davor und danach - in Bearbeitung, läuft schon ist aber Ausbaufähig
+1. "Study Type" als Suche ergänzen: "Experimental", "Observational" oder "modeling" - fertig muss nur noch optimiert werden in Zukunft
+
+2. "How was drought quantified" Als suchoption hinzufügen: PET, SPI, SPEI, PDSI, precipitation usw. als Schlüsselwörter + Zeilen davor und danach - fertig muss nur noch optimiert werden in Zukunft
 
 3. "time period with drought (if mentioned)" und "time period analyzed" als Suchoption ergänzen (wahrscheinlich eingeschränkt als (Jahr-Jahr) such-pattern, wird nicht alles finden aber immerhin keine redundanzen durch Spezialisierung
 
-4. Experimentell oder field study (observational) als Suche zur Extraktion hinzufügen für Charts
+4. Forest type für "ecosystem type" als Suche ergänzen
+
+5. Alle extrahierten Informationen prüfen im Vergleich mit offener PDF, dann Tabelle entsprechend anpassen um sie morgen vorzeigen zu können
 
 
 Eventuell:
