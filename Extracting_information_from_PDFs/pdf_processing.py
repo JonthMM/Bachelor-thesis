@@ -253,49 +253,232 @@ def find_study_site(lines):
     return None
 
 
-
-"""
 def find_forest_types(lines):
+    """
+    DISCLAIMER: Nicht zu 100% zuverlässig
+    Sucht nach bestimmten Begriffen, die auf Waldtypen hinweisen, und gibt die relevanten Zeilen zurück.
+    https://www.w3schools.com/python/python_regex.asp
+    https://docs.python.org/3/library/re.html#re.search
+    https://docs.python.org/3/library/re.html#re.IGNORECASE
 
-    Erklärung
-    Für "ecosystem type" in excel
     Args:
-        
+        lines (list): Eine Liste von Textzeilen, in der nach Schlüsselwörtern für Waldtypen gesucht wird.
 
     Returns:
-    
-    "forest types" suchen und dann context lines
-    
-    return 
+        str or None: Ein String, der den Kontext der gefundenen Waldtypen enthält, oder None, falls keine gefunden wurden.
+    """
+    # Iteriert über alle Zeilen des Textes einer PDf, falls ein Schlüsselwort gefunden wurde, wird diese Zeile
+    # und die darauffolgenden 3 Zeilen gespeichert und zu den Zeilen, welche Aufschluss über die untersuchte Waldart geben angehangen.
+    for i, line in enumerate(lines):
+        # Überprüfung auf alle gesuchten Schlüsselwörter, groß- und kleinschreibung wird hierbei ignoriert
+        if (re.search(r'\bSpecies studied\b', line, re.IGNORECASE)
+                or re.search(r'\bforest type\b', line, re.IGNORECASE)
+                or re.search(r'\bforest types\b', line, re.IGNORECASE)
+        # Weitere hinzufügen und generell verlässlicher machen
+        ):
+            # Kontextzeilen (also die Zeile, in welcher der Fund ist und die darauffolgenden 4) speichern
+            ecosystem_context_lines = lines[i:i + 4]
+            return " | ".join(ecosystem_context_lines).strip()
+    return None
+
 
 def find_analyzed_years(lines):
-    
-    Erklärung
-    FDr "time period analyzed" in excel
-    Args:
-        
-
-    Returns:
-        str or None: 
-    
-    return 
-    
-def find_years_with_drought(lines):
-    
-    Erklärung
-    Für "time period with drought (if mentioned)" in excel
-    Args:
-        
-
-    Returns:
-        str or None: 
-    
-    return 
-"""
-
-
-def find_study_type(lines, pdf_file, threshold=10):
     """
+    Extrahiert untersuchte Zeiträume aus den gegebenen Textzeilen.
+    https://www.w3schools.com/python/python_regex.asp
+    https://docs.python.org/3/library/re.html#re.search
+    https://docs.python.org/3/library/re.html#re.IGNORECASE
+
+    Args:
+        lines (list of str): Zeilen von Text aus dem PDF-Dokument.
+
+    Returns:
+        str oder None: Sortierte Liste der extrahierten Zeiträume, falls gefunden, sonst None.
+    """
+    # Definiere reguläre Ausdrücke für die Erfassung von Zeiträumen
+    time_period_patterns = [
+        # Erfasst Muster wie '1980-1990' mit drei verschiedenen Bindestrichen
+        r'\b(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\b',
+
+        # Erfasst Muster wie '(1980-1990)' mit drei verschiedenen Bindestrichen
+        r'\((19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\)',
+
+        # Erfasst 'from 1980 to 1990'
+        r'from (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) to (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
+
+        # Erfasst 'between 1980 and 1990'
+        r'between (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) and (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
+
+        # Erfasst '1980s'
+        r'\b(19|20)\d{2}s\b',
+
+        # Erfasst Muster wie '1980-85'
+        r'\b(19|20\d{2})\s*[-–−]\s*(\d{2})\b',
+
+        # Erfasst 'over a 180-day period'
+        r'over a (\d+)-day period'
+    ]
+
+    # Liste zum Speichern der gefundenen Zeiträume
+    found_periods = []
+
+    # Iteriere durch jede Zeile und suche nach Zeitraum-Mustern
+    for line in lines:
+        for pattern in time_period_patterns:
+            matches = re.findall(pattern, line)
+            for match in matches:
+                if isinstance(match, tuple):
+                    if len(match) == 2 and len(match[1]) == 2:
+                        # Jahr-Jahr-Muster wie '1980-85'
+                        period = f"{match[0]}-{match[0][:2]}{match[1]}"
+                    else:
+                        # Standard-Zeitraum-Muster wie '1980-1990'
+                        period = f"{match[0]}-{match[2]}"
+                else:
+                    period = match
+
+                # Überprüfe, ob das gefundene Muster gültig ist (vermeide Einträge wie '19-1926', '19', '20')
+                if re.match(r'^(19|20)\d{2}[-–−](19|20)\d{2}$', period) or re.match(r'^(19|20)\d{2}s$',
+                                                                                    period) or re.match(
+                        r'^over a \d+-day period$', period):
+                    if period not in found_periods:
+                        found_periods.append(period)
+
+    return sorted(found_periods)
+
+
+def find_years_with_drought(lines):
+    """
+    DISCLAIMER: Nicht zu 100% zuverlässig
+    Diese Funktion extrahiert die Jahre und Zeitspannen von Dürreperioden aus den gegebenen Textzeilen.
+    https://www.w3schools.com/python/ref_func_isinstance.asp
+    https://docs.python.org/3/library/re.html#re.IGNORECASE
+    https://docs.python.org/3/library/re.html#re.compile
+    https://docs.python.org/3/library/re.html#re.findall
+
+    Args:
+        lines (list of str): Zeilen von Text aus dem PDF-Dokument.
+
+    Returns:
+        list: Sortierte Liste der extrahierten Zeiträume oder Jahre, in denen Dürre vorkam, falls gefunden, sonst eine leere Liste.
+    """
+    # Definiere reguläre Ausdrücke für die Erfassung von Zeiträumen
+    drought_years_patterns = [
+        # Erfasst Muster wie '1980-1990' mit drei verschiedenen Bindestrichen
+        r'\b(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\b',
+
+        # Erfasst Muster wie '(1980-1990)' mit drei verschiedenen Bindestrichen
+        r'\((19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\)',
+
+        # Erfasst 'from 1980 to 1990'
+        r'from (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) to (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
+
+        # Erfasst 'between 1980 and 1990'
+        r'between (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) and (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
+
+        # Erfasst '1980s'
+        r'\b(19|20)\d{2}s\b',
+
+        # Erfasst Muster wie '1980-85'
+        r'\b(19|20\d{2})\s*[-–−]\s*(\d{2})\b',
+
+        # Erfasst alle Zahlen von 1900 bis 1999
+        r'\b(19\d{2})(?!\))\b'
+        
+        # Erfasst alle Zahlen von 1900 bis 2024
+        r'\b20(0[0-9]|1[0-9]|2[0-4])(?!\))\b'
+
+        # Erfasst 'over a 180-day period'
+        r'over a (\d+)-day period'
+    ]
+
+    # Definiere ein Muster für das Schlüsselwort "drought"
+    drought_pattern = re.compile(r'\bdrought\b', re.IGNORECASE)
+
+    # Liste zum Speichern der gefundenen Zeiträume
+    drought_years = []
+
+    # Iteriere durch jede Zeile und suche nach Zeitraum-Mustern
+    for line in lines:
+        # Überprüfe, ob das Wort "drought" in der Zeile vorhanden ist
+        if drought_pattern.search(line):
+            for pattern in drought_years_patterns:
+                matches = re.findall(pattern, line)
+                for match in matches:
+                    if isinstance(match, tuple):
+                        if len(match) == 2 and len(match[1]) == 2:
+                            # Jahr-Jahr-Muster wie '1980-85'
+                            period = f"{match[0]}-{match[0][:2]}{match[1]}"
+                        else:
+                            # Standard-Zeitraum-Muster wie '1980-1990'
+                            period = f"{match[0]}-{match[2]}"
+                    else:
+                        period = match
+
+                    # Überprüfe, ob das gefundene Muster gültig ist
+                    if re.match(r'^(19|20)\d{2}[-–−](19|20)\d{2}$', period) or re.match(r'^(19|20)\d{2}s$', period) or re.match(r'^over a \d+-day period$', period):
+                        if period not in drought_years:
+                            drought_years.append(period)
+
+    return sorted(drought_years)
+
+def find_study_type(lines, pdf_file):
+    """
+    DISCLAIMER: Nicht zu 100% zuverlässig
+    Diese Funktion durchsucht die Zeilen eines Textes nach Schlüsselwörtern,
+    die auf verschiedene Studientypen hinweisen, und gibt den Studientyp zurück,
+    der die höchste Häufigkeit von Stichwörtern aufweist.
+    https://stackoverflow.com/questions/52862907/checking-if-a-value-in-a-python-dictionary-is-below-a-threshold-in-order-to-incr
+    https://docs.python.org/3/library/re.html#re.compile
+    https://docs.python.org/3/library/re.html#re.escape
+    https://docs.python.org/3/library/re.html#re.IGNORECASE
+
+    Args:
+        lines (list): Eine Liste von Textzeilen, in der nach Schlüsselwörtern für den Studientyp gesucht wird.
+        pdf_file (str): Der Name der PDF-Datei (zur Dokumentation).
+
+    Returns:
+        str: Der Studientyp, der den höchsten Score aufweist oder 'Unknown', wenn keiner eindeutig dominiert.
+    """
+
+    study_types = {
+        'observational': ['field campaigns','field campaign', 'observational', 'observed', 'field study', 'observation', 'monitoring', 'survey', 'data collection',
+                          'cohort study', 'case-control study', 'epidemiological study', 'prospective study', 'retrospective study',
+                          'ecological study', 'correlational study'],
+        'experimental': ['experimental', 'experimentally', 'experiment', 'treatment', 'controlled', 'variable', 'manipulation',
+                         'randomized controlled trial', 'placebo-controlled', 'clinical trial', 'randomized', 'intervention',
+                         'controlled study', 'experimental design', 'field experiment', 'laboratory experiment'],
+        'modeling': ['model', 'modeling', 'simulation', 'algorithm', 'predictive', 'statistical model', 'computational model',
+                     'modeling approach', 'scenario analysis', 'projection', 'machine learning', 'data-driven model',
+                     'predictive analytics', 'Monte Carlo', 'agent-based model', 'dynamic model']
+    }
+
+    # Erstelle reguläre Ausdrücke für die Stichwörter jedes Studientyps
+    study_type_pattern = {key: re.compile(r'\b(?:' + '|'.join(map(re.escape, terms)) + r')\b', re.IGNORECASE)
+                          for key, terms in study_types.items()}
+
+    # Zähle die Vorkommen der Stichwörter in den Zeilen des Textes
+    scores = {key: 0 for key in study_types}
+    for line in lines:
+        for study_type, pattern in study_type_pattern.items():
+            scores[study_type] += len(pattern.findall(line))
+
+    # Bestimme die Kategorie mit dem höchsten Score
+    best_fit_study_type = max(scores, key=scores.get)
+    max_score = scores[best_fit_study_type]
+
+    # Bestimme den zweithöchsten Score
+    second_best_fit_study_type = sorted(scores, key=scores.get, reverse=True)[1]
+    second_max_score = scores[second_best_fit_study_type]
+
+    if max_score == 0 or max_score == second_max_score:
+        return 'Unknown'
+
+    return best_fit_study_type
+
+""" Alte find_study_type Funktion mit defaultdict als Kriterium
+def find_study_type(lines, pdf_file, threshold=10):
+    DISCLAIMER: Alter Ansatz mit defaultdict als Gewichtung
     Diese Funktion durchsucht die Zeilen eines Textes nach Schlüsselwörtern,
     die auf verschiedene Studientypen hinweisen, und gibt eine Liste aller
     gefundenen Studientypen zurück, die eine bestimmte Häufigkeit überschreiten.
@@ -311,7 +494,7 @@ def find_study_type(lines, pdf_file, threshold=10):
 
     Returns:
         list of str: Eine Liste der gefundenen Studientypen, die den angegebenen Schwellenwert überschreiten.
-    """
+    
 
     study_types = {
         'observational': ['observational', 'observed', 'field study', 'observation', 'monitoring', 'survey', 'data collection'],
@@ -336,7 +519,7 @@ def find_study_type(lines, pdf_file, threshold=10):
     relevant_categories = [category for category, score in scores.items() if score >= threshold]
 
     return relevant_categories
-
+"""
 def find_drought_quantification(lines, pdf_file):
     """
     Sucht nach bestimmten Begriffen, die sich auf die Quantifizierung von Dürren beziehen, und gibt die relevanten Zeilen zurück.
@@ -478,7 +661,7 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
 
     return results
 
-def logging_extraction_results(pdf_basename, coordinates, study_site_lines, study_site_context, drought_quantified, study_type):
+def logging_extraction_results(pdf_basename, coordinates, study_site_lines, study_site_context, drought_quantified, study_type, forest_type, analyzed_years, drought_years):
     """
     Diese Funktion protokolliert die Ergebnisse der Extraktion in einer sinnvollen Reihenfolge übersichtlich und loggt sie entsprechend.
 
@@ -489,6 +672,8 @@ def logging_extraction_results(pdf_basename, coordinates, study_site_lines, stud
         study_site_context (str): Gefundene Studienregion basierend auf dem Kontext oder 'Keine Studienregion gefunden'.
         drought_quantified (list): Eine Liste der gefundenen Schlüsselwörter zur Dürre-Quantifizierung.
         study_type (str): Der Studientyp, falls gefunden, sonst None.
+        forest_type (str): Die Waldart bzw. Baumart, falls gefunden, sonst None
+        analyzed_years (str): Die untersuchten Jahre, falls gefunden, sonst None
 
     Returns:
         None
@@ -500,7 +685,7 @@ def logging_extraction_results(pdf_basename, coordinates, study_site_lines, stud
     if coordinates != 'Keine Koordinaten gefunden':
         logging.info(f"Coordinates found: '{coordinates}'")
     else:
-        logging.info(f"No coordinates found")
+        logging.info(f"No coordinates found/given")
 
     # Logging von entweder den gefundenen Studienregionen basierend auf Kontextzeilen oder den durch die Funktion "find_study_site" gefunden Zeilen
     if study_site_lines != 'Keine Studienregion gefunden':
@@ -508,19 +693,37 @@ def logging_extraction_results(pdf_basename, coordinates, study_site_lines, stud
     elif study_site_context != 'Keine Studienregion gefunden':
         logging.info(f"Study site found: '{study_site_context}'")
     else:
-        logging.info(f"No study site found")
+        logging.info(f"No study site found/given")
 
     # Logging ob und wie Dürre definiert wurde
     if drought_quantified:
         logging.info(f"Drought quantified via: '{', '.join(drought_quantified)}'")
     else:
-        logging.info(f"No drought quantification found")
+        logging.info(f"No drought quantification found/given")
 
-    # Logging ob und wenn welchen Studientypen ein Arikel hat
+    # Logging ob und wenn welchen Studientypen ein Artikel hat
     if study_type:
         logging.info(f"Study type: '{study_type}'")
     else:
-        logging.info(f"No study type found")
+        logging.info(f"No study type found/given")
+
+    # Logging ob und wenn mit welcher Waldart bzw Baumart ein Artikel sich beschäftigt
+    if forest_type:
+        logging.info(f"Forest type: '{forest_type}'")
+    else:
+        logging.info(f"No forest type found/given")
+
+    # Logging ob und wenn mit welchen Jahren sich ein Artikel beschäftigt hat
+    if analyzed_years:
+        logging.info(f"Analyzed years: '{analyzed_years}'")
+    else:
+        logging.info(f"No Analyzed years specified")
+
+    # Logging ob und wenn welche Jahre mit dem Zustand Dürre quantifiziert wurden
+    if drought_years:
+        logging.info(f"Years were drought was quantified: '{drought_years}'")
+    else:
+        logging.info(f"No drought years found/given")
 
     #Logging einer Leerzeile zur Trennung zweier PDFs für einen besseren Überblick
     logging.info("")
@@ -551,6 +754,15 @@ def process_extraction_results(pdf_basename, final_coordinates, lines_with_coord
     # Ausführen der Hilfsfunktion zum Herausfinden des Studientyps
     study_type = find_study_type(lines, pdf_file)
 
+    # Ausführen der Hilfsfunktion zum Herausfinden der Waldtypen
+    forest_type = find_forest_types(lines)
+
+    # Ausführen der Hilfsfunktion zum Herausfinden der erforschten Jahre
+    analyzed_years = find_analyzed_years(lines)
+
+    # Ausführen der Hilfsfunktion zum Herausfinden der Jahre mit Dürre
+    drought_years = find_years_with_drought(lines)
+
     # Überprüfen, ob Koordinaten und oder Study Areas gefunden wurden
     coordinates_found = bool(final_coordinates)
     study_site_lines_found  = bool(lines_with_coordinates)
@@ -570,11 +782,11 @@ def process_extraction_results(pdf_basename, final_coordinates, lines_with_coord
 
     # Loggt die Ergebnisse der Extraktion mithilfe der logging_extraction_results() Funktion
     logging_extraction_results(pdf_basename, coordinates_str, study_site_lines_str, study_site_context_str,
-                               drought_quantification_keywords, study_type)
+                               drought_quantification_keywords, study_type, forest_type, analyzed_years, drought_years)
 
     # Speichere die Ergebnisse bei gefundenen validen Koordinaten (Name des Papers, die validen Koordinaten, die Kontextzeilen von gefundenen Koordinaten und wie Dürre definiert wurde)
     if final_coordinates:
-        results.append((pdf_basename, ', '.join(final_coordinates), '; '.join(lines_with_coordinates), drought_quantified, drought_quantification_keywords, study_type))
+        results.append((pdf_basename, ', '.join(final_coordinates), '; '.join(lines_with_coordinates), drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, drought_years))
     # Speichere die Ergebnisse, wenn keine validen Koordinaten gefunden wurden
     else:
         # Aufrufen der Hilfsfunktion "find_study_site(lines)" um die Bereiche der Studien zu finden, in welcher sie durchgeführt wurden
@@ -583,7 +795,7 @@ def process_extraction_results(pdf_basename, final_coordinates, lines_with_coord
         # so bereinigt, dass es mit openpyxl weiterverarbeitet werden kann und die Ergebnisse gespeichert.
         if study_site_context:
             cleaned_lines_with_coordinates = remove_illegal_characters(study_site_context)
-            results.append((pdf_basename, 'Keine Koordinaten gefunden', cleaned_lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type))
+            results.append((pdf_basename, 'Keine Koordinaten gefunden', cleaned_lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, drought_years))
         # Wenn nichts von der Hilfsfunktion "find_study_site(lines)" gefunden wurde, wird dies als Ergebnis festgehalten und als Logging Information ausgegeben
         else:
-            results.append((pdf_basename, 'Keine Koordinaten gefunden', '', drought_quantified, drought_quantification_keywords, study_type))
+            results.append((pdf_basename, 'Keine Koordinaten gefunden', '', drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, drought_years))

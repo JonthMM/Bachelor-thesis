@@ -58,7 +58,7 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
     start_row = find_first_empty_row(worksheet, [2, 6, 10])
 
     # Trage die aus den PDFs extrahierten Informationen in die Excel-Datei ein
-    for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type) in enumerate(extracted_data):
+    for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, drought_years) in enumerate(extracted_data):
         worksheet.cell(row=start_row + i, column=1, value=pdf_basename)
 
         # Kopiere, falls vorhanden, die Koordinaten immer in Spalte C (location coordinates)
@@ -84,6 +84,25 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
             # Konvertiere die Liste der Studientypen in eine Zeichenkette
             study_type_str = ', '.join(study_type)
             worksheet.cell(row=start_row + i, column=8, value=study_type_str)
+
+        # Kopiere, falls ein Studientyp gefunden wurde den Wert immer in Spalte G (ecosystem type)
+        if forest_type:
+            # Konvertiere die Liste der Studientypen in eine Zeichenkette
+            forest_type_str = ', '.join(forest_type)
+            worksheet.cell(row=start_row + i, column=7, value=forest_type_str)
+
+        # Kopiere, falls ein Studientyp gefunden wurde den Wert immer in Spalte E (ecosystem type)
+        if analyzed_years:
+            # Konvertiere die Liste der Studientypen in eine Zeichenkette
+            analyzed_years_str = ', '.join(analyzed_years)
+            worksheet.cell(row=start_row + i, column=5, value=analyzed_years_str)
+
+        # Kopiere, falls Jahre mit Dürre gefunden wurde den Wert immer in Spalte F (time period with drought (if mentioned))
+        if drought_years:
+            # Konvertiere die Liste der Studientypen in eine Zeichenkette
+            drought_years_str = ', '.join(drought_years)
+            worksheet.cell(row=start_row + i, column=6, value=drought_years_str)
+
 
     # Speichere die durchgeführten Änderungen in der Excel-Datei
     workbook.save(excel_path)

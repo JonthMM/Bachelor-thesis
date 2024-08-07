@@ -83,13 +83,16 @@ update_excel_with_extracted_data(excel_path, extracted_data)
 
 #TO-DO: Die 2 neuen Informationen years_with_drought,analyzed_years
 # Ausgabe der extrahierten Informationen im Terminal zur Überprüfung
-for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, found_keywords, study_type) in enumerate(extracted_data):
+for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, found_keywords, study_type, forest_type, analyzed_years, drought_years) in enumerate(extracted_data):
     print(f"Paper: '{pdf_basename}'")
-    print(f"Studientyp: '{study_type}'")
     print(f"Location coordinates: {coordinates}")
     print(f"Vorkommende Zeilen im Text: '{lines_with_coordinates}'")
     print(f"Dürre quantifiziert: '{drought_quantified}'")
     if found_keywords:
         print(f"Dürre quantifiziert: '{found_keywords}'")
+    print(f"Studientyp: '{study_type}'")
+    print(f"Waldtyp: '{forest_type}'")
+    print(f"Untersuchte Jahre: '{analyzed_years}'")
+    print(f"Jahre mit Dürre: '{drought_years}'")
     if i != len(extracted_data) - 1:
         print()
