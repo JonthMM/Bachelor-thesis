@@ -81,15 +81,11 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
 
         # Kopiere, falls ein Schlüsselwort zum Studientyp gefunden wurde, kopiere den Wert immer in Spalte H (study type)
         if study_type:
-            # Konvertiere die Liste der Studientypen in eine Zeichenkette
-            study_type_str = ', '.join(study_type)
-            worksheet.cell(row=start_row + i, column=8, value=study_type_str)
+            worksheet.cell(row=start_row + i, column=8, value=study_type)
 
         # Kopiere, falls ein Studientyp gefunden wurde den Wert immer in Spalte G (ecosystem type)
         if forest_type:
-            # Konvertiere die Liste der Studientypen in eine Zeichenkette
-            forest_type_str = ', '.join(forest_type)
-            worksheet.cell(row=start_row + i, column=7, value=forest_type_str)
+            worksheet.cell(row=start_row + i, column=7, value=forest_type)
 
         # Kopiere, falls ein Studientyp gefunden wurde den Wert immer in Spalte E (ecosystem type)
         if analyzed_years:

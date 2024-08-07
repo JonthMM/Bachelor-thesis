@@ -674,6 +674,7 @@ def logging_extraction_results(pdf_basename, coordinates, study_site_lines, stud
         study_type (str): Der Studientyp, falls gefunden, sonst None.
         forest_type (str): Die Waldart bzw. Baumart, falls gefunden, sonst None
         analyzed_years (str): Die untersuchten Jahre, falls gefunden, sonst None
+        drought_years (str): Die Jahre mit Dürre, falls gefunden, sonst None
 
     Returns:
         None
