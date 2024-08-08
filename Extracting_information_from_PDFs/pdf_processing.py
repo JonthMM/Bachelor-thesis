@@ -246,6 +246,8 @@ def find_study_site(lines):
                 or re.search(r'\bBioregional  description\b', line, re.IGNORECASE)
                 or re.search(r'\bStudy landscapes\b', line, re.IGNORECASE)
                 or re.search(r'\bsite description\b', line, re.IGNORECASE)
+                or re.search(r'\bStudy system\b', line, re.IGNORECASE)
+
         ):
             # Kontextzeilen (also die Zeile, in welcher der Fund ist und die darauffolgenden 4) speichern
             context_lines = lines[i:i + 4]

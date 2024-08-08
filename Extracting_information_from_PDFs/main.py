@@ -20,6 +20,7 @@ To DO:
 
 Eventuell:
 Logik so ändern, dass nur die umliegenden 3 Zeilen von Koordinaten gespeichert und ausgegeben werden, wenn def find_study_site(lines): keinen Erfolg hatte
+Beispiel dafür: Climatic and human influences on fire regimes of the southern San Juan Mountains, Colorado, USA zum Überprüfen
 
 Generell:
 Programmierschritte stichpunktartig festhalten
@@ -70,7 +71,7 @@ Done:
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Pfad zum Ordner mit den PDF-Dateien
-folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\151-169'
+folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\101-125'
 
 # Pfad zur Excel-Datei
 excel_path = r'D:\Uni\Bachelorarbeit/2024Apr_Mana_Review_v2i - Kopie.xlsx'
