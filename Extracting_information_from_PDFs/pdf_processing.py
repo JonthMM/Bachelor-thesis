@@ -306,7 +306,7 @@ def find_analyzed_years(lines):
         r'\((19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\)',
 
         # Erfasst 'from 1980 to 1990'
-        r'from (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) to (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
+        r'(?:from\s*)?(19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) to (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
 
         # Erfasst 'between 1980 and 1990'
         r'between (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) and (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
@@ -314,8 +314,8 @@ def find_analyzed_years(lines):
         # Erfasst '1980s'
         r'\b(19|20)\d{2}s\b',
 
-        # Erfasst Muster wie '1980-85'
-        r'\b(19|20\d{2})\s*[-–−]\s*(\d{2})\b',
+        # Erfasst '1927-54' oder '2021-24'
+        r'\b(19\d{2}|20(?:0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(\d{2})\b',
 
         # Erfasst 'over a 180-day period'
         r'over a (\d+)-day period'
@@ -331,8 +331,19 @@ def find_analyzed_years(lines):
             for match in matches:
                 if isinstance(match, tuple):
                     if len(match) == 2 and len(match[1]) == 2:
-                        # Jahr-Jahr-Muster wie '1980-85'
-                        period = f"{match[0]}-{match[0][:2]}{match[1]}"
+                        start_year = match[0]
+                        end_year_suffix = match[1]
+
+                        # Wenn das Startjahr mit "20" beginnt, prüfen wir die Endjahres-Suffixe
+                        if start_year.startswith("20"):
+                            end_year = int(start_year[:2] + end_year_suffix)
+                            if end_year <= 2024:
+                                period = f"{start_year}-{end_year}"
+                            else:
+                                continue  # Ungültige Periode, überspringen
+                        else:
+                            # Wenn das Startjahr mit "19" beginnt, ist jede zweistellige Zahl erlaubt
+                            period = f"{start_year}-{start_year[:2]}{end_year_suffix}"
                     else:
                         # Standard-Zeitraum-Muster wie '1980-1990'
                         period = f"{match[0]}-{match[2]}"
@@ -351,7 +362,7 @@ def find_analyzed_years(lines):
 
 def find_years_with_drought(lines):
     """
-    DISCLAIMER: Nicht zu 100% zuverlässig
+    DISCLAIMER: Nicht zu 100% zuverlässig, da einzelne Jahre sowie manche Pattern noch nicht erkannt bzw. verarbeitet werden können
     Diese Funktion extrahiert die Jahre und Zeitspannen von Dürreperioden aus den gegebenen Textzeilen.
     https://www.w3schools.com/python/ref_func_isinstance.asp
     https://docs.python.org/3/library/re.html#re.IGNORECASE
@@ -386,7 +397,7 @@ def find_years_with_drought(lines):
 
         # Erfasst alle Zahlen von 1900 bis 1999
         r'\b(19\d{2})(?!\))\b'
-        
+
         # Erfasst alle Zahlen von 1900 bis 2024
         r'\b20(0[0-9]|1[0-9]|2[0-4])(?!\))\b'
 
@@ -394,8 +405,8 @@ def find_years_with_drought(lines):
         r'over a (\d+)-day period'
     ]
 
-    # Definiere ein Muster für das Schlüsselwort "drought"
-    drought_pattern = re.compile(r'\bdrought\b', re.IGNORECASE)
+    # Definiere ein Muster für die Schlüsselwörter "drought", "droughts" und "drier"
+    drought_pattern = re.compile(r'\bdroughts?|drier\b', re.IGNORECASE)
 
     # Liste zum Speichern der gefundenen Zeiträume
     drought_years = []
@@ -418,7 +429,9 @@ def find_years_with_drought(lines):
                         period = match
 
                     # Überprüfe, ob das gefundene Muster gültig ist
-                    if re.match(r'^(19|20)\d{2}[-–−](19|20)\d{2}$', period) or re.match(r'^(19|20)\d{2}s$', period) or re.match(r'^over a \d+-day period$', period):
+                    if re.match(r'^(19|20)\d{2}[-–−](19|20)\d{2}$', period) or re.match(r'^(19|20)\d{2}s$',
+                                                                                        period) or re.match(
+                            r'^over a \d+-day period$', period):
                         if period not in drought_years:
                             drought_years.append(period)
 
