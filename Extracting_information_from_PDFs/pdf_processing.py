@@ -287,83 +287,104 @@ def find_forest_types(lines):
 def find_analyzed_years(lines):
     """
     Extrahiert untersuchte Zeiträume aus den gegebenen Textzeilen.
+    Hierbei darf die maximale zu erfassende Zahl 2024 sein, was durch die Regex Muster so beschränkt wird (|2[0-4])
     https://www.w3schools.com/python/python_regex.asp
     https://docs.python.org/3/library/re.html#re.search
     https://docs.python.org/3/library/re.html#re.IGNORECASE
+    https://docs.python.org/3/library/re.html#re.findall
+    https://docs.python.org/3/library/re.html#re.match
 
     Args:
-        lines (list of str): Zeilen von Text aus dem PDF-Dokument.
+        lines (list of str): (Bereinigte) Zeilen aus dem PDF-Dokument.
 
     Returns:
-        str oder None: Sortierte Liste der extrahierten Zeiträume, falls gefunden, sonst None.
+        str oder None: Sortierte Liste der extrahierten Zeiträume, wenn nichts gefunden wurde eine leere Liste.
     """
-    # Definiere reguläre Ausdrücke für die Erfassung von Zeiträumen
+    # Regex-Muster, für die Erfassung von Zeiträumen in verschiedenen Formaten
     time_period_patterns = [
-        # Erfasst Muster wie '1980-1990' mit drei verschiedenen Bindestrichen
+        # Erfasst Zeiträume, welche durch einen Bindestrich getrennt sind.
+        # Beispiele: '1980-1990', '2022-2024'
         r'\b(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\b',
 
-        # Erfasst Muster wie '(1980-1990)' mit drei verschiedenen Bindestrichen
+        # Erfasst Zeiträume, welche in Klammern stehen und durch einen Bindestrich getrennt sind.
+        # Beispiele: '(1980-1990)', '(2022-2024)'
         r'\((19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\)',
 
-        # Erfasst 'from 1980 to 1990'
-        r'(?:from\s*)?(19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) to (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
-
-        # Erfasst 'between 1980 and 1990'
-        r'between (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) and (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
-
-        # Erfasst '1980s'
-        r'\b(19|20)\d{2}s\b',
-
-        # Erfasst '1927-54' oder '2021-24'
+        # Erfasst Zeiträume, welche durch Bindestrich getrennt sind und wo der zweite Teil nur zwei Ziffern hat.
+        # Beispiele: '1927-54', '2021-24'
         r'\b(19\d{2}|20(?:0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(\d{2})\b',
 
-        # Erfasst 'over a 180-day period'
+        # Erfasst Zeiträume, welche durch 'from ... to ...' angegeben werden.
+        # Beispiele: 'from 1980 to 1990', 'from 1999-2011'
+        r'(?:from\s*)?(19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) to (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
+
+        # Erfasst Zeiträume, welche durch 'between ... to ...' angegeben werden.
+        # Beispiele: 'between 1980 and 1990'
+        r'between (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) and (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
+
+        # Erfasst Zeiträume mit Längenangabe in Tagen.
+        # Beispiele: 'over a 180-day period'
         r'over a (\d+)-day period'
     ]
 
-    # Liste zum Speichern der gefundenen Zeiträume
+    # Liste zum Speichern der gefundenen Zeitspannen
     found_periods = []
 
-    # Iteriere durch jede Zeile und suche nach Zeitraum-Mustern
+    # Iteriert durch jede Zeile und sucht mit den oben definierten Zeitraummustern nach Zeitspannen
     for line in lines:
         for pattern in time_period_patterns:
+            # Findet alle Vorkommen, die dem aktuellen Muster (pattern) in der Zeile entsprechen
             matches = re.findall(pattern, line)
             for match in matches:
+                # Überprüft, ob der Treffer (match) ein Tupel ist, was auf verschiedene Formen von Zeiträumen hinweist
                 if isinstance(match, tuple):
+                    # Handhabung für Zeiträume im Format 'YYYY-YY' wie zum Beispiel '2020-21'
                     if len(match) == 2 and len(match[1]) == 2:
+                        # Extrahiert das Startjahr (z.B. '2020')
                         start_year = match[0]
+                        # Extrahiert die Endjahr-Suffixe (z.B. '21')
                         end_year_suffix = match[1]
 
                         # Wenn das Startjahr mit "20" beginnt, prüfen wir die Endjahres-Suffixe
                         if start_year.startswith("20"):
+                            # Fügt die ersten zwei Ziffern des Startjahres mit den Endjahres-Suffixen zusammen, um das Endjahr zu bilden
                             end_year = int(start_year[:2] + end_year_suffix)
+                            # Überprüft, ob das Endjahr kleiner oder gleich 2024 ist, um sicherzustellen, dass es ein gültiges Jahr ist
                             if end_year <= 2024:
+                                # Bildet die Zeitspanne (z.B. '2020-2021')
                                 period = f"{start_year}-{end_year}"
                             else:
-                                continue  # Ungültige Periode, überspringen
+                                # Überspringt ungültige Zeitspannen
+                                continue
                         else:
-                            # Wenn das Startjahr mit "19" beginnt, ist jede zweistellige Zahl erlaubt
+                            # Wenn das Startjahr mit "19" beginnt, wird das Endjahr direkt angefügt, da alle zweistelligen Zahlen erlaubt sind
                             period = f"{start_year}-{start_year[:2]}{end_year_suffix}"
                     else:
-                        # Standard-Zeitraum-Muster wie '1980-1990'
+                        # Standard-Zeitraum-Muster wie 'YYYY-YYYY' (z.B. '1980-1990')
                         period = f"{match[0]}-{match[2]}"
                 else:
+                    # Wenn der Treffer kein Tupel ist, handelt es sich um ein einfacheres Muster, das direkt zugewiesen werden kann
                     period = match
 
-                # Überprüfe, ob das gefundene Muster gültig ist (vermeide Einträge wie '19-1926', '19', '20')
+                # Überprüft, ob das gefundene Muster gültig ist
+                # Es wird sichergestellt, dass es sich um einen vollständigen Zeitraum handelt (z.B. '1980-1990')
+                # Oder ein einzelnes Jahrzehnt (z.B. '1980s')
+                # Oder um einen Ausdruck wie 'over a 180-day period'
                 if re.match(r'^(19|20)\d{2}[-–−](19|20)\d{2}$', period) or re.match(r'^(19|20)\d{2}s$',
-                                                                                    period) or re.match(
-                        r'^over a \d+-day period$', period):
+                                                                                    period) or re.match(r'^over a \d+-day period$', period):
+                    # Vermeidet doppelte Einträge in der Liste
                     if period not in found_periods:
+                        # Fügt die validierte Zeitspanne zur Ergebnisliste (found_periods) hinzu
                         found_periods.append(period)
 
     return sorted(found_periods)
 
 
-def find_years_with_drought(lines):
+def find_periods_with_drought(lines):
     """
-    DISCLAIMER: Nicht zu 100% zuverlässig, da einzelne Jahre sowie manche Pattern noch nicht erkannt bzw. verarbeitet werden können
-    Diese Funktion extrahiert die Jahre und Zeitspannen von Dürreperioden aus den gegebenen Textzeilen.
+    Diese Funktion extrahiert Zeitspannen von Dürreperioden aus den gegebenen Textzeilen und validiert Zeiträume,
+    bei denen das Endjahr-Suffix in bestimmten Fällen überprüft wird.
+    https://docs.python.org/3/library/re.html#re.search
     https://www.w3schools.com/python/ref_func_isinstance.asp
     https://docs.python.org/3/library/re.html#re.IGNORECASE
     https://docs.python.org/3/library/re.html#re.compile
@@ -373,69 +394,130 @@ def find_years_with_drought(lines):
         lines (list of str): Zeilen von Text aus dem PDF-Dokument.
 
     Returns:
-        list: Sortierte Liste der extrahierten Zeiträume oder Jahre, in denen Dürre vorkam, falls gefunden, sonst eine leere Liste.
+        list: Sortierte Liste der extrahierten Zeitspannen, in denen Dürre vorkam, falls gefunden, sonst eine leere Liste.
     """
-    # Definiere reguläre Ausdrücke für die Erfassung von Zeiträumen
-    drought_years_patterns = [
-        # Erfasst Muster wie '1980-1990' mit drei verschiedenen Bindestrichen
+    # Regex-Muster für die Erfassung von Zeiträumen in verschiedenen Formaten
+    drought_periods_patterns = [
+        # Erfasst Zeiträume, welche durch einen Bindestrich getrennt sind.
         r'\b(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\b',
 
-        # Erfasst Muster wie '(1980-1990)' mit drei verschiedenen Bindestrichen
+        # Erfasst Zeiträume, welche in Klammern stehen und durch einen Bindestrich getrennt sind.
         r'\((19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\)',
 
-        # Erfasst 'from 1980 to 1990'
-        r'from (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) to (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
+        # Erfasst Zeiträume mit zweistelligem Endjahr-Suffix.
+        r'\b(19\d{2}|20(?:0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(\d{2})\b',
 
-        # Erfasst 'between 1980 and 1990'
+        # Erfasst Zeitspannen mit zweistelligem Endjahr-Suffix in Klammern.
+        r'\((19\d{2}|20(?:0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(\d{2})\)',
+
+        # Erfasst Zeiträume, welche durch 'from ... to ...' angegeben werden.
+        r'(?:from\s*)?(19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) to (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
+
+        # Erfasst Zeiträume, welche durch 'between ... to ...' angegeben werden.
         r'between (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) and (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
-
-        # Erfasst '1980s'
-        r'\b(19|20)\d{2}s\b',
-
-        # Erfasst Muster wie '1980-85'
-        r'\b(19|20\d{2})\s*[-–−]\s*(\d{2})\b',
-
-        # Erfasst alle Zahlen von 1900 bis 1999
-        r'\b(19\d{2})(?!\))\b'
-
-        # Erfasst alle Zahlen von 1900 bis 2024
-        r'\b20(0[0-9]|1[0-9]|2[0-4])(?!\))\b'
-
-        # Erfasst 'over a 180-day period'
-        r'over a (\d+)-day period'
     ]
 
-    # Definiere ein Muster für die Schlüsselwörter "drought", "droughts" und "drier"
+    # Regex-Muster für die Schlüsselwörter "drought", "droughts" und "drier" um sicherzugehen, dass die einzelnen Jahre im zusammenhang mit Dürre stehen
     drought_pattern = re.compile(r'\bdroughts?|drier\b', re.IGNORECASE)
 
-    # Liste zum Speichern der gefundenen Zeiträume
-    drought_years = []
+    # Liste zum Speichern der gefundenen Zeitspannen
+    drought_periods = []
 
-    # Iteriere durch jede Zeile und suche nach Zeitraum-Mustern
+    # Iteriert durch jede Zeile und sucht nach Zeitraum-Mustern
     for line in lines:
-        # Überprüfe, ob das Wort "drought" in der Zeile vorhanden ist
+        # # Überprüft, ob die oben festgelegten Schlüsselwörter für Dürre in der Zeile vorhanden sind und sucht nach Zeitspannen, wenn dies der Fall ist
         if drought_pattern.search(line):
-            for pattern in drought_years_patterns:
+            # Wenn das Schlüsselwort für Dürre gefunden wurde, wird für jedes definierte Zeitraummuster (Regex-Pattern) in der Zeile gesucht
+            for pattern in drought_periods_patterns:
+                # Findet alle Vorkommen, die dem aktuellen Regex-Muster entsprechen
                 matches = re.findall(pattern, line)
                 for match in matches:
+                    # Wenn das gefundene Match ein Tuple ist (mehrere Teile, wie z.B. Start- und Endjahr):
                     if isinstance(match, tuple):
+                        # Überprüft, ob das Match zwei Teile enthält und das zweite Teil zwei Ziffern hat (z.B. '1980-85')
                         if len(match) == 2 and len(match[1]) == 2:
-                            # Jahr-Jahr-Muster wie '1980-85'
-                            period = f"{match[0]}-{match[0][:2]}{match[1]}"
+                            # Weist den ersten Teil des Matches dem Startjahr zu
+                            start_year = match[0]
+                            # Weist den zweiten Teil des Matches dem Endjahres-Suffix zu (die letzten zwei Ziffern)
+                            end_year_suffix = match[1]
+
+                            # Validierung: Wenn das Startjahr mit "20" beginnt, überprüft, ob das Endjahr-Suffix nicht größer als 24 ist
+                            if start_year.startswith("20") and int(end_year_suffix) > 24:
+                                # Wenn das Endjahr-Suffix größer als 24 ist, wird dieser Zeitraum übersprungen (als ungültig betrachtet)
+                                continue
+
+                            # Setzt den vollständigen Zeitraum zusammen, indem das Startjahr und das vollständige Endjahr kombiniert werden
+                            # z.B. '1980-85' wird zu '1980-1985'
+                            period = f"{start_year}-{start_year[:2]}{end_year_suffix}"
                         else:
-                            # Standard-Zeitraum-Muster wie '1980-1990'
+                            # Für Standard-Zeitraum-Muster wie '1980-1990', bei denen das Jahr vollständig angegeben ist
+                            # (d.h. sowohl Start- als auch Endjahr sind vierstellig)
                             period = f"{match[0]}-{match[2]}"
                     else:
+                        # Wenn das Match kein Tuple ist (d.h. nur ein einzelner Zeitraum), wird es direkt als Zeitraum übernommen
                         period = match
 
-                    # Überprüfe, ob das gefundene Muster gültig ist
-                    if re.match(r'^(19|20)\d{2}[-–−](19|20)\d{2}$', period) or re.match(r'^(19|20)\d{2}s$',
-                                                                                        period) or re.match(
-                            r'^over a \d+-day period$', period):
-                        if period not in drought_years:
-                            drought_years.append(period)
+                    # Überprüft, ob das gefundene Muster generell gültig ist
+                    if re.match(r'^(19|20)\d{2}[-–−](19|20)\d{2}$', period):
+                        # Verhindert doppelte Einträge in der Liste der gefundenen Zeiträume
+                        if period not in drought_periods:
+                            # Fügt den gefundenen und validierten Zeitraum der Liste hinzu
+                            drought_periods.append(period)
 
-    return sorted(drought_years)
+    return sorted(drought_periods)
+
+
+def find_single_years_with_drought(lines):
+    """
+    Extrahiert einzelne Jahreszahlen aus den gegebenen Textzeilen, wenn sie im Zusammenhang mit Dürre stehen.
+    Jahre, die direkt nach einem Minuszeichen '-', vor einer schließenden Klammer ')' sowie direkt nach einem Punkt und einem Leerzeichen stehen, werden ignoriert,
+    damit Angaben aus den Quellen der wissenschaftlichen Veröffentlichungen nicht eingezogen werden.
+    Hierbei darf die maximale zu erfassende Zahl 2024 sein, was durch die Regex Muster so beschränkt wird (|2[0-4])
+    https://www.w3schools.com/python/ref_func_isinstance.asp
+    https://docs.python.org/3/library/re.html#re.IGNORECASE
+    https://docs.python.org/3/library/re.html#re.compile
+    https://docs.python.org/3/library/re.html#re.findall
+
+    Args:
+        lines (list of str): (Bereinigte) Zeilen aus dem PDF-Dokument.
+
+    Returns:
+        list: Sortierte Liste der extrahierten Jahreszahlen, in denen Dürre vorkam, wenn nichts gefunden wurde eine leere Liste.
+    """
+    # Regex-Muster für die Erfassung von einzelnen Jahreszahlen mit den oben beschriebenen Restriktionen
+    #single_year_pattern = r'(?<![-])(?<!\.\s)\b(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\b(?!\))'
+    single_year_pattern = r'(?<![-])(?<!\.\s)\b(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\b(?![);])'
+
+
+    # Regex-Muster für die Schlüsselwörter "drought", "droughts" und "drier" um sicherzugehen, dass die einzelnen Jahre im zusammenhang mit Dürre stehen
+    drought_pattern = re.compile(r'\bdroughts?|drier\b', re.IGNORECASE)
+
+    # Liste zum Speichern der gefundenen, einzelnen Jahreszahlen
+    single_drought_years = []
+
+    # Iteriert durch jede Zeile und sucht nach einzelnen Jahreszahlen
+    for line in lines:
+        # Überprüft, ob die oben festgelegten Schlüsselwörter für Dürre in der Zeile vorhanden sind und sucht nach Jahreszahlen wenn dies der Fall ist
+        if drought_pattern.search(line):
+            # Findet alle Vorkommen, die dem definierten Muster für einzelne Jahreszahlen entsprechen
+            matches = re.findall(single_year_pattern, line)
+            for match in matches:
+                # Verhindert, dass doppelte Einträge übernommen werden und überprüft, ob der Treffer ein Tupel ist (das bei bestimmten Mustern vorkommen kann)
+                # Dann wird das Jahr entsprechend aus dem Tupel extrahiert
+                if isinstance(match, tuple):
+                    # Wählt das Jahr aus dem Tupel (erste oder zweite Position)
+                    year = match[0] if match[0] else match[1]
+                # Wenn kein Tupel, wird der Treffer direkt als Jahr verwendet
+                else:
+                    year = match
+
+                # Überprüft, ob die Jahreszahl zwischen 1900 und 2024 liegt, da dies der relevante Zeitrahmen ist
+                if 1900 <= int(year) <= 2024:
+                    # Fügt die einzelne Jahreszahl zur Liste (single_drought_years) hinzu, falls sie nicht schon in der Liste vorhanden ist
+                    if year not in single_drought_years:
+                        single_drought_years.append(year)
+
+    return sorted(single_drought_years)
 
 def find_study_type(lines, pdf_file):
     """
@@ -540,6 +622,8 @@ def find_drought_quantification(lines, pdf_file):
     Sucht nach bestimmten Begriffen, die sich auf die Quantifizierung von Dürren beziehen, und gibt die relevanten Zeilen zurück.
     Hierbei wird in jeder PDF ein mal nach jedem Begriff gesucht und dann, wenn er ein- oder keinmal vorgekommen ist, wird der nächste Begriff gesucht usw....
     https://www.w3schools.com/python/python_regex.asp
+    https://docs.python.org/3/library/re.html#re.search
+    https://docs.python.org/3/library/re.html#re.escape
 
     Args:
         lines (list): Eine Liste von Textzeilen, in der nach Schlüsselwörtern für die quantifizierung von Dürre gesucht wird
@@ -676,7 +760,7 @@ def extract_coordinates_from_pdfs_in_folder(folder_path):
 
     return results
 
-def logging_extraction_results(pdf_basename, coordinates, study_site_lines, study_site_context, drought_quantified, study_type, forest_type, analyzed_years, drought_years):
+def logging_extraction_results(pdf_basename, coordinates, study_site_lines, study_site_context, drought_quantified, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought):
     """
     Diese Funktion protokolliert die Ergebnisse der Extraktion in einer sinnvollen Reihenfolge übersichtlich und loggt sie entsprechend.
 
@@ -687,9 +771,10 @@ def logging_extraction_results(pdf_basename, coordinates, study_site_lines, stud
         study_site_context (str): Gefundene Studienregion basierend auf dem Kontext oder 'Keine Studienregion gefunden'.
         drought_quantified (list): Eine Liste der gefundenen Schlüsselwörter zur Dürre-Quantifizierung.
         study_type (str): Der Studientyp, falls gefunden, sonst None.
-        forest_type (str): Die Waldart bzw. Baumart, falls gefunden, sonst None
-        analyzed_years (str): Die untersuchten Jahre, falls gefunden, sonst None
-        drought_years (str): Die Jahre mit Dürre, falls gefunden, sonst None
+        forest_type (LiteralString): Die Waldart bzw. Baumart, falls gefunden, sonst None
+        analyzed_years (list): Die untersuchten Jahre, falls gefunden, sonst None
+        periods_with_drought (list): Die Zeitperioden mit Dürre, falls gefunden, sonst None
+        single_years_with_drought (list): DIe einzelnen Jahre mit Dürre, falls gefunden, sonst None
 
     Returns:
         None
@@ -736,10 +821,15 @@ def logging_extraction_results(pdf_basename, coordinates, study_site_lines, stud
         logging.info(f"No Analyzed years specified")
 
     # Logging ob und wenn welche Jahre mit dem Zustand Dürre quantifiziert wurden
-    if drought_years:
-        logging.info(f"Years were drought was quantified: '{drought_years}'")
+    if periods_with_drought:
+        logging.info(f"Years were drought was quantified: '{periods_with_drought}'")
     else:
-        logging.info(f"No drought years found/given")
+        logging.info(f"No drought periods found/given")
+
+    if single_years_with_drought:
+        logging.info(f"Years were drought was quantified: '{single_years_with_drought}'")
+    else:
+        logging.info(f"No single drought years found/given")
 
     #Logging einer Leerzeile zur Trennung zweier PDFs für einen besseren Überblick
     logging.info("")
@@ -763,10 +853,6 @@ def process_extraction_results(pdf_basename, final_coordinates, lines_with_coord
     # Ausführen der Hilfsfunktion zum Herausfinden, wie Dürre definiert wurde
     drought_quantified, drought_quantification_keywords = find_drought_quantification(lines, pdf_file)
 
-    #TO-DO: Die 2 neuen Werte mit Hilfsfunktionen extrahieren und zu result.append hinzufügen sowie in main.py zur print überprüfung
-    #years_with_drought = find_years_with_drought(lines)
-    #analyzed_years = find_analyzed_years(lines)
-
     # Ausführen der Hilfsfunktion zum Herausfinden des Studientyps
     study_type = find_study_type(lines, pdf_file)
 
@@ -776,8 +862,11 @@ def process_extraction_results(pdf_basename, final_coordinates, lines_with_coord
     # Ausführen der Hilfsfunktion zum Herausfinden der erforschten Jahre
     analyzed_years = find_analyzed_years(lines)
 
-    # Ausführen der Hilfsfunktion zum Herausfinden der Jahre mit Dürre
-    drought_years = find_years_with_drought(lines)
+    # Ausführen der Hilfsfunktion zum Herausfinden der Zeitperioden mit Dürre
+    periods_with_drought = find_periods_with_drought(lines)
+
+    # Ausführen der Hilfsfunktion zum Herausfinden der einzelnen Jahre mit Dürre
+    single_years_with_drought = find_single_years_with_drought(lines)
 
     # Überprüfen, ob Koordinaten und oder Study Areas gefunden wurden
     coordinates_found = bool(final_coordinates)
@@ -798,11 +887,11 @@ def process_extraction_results(pdf_basename, final_coordinates, lines_with_coord
 
     # Loggt die Ergebnisse der Extraktion mithilfe der logging_extraction_results() Funktion
     logging_extraction_results(pdf_basename, coordinates_str, study_site_lines_str, study_site_context_str,
-                               drought_quantification_keywords, study_type, forest_type, analyzed_years, drought_years)
+                               drought_quantification_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought)
 
     # Speichere die Ergebnisse bei gefundenen validen Koordinaten (Name des Papers, die validen Koordinaten, die Kontextzeilen von gefundenen Koordinaten und wie Dürre definiert wurde)
     if final_coordinates:
-        results.append((pdf_basename, ', '.join(final_coordinates), '; '.join(lines_with_coordinates), drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, drought_years))
+        results.append((pdf_basename, ', '.join(final_coordinates), '; '.join(lines_with_coordinates), drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought))
     # Speichere die Ergebnisse, wenn keine validen Koordinaten gefunden wurden
     else:
         # Aufrufen der Hilfsfunktion "find_study_site(lines)" um die Bereiche der Studien zu finden, in welcher sie durchgeführt wurden
@@ -811,7 +900,7 @@ def process_extraction_results(pdf_basename, final_coordinates, lines_with_coord
         # so bereinigt, dass es mit openpyxl weiterverarbeitet werden kann und die Ergebnisse gespeichert.
         if study_site_context:
             cleaned_lines_with_coordinates = remove_illegal_characters(study_site_context)
-            results.append((pdf_basename, 'Keine Koordinaten gefunden', cleaned_lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, drought_years))
+            results.append((pdf_basename, 'Keine Koordinaten gefunden', cleaned_lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought))
         # Wenn nichts von der Hilfsfunktion "find_study_site(lines)" gefunden wurde, wird dies als Ergebnis festgehalten und als Logging Information ausgegeben
         else:
-            results.append((pdf_basename, 'Keine Koordinaten gefunden', '', drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, drought_years))
+            results.append((pdf_basename, 'Keine Koordinaten gefunden', '', drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought))
