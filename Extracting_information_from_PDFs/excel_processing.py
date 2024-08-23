@@ -59,46 +59,47 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
 
     # Trage die aus den PDFs extrahierten Informationen in die Excel-Datei ein
     for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought) in enumerate(extracted_data):
+        # Kopiere den Namen der PDF (bzw. des Artikels), immer in Spalte A (Paper)
         worksheet.cell(row=start_row + i, column=1, value=pdf_basename)
 
-        # Kopiere, falls vorhanden, die Koordinaten immer in Spalte C (location coordinates)
+        # Kopiere, falls vorhanden, die Koordinaten immer in Spalte B (location coordinates)
         if coordinates != 'Keine Koordinaten gefunden' and len(coordinates.split(', ')) > 1:
             unique_coordinates = ', '.join(sorted(set(coordinates.split(', '))))
-            worksheet.cell(row=start_row + i, column=3, value=unique_coordinates)
+            worksheet.cell(row=start_row + i, column=2, value=unique_coordinates)
 
-            # Kopiere, falls vorhanden, die Kontextzeilen der gefundenen Koordinaten immer in Spalte D (Area name)
-            worksheet.cell(row=start_row + i, column=4, value=remove_illegal_characters(lines_with_coordinates))
+            # Kopiere, falls vorhanden, die Kontextzeilen der gefundenen Koordinaten immer in Spalte C (Area name)
+            worksheet.cell(row=start_row + i, column=3, value=remove_illegal_characters(lines_with_coordinates))
 
-        # Kopiere, falls keine Koordinaten gefunden wurden die Information darüber immer in Spalte C (location coordinates)
+        # Kopiere, falls keine Koordinaten gefunden wurden die Information darüber immer in Spalte B (location coordinates)
         else:
             worksheet.cell(row=start_row + i, column=3, value=coordinates)
             # Kopiere, falls keine Koordinaten gefunden, die Kontextzeilen den gefundenen Bereich der Studie immer in Spalte D (Area name)
-            worksheet.cell(row=start_row + i, column=4, value=remove_illegal_characters(lines_with_coordinates))
+            worksheet.cell(row=start_row + i, column=3, value=remove_illegal_characters(lines_with_coordinates))
 
-        # Kopiere, falls ein Schlüsselwort zur Definition von Dürre gefunden wurden die Information darüber wie, immer in Spalte J (how was drought quantified)
+        # Kopiere, falls ein Schlüsselwort zur Definition von Dürre gefunden wurden die Information darüber wie, immer in Spalte I (how was drought quantified)
         if drought_quantified:
-            worksheet.cell(row=start_row + i, column=10, value=remove_illegal_characters(drought_quantified))
+            worksheet.cell(row=start_row + i, column=9, value=remove_illegal_characters(drought_quantified))
 
-        # Kopiere, falls ein Schlüsselwort zum Studientyp gefunden wurde, kopiere den Wert immer in Spalte H (study type)
+        # Kopiere, falls ein Schlüsselwort zum Studientyp gefunden wurde, kopiere den Wert immer in Spalte G (study type)
         if study_type:
-            worksheet.cell(row=start_row + i, column=8, value=study_type)
+            worksheet.cell(row=start_row + i, column=7, value=study_type)
 
-        # Kopiere, falls ein Studientyp gefunden wurde den Wert immer in Spalte G (ecosystem type)
+        # Kopiere, falls ein Studientyp gefunden wurde den Wert immer in Spalte F (ecosystem type)
         if forest_type:
-            worksheet.cell(row=start_row + i, column=7, value=forest_type)
+            worksheet.cell(row=start_row + i, column=6, value=forest_type)
 
-        # Kopiere, falls ein Studientyp gefunden wurde den Wert immer in Spalte E (ecosystem type)
+        # Kopiere, falls ein Zeitraum, welcher sich auf die untersuchten Jahre einer Studie bezieht gefunden wurde, diesen immer in Spalte D (time period analyzed)
         if analyzed_years:
             # Konvertiere die Liste der Studientypen in eine Zeichenkette
             analyzed_years_str = ', '.join(analyzed_years)
-            worksheet.cell(row=start_row + i, column=5, value=analyzed_years_str)
+            worksheet.cell(row=start_row + i, column=4, value=analyzed_years_str)
 
-        # Kopiere, falls Zeiträume, oder einzelne Jahre mit Dürre gefunden wurden, den Wert in Spalte F (time period with drought (if mentioned))
+        # Kopiere, falls Zeiträume, oder einzelne Jahre mit Dürre gefunden wurden, den Wert in Spalte E (time period with drought (if mentioned))
         if periods_with_drought or single_years_with_drought:
             # Kombiniere beide Listen und konvertiere sie in eine Zeichenkette
             combined_drought_years = periods_with_drought + single_years_with_drought
             drought_years_str = ', '.join(sorted(combined_drought_years))
-            worksheet.cell(row=start_row + i, column=6, value=drought_years_str)
+            worksheet.cell(row=start_row + i, column=5, value=drought_years_str)
 
     # Speichere die durchgeführten Änderungen in der Excel-Datei
     workbook.save(excel_path)
