@@ -5,7 +5,8 @@ from pdf_processing import extract_coordinates_from_pdfs_in_folder
 from excel_processing import update_excel_with_extracted_data
 
 """ 
-To DO:
+To DO: FÜR JAHRESZAHLEN NOCH MAL TESTEN OB ES GEHT DAS NACH DEM WORT "REFERENCES" DIE SUCHE ABGEBROCHEN WIRD UM CITATIONS ZU VERMEIDEN!
+FÜR JAHRESZAHLEN CHECKEN DASS WENN 20XX-YY IST, YY GRÖßER SEIN MUSS ALS XX
 
 1. "Study Type" als Suche ergänzen: "Experimental", "Observational" oder "modeling" - fertig muss nur noch optimiert werden in Zukunft
 
