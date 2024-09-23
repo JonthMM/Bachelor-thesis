@@ -103,3 +103,21 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
 
     # Speichere die durchgeführten Änderungen in der Excel-Datei
     workbook.save(excel_path)
+
+
+def create_plots_from_updated_excel(excel_path):
+    """
+        Erstellt aus der aktualisierten Excel-Datei plots
+        https://openpyxl.readthedocs.io/en/stable/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet.cell#
+        https://openpyxl.readthedocs.io/en/stable/tutorial.html
+
+
+        Args:
+            excel_path (str): Pfad zur Excel-Datei.
+
+
+        Returns:
+
+        """
+
+    return None
