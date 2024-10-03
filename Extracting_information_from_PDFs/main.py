@@ -74,8 +74,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Pfad zum Ordner mit den PDF-Dateien
 folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\50-75'
 
-# Pfad zur Excel-Datei
+# Pfad zur zu befüllenden Excel-Datei
 excel_path = r'D:\Uni\Bachelorarbeit/2024Apr_Mana_Review_v2i - Kopie.xlsx'
+
+# Path to the shapefile containing the information we need for the plot(s)
+shapefile_path = r'D:\Uni\Bachelorarbeit\complete_paper_points\re-analysed paper points with forest\re-analysed_paper_points_with_forest.shp'
 
 # Extrahiere Daten aus den PDF-Dateien
 extracted_data = extract_coordinates_from_pdfs_in_folder(folder_path)
