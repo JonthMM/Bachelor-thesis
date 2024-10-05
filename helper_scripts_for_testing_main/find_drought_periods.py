@@ -50,7 +50,7 @@ def find_periods_with_drought(lines):
 
     # Iteriert durch jede Zeile und sucht nach Zeitraum-Mustern
     for line in lines:
-        # # Überprüft, ob die oben festgelegten Schlüsselwörter für Dürre in der Zeile vorhanden sind und sucht nach Zeitspannen, wenn dies der Fall ist
+        # Überprüft, ob die oben festgelegten Schlüsselwörter für Dürre in der Zeile vorhanden sind und sucht nach Zeitspannen, wenn dies der Fall ist
         if drought_pattern.search(line):
             # Wenn das Schlüsselwort für Dürre gefunden wurde, wird für jedes definierte Zeitraummuster (Regex-Pattern) in der Zeile gesucht
             for pattern in drought_periods_patterns:
