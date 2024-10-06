@@ -129,7 +129,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
             category_sums = category_counts
             legend_labels_with_counts = [f"{category} [{count}]" for category, count in category_counts.items()]
 
-        # Replace <= with ≤ in the legend labels for better looks
+        # Replace '<='with '≤' in the legend labels for better looks
         # https://docs.python.org/3/library/stdtypes.html#str.replace
         legend_labels_with_counts = [label.replace('<=', '≤') for label in legend_labels_with_counts]
 
@@ -166,11 +166,11 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         else:
             plot.legend(sorted_legend_labels_with_counts, title="SPEI drought category", loc='upper right')
 
-        # Rotate x-axis labels for readability and better plot-text ratio and adjust them so they have '≤' instead of '<='
+        # Rotate x-axis labels for readability and better plot-text ratio and replace '<=' with '≤'
         # https://www.geeksforgeeks.org/matplotlib-pyplot-xticks-in-python/
         # https://docs.python.org/3/library/stdtypes.html#str.replace
         plot.xticks(ticks=range(len(category_counts_sorted.index)),  # Specify the positions of the ticks
-                    labels=[label.replace('<=', '≤') for label in category_counts_sorted.index],  # Replace <= with ≤
+                    labels=[label.replace('<=', '≤') for label in category_counts_sorted.index],
                     rotation=45, ha='right')
 
         # Ensure that the tight layout is used for a better visualisation
@@ -321,7 +321,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             for i, (study_type, row) in enumerate(cleaned_grouped_data.iterrows()):
                 # Filter out redundant zero values
                 row = row[row > 0]
-                # Use consistent colors for each keyword so it is not confusing
+                # Use consistent colors for each keyword, so it is not confusing
                 colors = [color_mapping[label] for label in row.index]
 
                 # Display percentages inside the pieces
@@ -370,18 +370,14 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
         # https://proclusacademy.com/blog/customize_matplotlib_piechart/#slice-colors
         colors = ['#FF4500', '#8B0000', '#FFA500', '#ADD8E6', '#0000FF']
 
-        # Exploding the "no drought (+1 < SPEI)" slice for a better direct overview
-        # https://www.educative.io/answers/how-to-explode-a-pie-chart-using-matplotlib-in-python
-        explode = [0, 0, 0, 0, 0.3]
-
         # Adjusting the size of the plot so the picture is better usable later
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
-        plot.figure(figsize=(10, 9))
+        plot.figure(figsize=(10, 8))
 
         # Create the pie chart with white lines between pieces and percentage texts
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
         wedges, texts, autotexts = plot.pie(spei_category_counts, autopct='%1.1f%%', colors=colors, startangle=90,
-                                            explode=explode, wedgeprops={'edgecolor': 'black', 'linewidth': 0.5})
+                                            wedgeprops={'edgecolor': 'black', 'linewidth': 0.5})
 
         # Change percentage text color to white
         # https://stackoverflow.com/questions/27898830/python-how-to-change-autopct-text-color-to-be-white-in-a-pie-chart
@@ -392,19 +388,19 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
         # https://matplotlib.org/stable/gallery/subplots_axes_and_figures/axis_equal_demo.html
         plot.axis('equal')
 
-        # Set label position manually for the exploded SPEI category ("no drought (+1 < SPEI)"), so it is right next to their pieces
+        # Set label position manually for the SPEI category ("no drought (+1 < SPEI)"), so it is right next to their piece
         # https://stackoverflow.com/questions/43916834/matplotlib-dynamically-change-text-position
+        # https://docs.python.org/3/library/stdtypes.html#str.replace
         for i, label in enumerate(spei_category_counts.index):
-            texts[i].set_position(texts[i].get_position())
+            # Replace '<=' with '≤' in the labels (pie chart pieces descriptions)
+            label = label.replace('<=', '≤')
+
+            # We only want to manually position the "no drought (+1 < SPEI)" label because its not right on default
             if label == "no drought (+1 < SPEI)":
-                # Adjusting the position of "Conceptual" by using specific coordinates
-                texts[i].set_position((-0.15, 1.35))
+                # Manually adjusting the position of "no drought (+1 < SPEI)" by using coordinates
+                texts[i].set_position((-0.2, 1.1))
 
-            else:
-                # Keep default position for other labels since they are fine on default
-                texts[i].set_position(texts[i].get_position())
-
-            # Adding back the SPEI category label text (since set_position overrides them)
+            # Adding back the SPEI category label text (because set_position overrides them)
             # https://www.tutorialspoint.com/how-to-add-title-to-subplots-in-matplotlib#:~:text=The%20Matplotlib%20set_text()%20function,in%20a%20subplot%20or%20plot.
             texts[i].set_text(label)
 
@@ -419,7 +415,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
         # Save the pie chart as a JPG file to use it in the thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        #plot.savefig(output_file_path, format='jpg')
+        plot.savefig(output_file_path, format='jpg')
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -436,7 +432,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 #create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'MODIS')
 
 # Generate the ´SPEI category pie chart
-create_pie_chart(reanalysis_shapefile_path, 'SPEI category percentage')
+#create_pie_chart(reanalysis_shapefile_path, 'SPEI category percentage')
 
 # Generate the general study type pie chart
 #create_pie_chart(excel_file_path, 'study type')
