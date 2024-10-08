@@ -88,14 +88,14 @@ def create_drought_keywords_bar_chart(excel_file_path, chart_type):
             # Define consistent colors for each drought quantification keyword across all charts
             # https://stackoverflow.com/questions/26139423/plot-different-color-for-different-categorical-levels
             drought_keywords_color_mapping = {
-                'dry': '#ff7f0e',
-                'differs from normal': '#ff4500',
-                'dry season': '#87CEEB',
-                'low soil moisture': '#00ced1',
-                'low water flow/depth': '#4682b4',
-                'plant water stress': '#32cd32',
-                'reduced rainfall': '#adff2f',
-                'standardized index': '#9370db'
+                'dry': '#ff7f0e',                   # Dark Orange
+                'differs from normal': '#ff4500',   # Orange-Red
+                'dry season': '#87CEEB',            # Sky Blue
+                'low soil moisture': '#00ced1',     # Dark Turquoise
+                'low water flow/depth': '#4682b4',  # Steel Blue
+                'plant water stress': '#32cd32',    # Lime Green
+                'reduced rainfall': '#adff2f',      # Green Yellow
+                'standardized index': '#9370db'     # Medium Purple
             }
 
             # Generate the plot with sorted categories and the customized colors
@@ -214,12 +214,12 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
         # Define the colors for SPEI drought categories, so they match in every plot (and with the QGIS map)
         # https://stackoverflow.com/questions/26139423/plot-different-color-for-different-categorical-levels
-        color_mapping = {
-            'no drought (+1 < SPEI)': '#0000FF',
-            'near normal conditions (-1 < SPEI < +1)': '#ADD8E6',
-            'moderately dry (-1.5 < SPEI <= -1)': '#FFA500',
-            'severely dry (-2 < SPEI <= -1.5)': '#FF4500',
-            'extremely dry (SPEI <= -2)': '#8B0000'
+        spei_color_mapping = {
+            'no drought (+1 < SPEI)': '#0000FF',                    # Blue
+            'near normal conditions (-1 < SPEI < +1)': '#ADD8E6',   # Light Blue
+            'moderately dry (-1.5 < SPEI <= -1)': '#FFA500',        # Orange
+            'severely dry (-2 < SPEI <= -1.5)': '#FF4500',          # Orange-Red
+            'extremely dry (SPEI <= -2)': '#8B0000'                 # Dark Red
         }
 
         # Reindex the DataFrame with the correct category order for all stacked bar plots
@@ -264,9 +264,9 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Generate the plot with sorted categories and the customized colors
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.bar.html
         category_counts_sorted.plot(kind='bar', stacked=(chart_type != 'SPEI category totals'), figsize=(12, 6),
-                                    color=[color_mapping[cat] for cat in
+                                    color=[spei_color_mapping[cat] for cat in
                                            category_counts_sorted.index] if chart_type == 'SPEI category totals' else [
-                                        color_mapping[cat] for cat in category_counts_sorted.columns])
+                                        spei_color_mapping[cat] for cat in category_counts_sorted.columns])
 
         # Add titles and axis labels that were defined before depending automatically from the titels
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
@@ -282,7 +282,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html
         if chart_type == 'SPEI category totals':
             # Adding a custom legend for non-stacked bar charts (SPEI category totals)
-            legend_handles = [plot.Rectangle((0, 0), 1, 1, color=color_mapping[cat]) for cat in
+            legend_handles = [plot.Rectangle((0, 0), 1, 1, color=spei_color_mapping[cat]) for cat in
                               category_counts_sorted.index]
             plot.legend(legend_handles, sorted_legend_labels_with_counts, title="SPEI drought category",
                         loc='upper right')
@@ -303,7 +303,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
         # Save the plot as a JPG file to use it in the bachelor-thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        plot.savefig(output_file_path, format='jpg')
+        # plot.savefig(output_file_path, format='jpg')
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -333,33 +333,35 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
         None: The function generates and displays the requested pie chart(s).
     """
 
-    # Cases for the pie charts that need an Excel file
+    # Cases for the pie charts that need data from the Excel file
     if chart_type in ['study type', 'breakdown', 'MODIS drought category', 'MODIS drought sphere']:
         # Load the Excel file and "relevantInfo" sheet where the data for the pie charts is stored
         # https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html
         excel_df = pd.read_excel(excel_file_path, sheet_name='relevantInfo')
 
-        # Normalize the 'study type' column to avoid duplicates due to capitalization or extra spaces and make the filtering for the breakdown pie charts easier
+        # Clean up the 'study type' column to avoid duplicates due to capitalization or extra spaces and make the filtering for the breakdown pie charts easier
         # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
         # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.lower.html
         excel_df['study type'] = excel_df['study type'].str.strip().str.lower()
 
-        # Clean up the 'drought quantification keyword for plots' to remove quotes (because python gives an error for "dry" if there are quotes) and extra spaces
+        # Clean up the 'drought quantification keyword for plots' and remove quotes (because python gives an error for "dry" if there are quotes) and extra spaces
+        # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
+        # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.lower.html
         # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
         excel_df['drought quantification keyword for plots'] = excel_df[
             'drought quantification keyword for plots'].str.strip().str.lower().str.replace('"', '')
 
-        # Define consistent colors for each drought quantification keyword across all plots, globally defined because of muliple use cases
+        # Define consistent colors for each drought quantification keyword across all plots, globally defined because of multiple use cases
         # https://stackoverflow.com/questions/26139423/plot-different-color-for-different-categorical-levels
         drought_keywords_color_mapping = {
-            'dry': '#ff7f0e',
-            'differs from normal': '#ff4500',
-            'dry season': '#87CEEB',
-            'low soil moisture': '#00ced1',
-            'low water flow/depth': '#4682b4',
-            'plant water stress': '#32cd32',
-            'reduced rainfall': '#adff2f',
-            'standardized index': '#9370db'
+            'dry': '#ff7f0e',                   # Dark Orange
+            'differs from normal': '#ff4500',   # Orange-Red
+            'dry season': '#87CEEB',            # Sky Blue
+            'low soil moisture': '#00ced1',     # Dark Turquoise
+            'low water flow/depth': '#4682b4',  # Steel Blue
+            'plant water stress': '#32cd32',    # Lime Green
+            'reduced rainfall': '#adff2f',      # Green Yellow
+            'standardized index': '#9370db'     # Medium Purple
         }
 
         # If 'study type' is selected, this case is used to create general "study type" pie chart
@@ -370,7 +372,11 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Set colors for every study type for a good overview
             # https://proclusacademy.com/blog/customize_matplotlib_piechart/#slice-colors
-            colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#9467bd']
+            colors = ['#1f77b4', # blue
+                      '#ff7f0e', # orange
+                      '#2ca02c', # green
+                      '#9467bd'  # purple
+                      ]
 
             # Adjust the size of the plot so the picture is better usable later on
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
@@ -446,7 +452,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             for i, (study_type, row) in enumerate(final_breakdown_data.iterrows()):
                 # Filter out redundant zero values in the rows (Given drought categories) so only the drought categories that are given for the study types are displayed
                 row = row[row > 0]
-                # Use consistent colors for each keyword, so it is not confusing (using the colors declared before in 'color_mapping'
+                # Use consistent colors for each keyword, so it is not confusing (using the colors declared before in 'drought_keywords_color_mapping'
                 breakdown_colors = [drought_keywords_color_mapping[label] for label in row.index]
 
                 # Display percentages inside the pieces and assign the labels and colors to the pie chart axes
@@ -535,7 +541,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(breakdown_output_file_path, format='jpg')
+            # plot.savefig(breakdown_output_file_path, format='jpg')
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -544,17 +550,34 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
         # NEED TO EDIT THE EXCEL FILE FIRST BEFORE SAVING THE FINAL PIE CHART
         # If 'MODIS drought sphere' is selected, create the drought quantification breakdown pie charts for each MODIS forest type
         elif chart_type == 'MODIS drought sphere':
-            # Group the data by 'MODIS_forest_type' and count the occurrences of 'drought quantification keyword for plots'
-            # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
-            forest_sphere_breakdown_data = excel_df.groupby('MODIS_forest_type')[
-                'drought_sphere'].value_counts().unstack(
-                fill_value=0)
 
-            # Define the number of subplots based on the number of relevant MODIS forest types because we need one pie chart for each relevant, named MODIS forest type
+            # Group the data by 'MODIS_forest_type' and clean 'drought_sphere' and then count its occurrences with size()
+            # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.lower.html
+            # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
+            forest_sphere_breakdown_data = (
+                excel_df.groupby(['MODIS_forest_type', excel_df['drought_sphere'].str.strip().str.lower()])
+                .size()  # Count occurrences of each drought sphere within each forest type
+                .unstack(fill_value=0)  # Pivot to have drought_sphere as columns and fill missing with 0
+            )
+
+            # Reorder the MODIS Categories based on https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands "LC_Type1 Class Table"
+            desired_forest_order = ['Evergreen Needleleaf Forest', 'Evergreen Broadleaf Forest',
+                                    'Deciduous Broadleaf Forest', 'Mixed Forest', 'Closed Shrubland', 'Woody Savanna',
+                                    'Other (Mangrove Forest, Open Shrubland, Savannas, Permanent Wetlands, ...)']
+
+            # Filter and reorder the MODIS forest types using .isin() to keep only the relevant types and .reindex() to match the desired order
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html#pandas-dataframe-loc
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.isin.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html
+            final_forest_sphere_breakdown_data = forest_sphere_breakdown_data.loc[
+                forest_sphere_breakdown_data.index.isin(desired_forest_order)].reindex(desired_forest_order)
+
+            # Manually define the number of subplots based on the number of relevant MODIS forest types because we need one pie chart for each relevant, named MODIS forest type
+            # Also toggle size of the figures so every percentage is clear readable
             # https://www.programiz.com/python-programming/methods/built-in/len
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
-            number_of_forest_types = len(forest_sphere_breakdown_data)
-            # Also toggle size of the figures so every percentage is clear readable
             fig, axes = plot.subplots(2, 4, figsize=(20, 20))
 
             # Flatten the axes for easier iteration and a faster plot creation
@@ -564,15 +587,15 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # Define consistent colors for each drought quantification keyword across all plots, globally defined because of muliple use cases
             # https://stackoverflow.com/questions/26139423/plot-different-color-for-different-categorical-levels
             sphere_color_mapping = {
-                'soil': '#8B4513',  # brown
-                'atmospheric': '#ADD8E6',  # light blue
-                'hydrological': '#00008B',  # dark blue
-                'meteorological': '#808080'  # grey
+                'soil': '#8B4513',              # brown
+                'atmospheric': '#ADD8E6',       # light blue
+                'hydrological': '#3232d1',      # dark blue
+                'meteorological': '#808080'     # grey
             }
 
             # Iterate over the final dataframe that holds the wanted information to filter out zero values and assign the wanted colors
             # https://www.w3schools.com/python/pandas/ref_df_iterrows.asp
-            for i, (drought_sphere, row) in enumerate(forest_sphere_breakdown_data.iterrows()):
+            for i, (drought_sphere, row) in enumerate(final_forest_sphere_breakdown_data.iterrows()):
                 # Filter out redundant zero values in the rows (Given drought categories) so only the drought categories that are given for the study types are displayed
                 row = row[row > 0]
                 # Now use the declared colors for the stacked bar plot, also use strip() to assure every class get taken withouth error
@@ -661,7 +684,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
         # Save the pie chart as a JPG file to use it in the thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        plot.savefig(spei_category_output_file_path, format='jpg')
+        # plot.savefig(spei_category_output_file_path, format='jpg')
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -677,7 +700,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # create_pie_chart(excel_file_path, 'breakdown')
 
 # Generate the MODIS breakdown of given drought quantifications pie chart
-create_pie_chart(excel_file_path, 'MODIS drought category')
+# create_pie_chart(excel_file_path, 'MODIS drought category')
 
 # Generate the MODIS breakdown of drought spheres pie chart
-# create_pie_chart(excel_file_path, 'MODIS drought sphere')
+create_pie_chart(excel_file_path, 'MODIS drought sphere')
