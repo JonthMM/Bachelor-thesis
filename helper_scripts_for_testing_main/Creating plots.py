@@ -432,7 +432,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(study_type_output_path, format='jpg')
+            # plot.savefig(study_type_output_path, format='jpg')
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -778,7 +778,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
 
 # Generate the MODIS forest type percentage pie chart
-create_pie_chart(reanalysis_shapefile_path, 'MODIS percentage')
+# create_pie_chart(reanalysis_shapefile_path, 'MODIS percentage')
 
 # Generate the SPEI category percentage pie chart
 # create_pie_chart(reanalysis_shapefile_path, 'SPEI category percentage')
