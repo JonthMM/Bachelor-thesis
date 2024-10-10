@@ -724,7 +724,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(breakdown_output_file_path, format='jpg')
+            #  plot.savefig(breakdown_output_file_path, format='jpg')
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
