@@ -310,12 +310,15 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
         plot.show()
 
+# SAVE AFTER REWORK OF SHAPEFILE
 # Generate the SPEI drought categories bar chart
 # create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'SPEI category totals')
 
+# SAVE AFTER REWORK OF SHAPEFILE
 # Generate the drought quantification keyword bar chart
 # create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'Drought')
 
+# SAVE AFTER REWORK OF SHAPEFILE
 # Generate the MODIS SPEI category bar chart
 # create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'MODIS SPEI')
 
@@ -335,7 +338,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
     """
 
     # Cases for the pie charts that need data from the Excel file
-    if chart_type in ['study type', 'breakdown', 'MODIS drought category', 'MODIS drought sphere', 'MODIS percentage']:
+    if chart_type in ['study type', 'breakdown', 'MODIS drought sphere']:
         # Load the Excel file and "relevantInfo" sheet where the data for the pie charts is stored
         # https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html
         excel_df = pd.read_excel(excel_file_path, sheet_name='relevantInfo')
@@ -364,79 +367,6 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             'reduced rainfall': '#adff2f',      # Green Yellow
             'standardized index': '#9370db'     # Medium Purple
         }
-
-        # If 'MODIS percentage' is selected, this case is used to create the general MODIS forest type percentage pie chart
-        if chart_type == 'MODIS percentage':
-            # Clean and count the occurrences of each study type to create the percentages
-            # https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html
-            modis_category_counts = excel_df['MODIS_forest_type'].value_counts()
-
-            # Change the label for 'Other' category, so it is not too long (only for bar plots with MODIS involved)
-            # https://pandas.pydata.org/docs/user_guide/basics.html#renaming-mapping-labels
-            modis_category_counts.rename(
-                index={"Other (Mangrove Forest, Open Shrubland, Savannas, Permanent Wetlands, ...)": "Other"},
-                inplace=True)
-
-            # Map the study types to their corresponding colors from https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands 'LC_Type1 Class Table'
-            # https://stackoverflow.com/questions/26139423/plot-different-color-for-different-categorical-levels
-            modis_color_mapping = {
-                'Evergreen Needleleaf Forest': '#05450a',   # Dark Green
-                'Evergreen Broadleaf Forest': '#086a10',    # Forest Green
-                'Deciduous Needleleaf Forest': '#54a708',   # Lime Green
-                'Deciduous Broadleaf Forest': '#78d203',    # Bright Lime
-                'Mixed Forest': '#009900',                  # Green
-                'Closed Shrubland': '#c6b044',              # Goldenrod
-                'Woody Savanna': '#dade48',                 # Light Yellow-Green
-                'Other': '#27ff87'                          # Bright Mint Green (adjust according to your need)
-            }
-
-            # Create a list of colors in the same order as the labels in modis_category_counts
-            modis_colors = [modis_color_mapping[label] for label in modis_category_counts.index]
-
-            # Adjust the size of the plot so the picture is better usable later on
-            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
-            plot.figure(figsize=(13, 8))
-
-            # Create the pie chart with percentages and white lines between the pieces
-            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
-            wedges, texts, autotexts = plot.pie(modis_category_counts, autopct='%1.1f%%', colors=modis_colors, startangle=90,
-                                                wedgeprops={'edgecolor': 'white', 'linewidth': 0.5})
-
-            # Set label positions manually for the study type "Review", so they are right next to their pieces
-            # https://stackoverflow.com/questions/43916834/matplotlib-dynamically-change-text-position
-            for i, label in enumerate(modis_category_counts.index):
-                # Re-capitalize labels for the pie chart by defining them as titles
-                label = label.title()
-                # Adjusting the position of "Closed Shrubland" by using specific coordinates
-                if label == "Closed Shrubland":
-                    texts[i].set_position((-0.05, 1.05))
-                # Adjusting the position of "Other" by using specific coordinates
-                if label == "Other":
-                    texts[i].set_position((0.38, 0.98))
-                else:
-                   # Keep default position for other labels since they are fine on default
-                    texts[i].set_position(texts[i].get_position())
-
-                # Adding back the study type label text (since set_position overrides them)
-                # https://www.tutorialspoint.com/how-to-add-title-to-subplots-in-matplotlib#:~:text=The%20Matplotlib%20set_text()%20function,in%20a%20subplot%20or%20plot.
-                texts[i].set_text(label)
-
-            # Draw the plot as circle and ensure equal aspect ratio
-            # https://matplotlib.org/stable/gallery/subplots_axes_and_figures/axis_equal_demo.html
-            plot.axis('equal')
-
-            # Set the title and filename for this pie chart
-            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
-            plot.title("Distribution of the MODIS forest types in percentages")
-            study_type_output_path = r'D:\Uni\Bachelorarbeit\Plots\Pie chart with MODIS forest category percentages from Excel.jpg'
-
-            # Save the pie chart as a JPG file to use it in the thesis
-            # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(study_type_output_path, format='jpg')
-
-            # Optionally display the plot (for finetuning so adjusting is easier)
-            # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
-            plot.show()
 
         # If 'study type' is selected, this case is used to create the percentage overview pie chart for the study types
         if chart_type == 'study type':
@@ -488,7 +418,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            #plot.savefig(study_type_output_path, format='jpg')
+            # plot.savefig(study_type_output_path, format='jpg')
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -555,17 +485,106 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
 
-        # MAYBE DATA SOURCE HAS TO BE CHANGED DEPENDING ON ANSWER (Currently Excel)
+    # Cases for all pie charts that need data from the shapefile with all re-analysed paper locations
+    elif chart_type in ['SPEI category percentage']:
+
+        # Read the given shapefile for all pie chart cases using geopandas read_file() method and storing it as geodataframe
+        # https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe
+        # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
+        reanalysed_gdf = geopd.read_file(shape_or_excel_file_path)
+
+        # If 'SPEI category percentage' is selected, create the SPEI drought category pie chart
+        if chart_type == 'SPEI category percentage':
+
+            # Count the occurrences of each SPEI drought category to create the percentages
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html
+            spei_category_counts = reanalysed_gdf['Category'].value_counts()
+
+
+            # Define the colors for SPEI drought categories, so they match in every plot (and with the QGIS map) from
+            # https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands 'LC_Type1 Class Table'
+            # https://stackoverflow.com/questions/26139423/plot-different-color-for-different-categorical-levels
+            spei_color_mapping = {
+                'no drought (+1 < SPEI)': '#0000FF',                    # Blue
+                'near normal conditions (-1 < SPEI < +1)': '#ADD8E6',   # Light Blue
+                'moderately dry (-1.5 < SPEI <= -1)': '#FFA500',        # Orange
+                'severely dry (-2 < SPEI <= -1.5)': '#FF4500',          # Orange-Red
+                'extremely dry (SPEI <= -2)': '#8B0000'                 # Dark Red
+            }
+
+            # Create a list of colors in the same order as the labels in spei_category_counts to use it for the pie chart
+            spei_colors = [spei_color_mapping[label] for label in spei_category_counts.index]
+
+
+            # Adjust the size of the plot so the picture is better usable later and nothing gets cut off
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
+            plot.figure(figsize=(11, 8))
+
+            # Create the pie chart with black lines between pieces and percentages as texts
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
+            wedges, category_texts, autotexts = plot.pie(spei_category_counts, autopct='%1.1f%%', colors=spei_colors, startangle=90,
+                                                wedgeprops={'edgecolor': 'black', 'linewidth': 0.4})
+
+            # Set label position manually for the SPEI category ('no drought (+1 < SPEI)'), so it is right next to their piece and replace '<=' with '≤' if needed in the labels
+            # https://stackoverflow.com/questions/43916834/matplotlib-dynamically-change-text-position
+            # https://docs.python.org/3/library/stdtypes.html#str.replace
+            for i, spei_label in enumerate(spei_category_counts.index):
+                # Replace '<=' with '≤' in the labels (pie chart pieces descriptions)
+                cleaned_spei_label = spei_label.replace('<=', '≤')
+
+                # We only want to manually position the 'no drought (+1 < SPEI)' label because it's not right on default
+                if cleaned_spei_label == "no drought (+1 < SPEI)":
+                    # Manually adjusting the position of 'no drought (+1 < SPEI)' by using coordinates
+                    category_texts[i].set_position((-0.1, 1.1))
+
+                # Adding back the SPEI category label text (because set_position overrides them)
+                # https://www.tutorialspoint.com/how-to-add-title-to-subplots-in-matplotlib#:~:text=The%20Matplotlib%20set_text()%20function,in%20a%20subplot%20or%20plot.
+                category_texts[i].set_text(cleaned_spei_label)
+
+            # Set the main title as well as the file name
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
+            plot.title("Distribution of the SPEI categories out of all re-analysed studies in percentage")
+            spei_category_output_file_path = r'D:\Uni\Bachelorarbeit\Plots\Pie chart with complete SPEI drought category percentages.jpg'
+
+            # Ensure that the tight layout is used for a better visualisation and readability of the 'no drought (+1 < SPEI)' percentage
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
+            plot.tight_layout()
+
+            # Save the pie chart as a JPG file to use it in the thesis
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
+            # plot.savefig(spei_category_output_file_path, format='jpg')
+
+            # Optionally display the plot (for finetuning so adjusting is easier)
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
+            plot.show()
+
+    # Cases for all pie charts that need data from the shapefile with all paper points
+    if chart_type in ['MODIS percentage', 'MODIS drought sphere', 'MODIS drought category']:
+
+        # Read the given shapefile for all pie chart cases using geopandas read_file() method and storing it as geodataframe
+        # https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe
+        # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
+        complete_gdf = geopd.read_file(shape_or_excel_file_path)
+
         # If 'MODIS drought category' is selected, create the drought quantification breakdown pie charts for each MODIS forest type
-        elif chart_type == 'MODIS drought category':
-            # Group the data by 'MODIS_forest_type' and count the occurrences of 'drought quantification keyword for plots'
+        if chart_type == 'MODIS drought category':
+
+            # Group the data by 'MODIS_forest_type' and clean 'drought_sphere' and then count its occurrences with size()
+            # Remove quotes with replace() (because python gives an error for "dry" keyword if there are quotes)
+            # Also create the pivot table to have drought_sphere as columns and fill missing with 0
             # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
-            forest_breakdown_data = excel_df.groupby('MODIS_forest_type')['drought quantification keyword for plots'].value_counts().unstack(
-                fill_value=0)
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.lower.html
+            # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
+            forest_breakdown_data = (
+                complete_gdf.groupby(['forest', complete_gdf['drouquanti'].str.strip().str.lower().str.replace('"', '')]).size().unstack(
+                    fill_value=0))
 
             # Reorder the MODIS Categories based on https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands "LC_Type1 Class Table"
-            desired_forest_order = ['Evergreen Needleleaf Forest', 'Evergreen Broadleaf Forest',
-                                    'Deciduous Broadleaf Forest', 'Mixed Forest', 'Closed Shrubland', 'Woody Savanna', 'Other (Mangrove Forest, Open Shrubland, Savannas, Permanent Wetlands, ...)']
+            desired_forest_order = ['Evergreen Needleleaf Forest', 'Evergreen Broadleaf Forest', 'Deciduous Needleleaf Forest',
+                                    'Deciduous Broadleaf Forest', 'Mixed Forest', 'Closed Shrubland', 'Woody Savanna',
+                                    'Other (Mangrove Forest, Open Shrubland, Savannas, Permanent Wetlands, ...)']
 
             # Filter and reorder the MODIS forest types using .isin() to keep only the relevant types and .reindex() to match the desired order
             # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html#pandas-dataframe-loc
@@ -573,6 +592,19 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html
             final_forest_breakdown_data = forest_breakdown_data.loc[
                 forest_breakdown_data.index.isin(desired_forest_order)].reindex(desired_forest_order)
+
+            # Define consistent colors for each drought quantification keyword across all plots, globally defined because of multiple use cases
+            # https://stackoverflow.com/questions/26139423/plot-different-color-for-different-categorical-levels
+            drought_keywords_color_mapping = {
+                'dry': '#ff7f0e',  # Dark Orange
+                'differs from normal': '#ff4500',  # Orange-Red
+                'dry season': '#87CEEB',  # Sky Blue
+                'low soil moisture': '#00ced1',  # Dark Turquoise
+                'low water flow/depth': '#4682b4',  # Steel Blue
+                'plant water stress': '#32cd32',  # Lime Green
+                'reduced rainfall': '#adff2f',  # Green Yellow
+                'standardized index': '#9370db'  # Medium Purple
+            }
 
             # Set the size of the figure and define the number of subplots based on the number of relevant MODIS forest types
             # manually because we need one pie chart for each relevant, named MODIS forest type
@@ -602,12 +634,12 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # Set the main title for the entire figure (has to be done separately because every pie chart has its own title) aswell as the file name
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.suptitle.html
-            fig.suptitle('Breakdown of the given drought quantification for the relevant MODIS forest types', fontsize=16)
-            breakdown_output_file_path = r'D:\Uni\Bachelorarbeit\Plots\Breakdown pie charts for percentages of drought definitions for MODIS forest types from excel.jpg'
+            fig.suptitle('Breakdown of the given drought quantification for all paper locations MODIS forest types', fontsize=16)
+            breakdown_output_file_path = r'D:\Uni\Bachelorarbeit\Plots\Breakdown pie charts for percentages of drought definitions for MODIS forest types from complete location shapefile.jpg'
 
             # Remove the last unused pie chart since we only have 7 relevant MODIS forest types but 2 rows and 4 columns = 8 pie charts
             # https://www.geeksforgeeks.org/matplotlib-figure-figure-delaxes-in-python/
-            fig.delaxes(axes[-1])
+            # fig.delaxes(axes[-1])
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -621,23 +653,19 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
 
-        # NEED TO EDIT THE EXCEL FILE FIRST BEFORE SAVING THE FINAL PIE CHART
         # If 'MODIS drought sphere' is selected, create the drought quantification breakdown pie charts for each MODIS forest type
-        elif chart_type == 'MODIS drought sphere':
+        if chart_type == 'MODIS drought sphere':
 
             # Group the data by 'MODIS_forest_type' and clean 'drought_sphere' and then count its occurrences with size()
+            # Also create the pivot table to have drought_sphere as columns and fill missing with 0
             # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.lower.html
             # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
-            forest_sphere_breakdown_data = (
-                excel_df.groupby(['MODIS_forest_type', excel_df['drought_sphere'].str.strip().str.lower()])
-                .size()  # Count occurrences of each drought sphere within each forest type
-                .unstack(fill_value=0)  # Pivot to have drought_sphere as columns and fill missing with 0
-            )
+            forest_sphere_breakdown_data = (complete_gdf.groupby(['forest', complete_gdf['sphere'].str.strip().str.lower()]).size().unstack(fill_value=0))
 
             # Reorder the MODIS Categories based on https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands "LC_Type1 Class Table"
-            desired_forest_order = ['Evergreen Needleleaf Forest', 'Evergreen Broadleaf Forest',
+            desired_forest_order = ['Evergreen Needleleaf Forest', 'Evergreen Broadleaf Forest', 'Deciduous Needleleaf Forest',
                                     'Deciduous Broadleaf Forest', 'Mixed Forest', 'Closed Shrubland', 'Woody Savanna',
                                     'Other (Mangrove Forest, Open Shrubland, Savannas, Permanent Wetlands, ...)']
 
@@ -686,13 +714,9 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # Set the main title for the entire figure (has to be done separately because every pie chart has its own title) aswell as the file name
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.suptitle.html
-            fig.suptitle('Breakdown of the given drought spheres for the relevant MODIS forest types',
+            fig.suptitle('Breakdown of the given drought spheres for all MODIS forest types from all paper locations',
                          fontsize=16)
-            breakdown_output_file_path = r'D:\Uni\Bachelorarbeit\Plots\Breakdown pie charts for percentages of drought spheres for MODIS forest types from excel.jpg'
-
-            # Remove the last unused pie chart since we only have 7 relevant MODIS forest types but 2 rows and 4 columns = 8 pie charts
-            # https://www.geeksforgeeks.org/matplotlib-figure-figure-delaxes-in-python/
-            fig.delaxes(axes[-1])
+            breakdown_output_file_path = r'D:\Uni\Bachelorarbeit\Plots\Breakdown pie charts for percentages of drought spheres for MODIS forest types from all paper location.jpg'
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -706,91 +730,107 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
 
-    # If 'SPEI category percentage' is selected, create the SPEI drought category pie chart
-    elif chart_type == 'SPEI category percentage':
+        # If 'MODIS percentage' is selected, this case is used to create the general MODIS forest type percentage pie chart
+        if chart_type == 'MODIS percentage':
+            # Count the occurrences of each study type to create the percentages
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html
+            modis_category_counts = complete_gdf['forest'].value_counts()
 
-        # Reading the given shapefile using geopandas read_file() method and storing it as geodataframe
-        # https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe
-        # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
-        spei_gdf = geopd.read_file(shape_or_excel_file_path)
+            # Change the label for 'Other' category, so it is not too long (only for bar plots with MODIS involved)
+            # https://pandas.pydata.org/docs/user_guide/basics.html#renaming-mapping-labels
+            modis_category_counts.rename(
+                index={"Other (Mangrove Forest, Open Shrubland, Savannas, Permanent Wetlands, ...)": "Other"},
+                inplace=True)
 
-        # Count the occurrences of each SPEI drought category to create the percentages
-        # https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html
-        spei_category_counts = spei_gdf['Category'].value_counts()
+            # Map the study types to their corresponding colors from https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands 'LC_Type1 Class Table'
+            # https://stackoverflow.com/questions/26139423/plot-different-color-for-different-categorical-levels
+            modis_color_mapping = {
+                'Evergreen Needleleaf Forest': '#05450a',   # Dark Green
+                'Evergreen Broadleaf Forest': '#086a10',    # Forest Green
+                'Deciduous Needleleaf Forest': '#54a708',   # Lime Green
+                'Deciduous Broadleaf Forest': '#78d203',    # Bright Lime
+                'Mixed Forest': '#009900',                  # Green
+                'Closed Shrubland': '#c6b044',              # Goldenrod
+                'Woody Savanna': '#dade48',                 # Light Yellow-Green
+                'Other': '#27ff87'                          # Bright Mint Green
+            }
 
+            # Create a list of colors in the same order as the labels in modis_category_counts
+            modis_colors = [modis_color_mapping[label] for label in modis_category_counts.index]
 
-        # Define the colors for SPEI drought categories, so they match in every plot (and with the QGIS map) from
-        # https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands 'LC_Type1 Class Table'
-        # https://stackoverflow.com/questions/26139423/plot-different-color-for-different-categorical-levels
-        spei_color_mapping = {
-            'no drought (+1 < SPEI)': '#0000FF',                    # Blue
-            'near normal conditions (-1 < SPEI < +1)': '#ADD8E6',   # Light Blue
-            'moderately dry (-1.5 < SPEI <= -1)': '#FFA500',        # Orange
-            'severely dry (-2 < SPEI <= -1.5)': '#FF4500',          # Orange-Red
-            'extremely dry (SPEI <= -2)': '#8B0000'                 # Dark Red
-        }
+            # Exploding the "Deciduous Needleleaf Forest" slice so the difference and the percentages are clearer
+            # https://www.educative.io/answers/how-to-explode-a-pie-chart-using-matplotlib-in-python
+            explode = [0, 0, 0, 0, 0, 0, 0, 0.2]
 
-        # Create a list of colors in the same order as the labels in spei_category_counts to use it for the pie chart
-        spei_colors = [spei_color_mapping[label] for label in spei_category_counts.index]
+            # Adjust the size of the plot so the picture is better usable later on
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
+            plot.figure(figsize=(13, 8))
 
+            # Create the pie chart with percentages and white lines between the pieces
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
+            wedges, texts, autotexts = plot.pie(modis_category_counts, autopct='%1.1f%%', colors=modis_colors,
+                                                startangle=90, explode=explode,
+                                                wedgeprops={'edgecolor': 'white', 'linewidth': 0.5})
 
-        # Adjust the size of the plot so the picture is better usable later and nothing gets cut off
-        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
-        plot.figure(figsize=(11, 8))
+            # Set label positions manually for the study type "Review", so they are right next to their pieces
+            # https://stackoverflow.com/questions/43916834/matplotlib-dynamically-change-text-position
+            for i, label in enumerate(modis_category_counts.index):
+                # Re-capitalize labels for the pie chart by defining them as titles
+                label = label.title()
+                # Adjusting the position of "Deciduous Needleleaf Forest" by using specific coordinates
+                if label == "Deciduous Needleleaf Forest":
+                    texts[i].set_position((-0.25, 1.24))
+                # Adjusting the position of "Closed Shrubland" by using specific coordinates
+                if label == "Closed Shrubland":
+                    texts[i].set_position((0.07, 1.062))
+                # Adjusting the position of "Other" by using specific coordinates
+                if label == "Other":
+                    texts[i].set_position((0.632, 0.87))
+                else:
+                    # Keep default position for other labels since they are fine on default
+                    texts[i].set_position(texts[i].get_position())
 
-        # Create the pie chart with black lines between pieces and percentages as texts
-        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
-        wedges, category_texts, autotexts = plot.pie(spei_category_counts, autopct='%1.1f%%', colors=spei_colors, startangle=90,
-                                            wedgeprops={'edgecolor': 'black', 'linewidth': 0.4})
+                # Adding back the study type label text (since set_position overrides them)
+                # https://www.tutorialspoint.com/how-to-add-title-to-subplots-in-matplotlib#:~:text=The%20Matplotlib%20set_text()%20function,in%20a%20subplot%20or%20plot.
+                texts[i].set_text(label)
 
-        # Set label position manually for the SPEI category ('no drought (+1 < SPEI)'), so it is right next to their piece and replace '<=' with '≤' if needed in the labels
-        # https://stackoverflow.com/questions/43916834/matplotlib-dynamically-change-text-position
-        # https://docs.python.org/3/library/stdtypes.html#str.replace
-        for i, spei_label in enumerate(spei_category_counts.index):
-            # Replace '<=' with '≤' in the labels (pie chart pieces descriptions)
-            cleaned_spei_label = spei_label.replace('<=', '≤')
+            # Draw the plot as circle and ensure equal aspect ratio
+            # https://matplotlib.org/stable/gallery/subplots_axes_and_figures/axis_equal_demo.html
+            plot.axis('equal')
 
-            # We only want to manually position the 'no drought (+1 < SPEI)' label because it's not right on default
-            if cleaned_spei_label == "no drought (+1 < SPEI)":
-                # Manually adjusting the position of 'no drought (+1 < SPEI)' by using coordinates
-                category_texts[i].set_position((-0.1, 1.1))
+            # Set the title and filename for this pie chart
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
+            plot.title("Distribution of the MODIS forest types in percentages")
+            study_type_output_path = r'D:\Uni\Bachelorarbeit\Plots\Pie chart with MODIS forest category percentages from the complete locations shapefile.jpg'
 
-            # Adding back the SPEI category label text (because set_position overrides them)
-            # https://www.tutorialspoint.com/how-to-add-title-to-subplots-in-matplotlib#:~:text=The%20Matplotlib%20set_text()%20function,in%20a%20subplot%20or%20plot.
-            category_texts[i].set_text(cleaned_spei_label)
+            # Save the pie chart as a JPG file to use it in the thesis
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
+            # plot.savefig(study_type_output_path, format='jpg')
 
-        # Set the main title as well as the file name
-        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
-        plot.title("Distribution of the SPEI categories out of all re-analysed studies in percentage")
-        spei_category_output_file_path = r'D:\Uni\Bachelorarbeit\Plots\Pie chart with complete SPEI drought category percentages.jpg'
+            # Optionally display the plot (for finetuning so adjusting is easier)
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
+            plot.show()
 
-        # Ensure that the tight layout is used for a better visualisation and readability of the 'no drought (+1 < SPEI)' percentage
-        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
-        plot.tight_layout()
-
-        # Save the pie chart as a JPG file to use it in the thesis
-        # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        # plot.savefig(spei_category_output_file_path, format='jpg')
-
-        # Optionally display the plot (for finetuning so adjusting is easier)
-        # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
-        plot.show()
-
-
+# DONE
 # Generate the MODIS forest type percentage pie chart
-# create_pie_chart(reanalysis_shapefile_path, 'MODIS percentage')
+# create_pie_chart(all_studies_shapefile_path, 'MODIS percentage')
 
+# SAVE AFTER REWORK OF SHAPEFILE
 # Generate the SPEI category percentage pie chart
 # create_pie_chart(reanalysis_shapefile_path, 'SPEI category percentage')
 
+# DONE
 # Generate the general study type percentages pie chart
 # create_pie_chart(excel_file_path, 'study type')
 
-# Generate the study type breakdown of given drought quantifications pie chart
+# DONE
+# Generate the study type breakdown of given drought quantification keyword pie chart
 # create_pie_chart(excel_file_path, 'breakdown')
 
-# Generate the MODIS breakdown of given drought quantifications pie chart
-# create_pie_chart(excel_file_path, 'MODIS drought category')
+# DONE
+# Generate the MODIS breakdown of given drought quantification keyword pie chart
+# create_pie_chart(all_studies_shapefile_path, 'MODIS drought category')
 
+# Done
 # Generate the MODIS breakdown of drought spheres pie chart
-# create_pie_chart(excel_file_path, 'MODIS drought sphere')
+# create_pie_chart(all_studies_shapefile_path, 'MODIS drought sphere')
