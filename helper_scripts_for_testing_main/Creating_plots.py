@@ -25,9 +25,9 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
     each MODIS forest type from a given dataset.
     This function is used for bar charts with the given drought quantification keywords from the papers
     The function is designed to combine bar chart creation logic for different cases which all have
-    "drought quantification keyword for plots" as stacked bars into a single method.
+    "drought quantification keyword for plots" as stacked bars into a single function.
     This allows for easy extension if more bar charts are needed in the future from the same shapefile data,
-    without requiring the creation of additional methods.
+    without requiring the creation of additional functions.
 
 
     Args:
@@ -190,9 +190,9 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
     and SPEI drought categories. The data is loaded from a shapefile, grouped, and processed to display
     percentages in a stacked bar plot.
     The function is designed to combine bar chart creation logic for different cases which all use the SPEI drought category
-    from the re-analysis into a single method.
+    from the re-analysis into a single function.
     This allows for easy extension if more bar charts are needed in the future from the same re-analysis shapefile data,
-    without requiring the creation of additional methods.
+    without requiring the creation of additional function.
 
     Args:
         shapefile_path (str): The path to the shapefile that contains the data for analysis.
@@ -1033,11 +1033,13 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
 def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
     """
-    Generates a stacked (hatched) bar chart visualizing the correctness of drought category keywords.
-    The function reads data from a shapefile (or in the future maybe an Excel file), groups it by specific columns,
-    calculates the percentage of correct (True) and incorrect (False) classifications, and
-    plots a stacked bar chart with custom styling. The chart is saved as a JPG file and optionally
-    displayed for optimizing/adjusting it.
+    Generates a stacked bar chart visualizing either the correlation of drought category keywords with
+    drought quantification or the correctness of drought quantification. The chart is generated based on
+    the specified `chart_type`, either from a shapefile or an Excel file, and saved as a JPG image.
+    The function is designed to combine (hatched) bar chart creation logic for different cases which all use the given
+    drought categories from the papers and "True" or "False" values for the stacked bars.
+    This allows for easy extension if more bar charts are needed in the future from the same shapefile or Excel data,
+    without requiring the creation of additional functions.
 
     Args:
         shape_or_excel_file_path (str): The file path to the shapefile or Excel file to be analyzed.
