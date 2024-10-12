@@ -14,9 +14,13 @@ FÜR JAHRESZAHLEN CHECKEN DASS WENN 20XX-YY IST, YY GRÖßER SEIN MUSS ALS XX
 
 3. "time period with drought (if mentioned)" und "time period analyzed" als Suchoption ergänzen (wahrscheinlich eingeschränkt als (Jahr-Jahr) such-pattern, wird nicht alles finden aber immerhin keine redundanzen durch Spezialisierung
 
-4. Forest type für "ecosystem type" als Suche ergänzen
+4. Forest type für "ecosystem type" als Suche ergänzen - fertig, muss nur noch optimiert werden in Zukunft
 
-5. Alle extrahierten Informationen prüfen im Vergleich mit offener PDF, dann Tabelle entsprechend anpassen um sie morgen vorzeigen zu können
+5. Insgesamt muss die fertige Excel Tabelle am Ende so nahe wie möglich an das Muster von mir rankommen
+
+6. Eventuell noch umwandlung von Koordinaten in Dezimalgrad einbauen, könnte bei den vielen verschiedenen Koordinaten-Formaten aber sehr schwierig werden
+
+7. Docker wenn noch Zeit (nur für Main script, nicht für helfer Funktionen oder die Plot creation
 
 
 Eventuell:
@@ -25,11 +29,6 @@ Beispiel dafür: Climatic and human influences on fire regimes of the southern S
 
 Generell:
 Programmierschritte stichpunktartig festhalten
-
-Entstandene Excel Tabelle komplett überprüfen und säubern (redundanzen entfernen, Koordinaten aufräumen und eventuell umwandeln
-in Einheitliches Format, https://spei.csic.es/map/maps.html#months=1#month=5#year=2024 braucht Dezimalgrad (WGS84) Bsp.: 51.98622, 7.632755)
-
-   Danach Plots und Karte wie besprochen erstellen 
    
 
 Done:
@@ -64,6 +63,9 @@ Done:
 
 13. Alles gut verständlich auskommentieren
     13.1. Args und Returns bei jeder Funktion hinzufügen
+    
+14. Entstandene Excel Tabelle komplett überprüfen und säubern (redundanzen entfernen, Koordinaten aufräumen und eventuell umwandeln
+in Einheitliches Format, https://spei.csic.es/map/maps.html#months=1#month=5#year=2024 braucht Dezimalgrad (WGS84) Bsp.: 51.98622, 7.632755)
 """
 
 # Einrichten des Loggings für Informationen, hierbei wird die Zeit angegeben (asctime), sowieso um welchen Typ von logg-ausgabe es sich handelt (levelname) und natürlich die nachricht welche Ausgegeben werden soll (message)
@@ -86,7 +88,6 @@ extracted_data = extract_coordinates_from_pdfs_in_folder(folder_path)
 # Aktualisiere die Excel-Datei mit den extrahierten Daten
 update_excel_with_extracted_data(excel_path, extracted_data)
 
-#TO-DO: Die 2 neuen Informationen years_with_drought,analyzed_years
 # Ausgabe der extrahierten Informationen im Terminal zur Überprüfung
 for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, found_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought) in enumerate(extracted_data):
     print(f"Paper: '{pdf_basename}'")
