@@ -1031,7 +1031,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # create_pie_chart(all_studies_shapefile_path, 'MODIS drought sphere')
 
 
-def create_true_false_bar_chart(shape_or_excel_file_path):
+def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
     """
     Generates a stacked (hatched) bar chart visualizing the correctness of drought category keywords.
     The function reads data from a shapefile (or in the future maybe an Excel file), groups it by specific columns,
@@ -1043,111 +1043,187 @@ def create_true_false_bar_chart(shape_or_excel_file_path):
         shape_or_excel_file_path (str): The file path to the shapefile or Excel file to be analyzed.
                                         The path can be either a .shp or .xlsx file, and the data
                                         should contain columns for drought quantification and correctness.
+        chart_type (str): Specifies the type of pie chart to generate. Options are
 
     Returns:
         None: The function saves the generated bar chart as a JPG image.
     """
     # Maybe also implement cases in this one but not sure if there is another plot fitting needed
 
-    # Read the given shapefile geopandas read_file() method and storing it as geodataframe
-    # https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe
-    # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
-    complete_gdf = geopd.read_file(shape_or_excel_file_path)
+    if chart_type == "Drought quantified":
+        # Load the Excel file and "relevantInfo" sheet where the data for the pie charts is stored
+        # https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html
+        excel_df = pd.read_excel(shape_or_excel_file_path, sheet_name="relevantInfo")
 
-    # Grouping the data by 'dr_quanti' and 'drouright' to count their occurrences and the percentages later
-    # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
-    # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
-    # https://www.statology.org/pandas-unstack/
-    drought_correctness_counts = (
-        complete_gdf.groupby(["dr_quanti", "drouright"]).size().unstack(fill_value=0)
-    )
+        # Set the output path for this bar plot
+        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Bar plot that shows the correlation between all given drought keywords and if drought was quantified in percent.jpg"
 
-    # Calculate the percentage for each XXX by dividing each value by the global total (sum of all counts)
-    # https://www.w3schools.com/python/pandas/ref_df_sum.asp
-    # https://www.w3schools.com/python/pandas/ref_df_div.asp
-    global_total = drought_correctness_counts.values.sum()
-    drought_correctness_counts_percentage = (
-        drought_correctness_counts.div(global_total) * 100
-    )
+        # Grouping the data by 'drought quantification keyword for plots' and 'was drought quantified**'
+        # to count their occurrences and the percentages later
+        # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
+        # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
+        # https://www.statology.org/pandas-unstack/
+        drought_quantification_counts = excel_df.groupby(
+            ['drought quantification keyword for plots', 'was drought quantified**']).size().unstack(fill_value=0)
 
-    # Calculate the sum of all rows (True & False for each drought quantification keyword) and store it in a 'Total' column
-    # This new 'Total' column is then used for sorting the categories in descending order based on the total occurrences.
-    # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html
-    drought_correctness_counts_percentage["Total"] = (
-        drought_correctness_counts_percentage.sum(axis=1)
-    )
+        # Calculate the percentage for each drought quantification keyword by dividing each value by the global total (sum of all counts)
+        # https://www.w3schools.com/python/pandas/ref_df_sum.asp
+        # https://www.w3schools.com/python/pandas/ref_df_div.asp
+        drought_quantification_global_total = drought_quantification_counts.values.sum()
+        drought_quantification_percentage = drought_quantification_counts.div(drought_quantification_global_total) * 100
 
-    # Sort by the total percentage of (True & False) in descending order and then remove the 'Total' column because it served its purpose
-    # https://www.w3schools.com/python/pandas/ref_df_sort_values.asp
-    # https://www.w3schools.com/python/pandas/ref_df_drop.asp
-    sorted_category_counts_percentage = (
-        drought_correctness_counts_percentage.sort_values(
-            by="Total", ascending=False
-        ).drop(columns=["Total"])
-    )
+        # Set the order as wanted for the X-Axis by creating a list that has all the keywords in the wanted order
+        desired_drought_keyword_order = ["\"Dry\"", "Dry season", "Differs from normal", "Low soil moisture", "Low water flow/depth",
+                         "Reduced rainfall", "Standardized Index", "Plant water stress"]
 
-    # Generate the plot with sorted categories and hardcoded colors
-    # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.bar.html
-    sorted_category_counts_percentage[["True", "False"]].plot(
-        kind="bar",
-        stacked=True,
-        figsize=(10, 6),
-        color=["darkblue", "red"],
-        edgecolor="black",
-    )
+        # Applying the desired order to the data so it will be used for the X-Axis
+        # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html
+        sorted_drought_quantification_percentage = drought_quantification_percentage.reindex(desired_drought_keyword_order)
 
-    # Customize the 'False' bars with diagonal stripes by using .gca() to get the needed axis and its patches
-    # https://www.geeksforgeeks.org/matplotlib-pyplot-gca-in-python/
-    # https://stackoverflow.com/a/59586067 (set_hatch)
-    # Use gca to get all axes and their patches with .patches
-    bars = plot.gca().patches
-    # Iterate over the bars
-    for bar in bars:
-        # Determines that only the red colored stacked bar gets diagonally striped
-        if bar.get_facecolor() == (1.0, 0.0, 0.0, 1.0):
-            bar.set_hatch("//")
+        # Change the "True" and "False" values from the Excel file to strings because they could not be used to set a desired order
+        # https://stackoverflow.com/a/60553529 (astype("string"))
+        sorted_drought_quantification_percentage.columns = sorted_drought_quantification_percentage.columns.astype("string")
 
-    # Add manual y-axis label for all studies
-    # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib-pyplot-ylabel
-    plot.ylabel("Percentage of all drought category keywords")
+        # Generate the plot with sorted categories and hardcoded colors, as well as the order for the bars
+        # ("darkblue" on the bottom for "True", "red" on the top for "False")
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.bar.html
+        sorted_drought_quantification_percentage[['True', 'False']].plot(
+            kind="bar",
+            stacked=True,
+            figsize=(10, 6),
+            color=["darkblue", "red"],
+            edgecolor="black"
+        )
 
-    # Add X-axis title manually
-    # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.xlabel.html#matplotlib.pyplot.xlabel
-    plot.xlabel("Given drought category")
+        # Add the legend, so it gets clear what part of the bars is "True" and "False"
+        # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
+        plot.legend(
+            ["Quantified (True)", "Not Quantified (False)"],
+            title="Was drought quantified?",
+            loc="upper right",
+            alignment="left"
+        )
 
-    # Optionally add a title for a better description of the given correlation
-    # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
-    # plot.title('Bar plot to show the correctness of the given drought keywords')
+        # Optionally set a title for this case for a better overview (not needed later in the thesis)
+        title = "Correlation between given drought keywords and if drought was quantified"
 
-    # Add the legend, so it gets clear what part of the bars is "True" and "False"
-    # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
-    plot.legend(
-        ["True", "False"],
-        title="Was there a drought according to SPEI?",
-        loc="upper right",
-        alignment="left",
-    )
+        # Set the y-axis limit to 30% for a better overview
+        # https://www.geeksforgeeks.org/matplotlib-pyplot-ylim-in-python/
+        plot.ylim(0, 35)
 
-    # Rotate x-axis labels for readability and better plot-text ratio
-    # https://www.geeksforgeeks.org/matplotlib-pyplot-xticks-in-python/
-    plot.xticks(rotation=45)
+    if chart_type == "Drought correctness":
+        # Read the given shapefile geopandas read_file() method and storing it as geodataframe
+        # https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe
+        # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
+        complete_gdf = geopd.read_file(shape_or_excel_file_path)
 
-    # Ensure that the tight layout is used for a better visualisation
-    # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
-    plot.tight_layout()
+        # Set the output path for this bar plot
+        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Bar plot that shows the correctness of the given drought quantification keywords for all re-analyzed paper locations.jpg"
 
-    # Set the output path for this bar plot
-    output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Bar plot that shows the correctness of the given drought quantification keywords for all re-analyzed paper locations.jpg"
+        # Set the title for this case
+        title = "Bar plot to show the correctness of the given drought keywords"
 
-    # Save the bar plot as a JPG file to use it in the thesis
-    # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-    # plot.savefig(output_file_path, format='jpg')
+        # Grouping the data by 'dr_quanti' and 'drouright' to count their occurrences and the percentages later
+        # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
+        # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
+        # https://www.statology.org/pandas-unstack/
+        drought_correctness_counts = (
+            complete_gdf.groupby(["dr_quanti", "drouright"])
+            .size()
+            .unstack(fill_value=0)
+        )
 
-    # Optionally display the plot (for finetuning so adjusting is easier)
-    # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
-    plot.show()
+        # Calculate the percentage for each drought quantification keyword by dividing each value by the global total (sum of all counts)
+        # https://www.w3schools.com/python/pandas/ref_df_sum.asp
+        # https://www.w3schools.com/python/pandas/ref_df_div.asp
+        global_total = drought_correctness_counts.values.sum()
+        drought_correctness_counts_percentage = (
+            drought_correctness_counts.div(global_total) * 100
+        )
+
+        # Calculate the sum of all rows (True & False for each drought quantification keyword) and store it in a 'Total' column
+        # This new 'Total' column is then used for sorting the categories in descending order based on the total occurrences.
+        # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html
+        drought_correctness_counts_percentage["Total"] = (
+            drought_correctness_counts_percentage.sum(axis=1)
+        )
+
+        # Sort by the total percentage of (True & False) in descending order and then remove the 'Total' column because it served its purpose
+        # https://www.w3schools.com/python/pandas/ref_df_sort_values.asp
+        # https://www.w3schools.com/python/pandas/ref_df_drop.asp
+        sorted_category_counts_percentage = (
+            drought_correctness_counts_percentage.sort_values(
+                by="Total", ascending=False
+            ).drop(columns=["Total"])
+        )
+
+        # Generate the plot with sorted categories and hardcoded colors
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.bar.html
+        sorted_category_counts_percentage[["True", "False"]].plot(
+            kind="bar",
+            stacked=True,
+            figsize=(10, 6),
+            color=["darkblue", "red"],
+            edgecolor="black",
+        )
+
+        # Add the legend, so it gets clear what part of the bars is "True" and "False"
+        # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
+        plot.legend(
+            ["True", "False"],
+            title="Was there a drought according to SPEI?",
+            loc="upper right",
+            alignment="left",
+        )
+
+    if chart_type in ["Drought quantified", "Drought correctness"]:
+
+        # For ALL cases so the two cases have to come back together here:
+
+        # Customize the 'False' bars with diagonal stripes by using .gca() to get the needed axis and its patches
+        # https://www.geeksforgeeks.org/matplotlib-pyplot-gca-in-python/
+        # https://stackoverflow.com/a/59586067 (set_hatch)
+        # Use gca to get all axes and their patches with .patches
+        bars = plot.gca().patches
+        # Iterate over the bars
+        for bar in bars:
+            # Determines that only the red colored stacked bar gets diagonally striped
+            if bar.get_facecolor() == (1.0, 0.0, 0.0, 1.0):
+                bar.set_hatch("//")
+
+        # Add X-axis title manually for both cases because it is the same
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.xlabel.html#matplotlib.pyplot.xlabel
+        plot.xlabel("Given drought category")
+
+        # Add manual y-axis label manually for both cases because it is the same
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib-pyplot-ylabel
+        plot.ylabel("Percentage of all drought category keywords")
+
+        # Optionally add the title from the cases
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
+        plot.title(title)
+
+        # Rotate x-axis labels for readability and better plot-text ratio
+        # https://www.geeksforgeeks.org/matplotlib-pyplot-xticks-in-python/
+        plot.xticks(rotation=45)
+
+        # Ensure that the tight layout is used for a better visualisation
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
+        plot.tight_layout()
+
+        # Save the bar plot as a JPG file to use it in the thesis
+        # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
+        plot.savefig(output_file_path, format='jpg')
+
+        # Optionally display the plot (for finetuning so adjusting is easier)
+        # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
+        plot.show()
 
 
 # DONE
 # Generate the bar plot with correctness of the given drought quantification keywords for all re-analyzed paper locations
-# create_true_false_bar_chart(reanalysis_shapefile_path)
+# create_true_false_bar_chart(reanalysis_shapefile_path, 'Drought correctness')
+
+# DONE
+# Generate the bar plot that shows the correlation between all given drought keywords and if drought was quantified in percent
+# create_true_false_bar_chart(excel_file_path, "Drought quantified")
