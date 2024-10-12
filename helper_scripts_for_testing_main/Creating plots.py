@@ -179,7 +179,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Title of the plot
         title = 'Distribution of SPEI drought categories in correlation with the given drought quantifications from the studies'
         # Path where the plot is going to be saved
-        output_file_path = r'D:\Uni\Bachelorarbeit\Plots\Bar chart for correlation of SPEI drought category and the given drought quantifications of the studies.jpg'
+        output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation of SPEI drought category and the given drought quantifications of the studies.jpg'
 
     # For MODIS categories and SPEI drought categories
     if chart_type == 'MODIS SPEI':
@@ -191,7 +191,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Title of the plot
         title = 'Distribution of SPEI drought categories within each MODIS category'
         # Path where the plot is going to be saved
-        output_file_path = r'D:\Uni\Bachelorarbeit\Plots\Bar chart for correlation MODIS classes and SPEI drought categories.jpg'
+        output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation MODIS classes and SPEI drought categories.jpg'
 
     # For SPEI drought category totals only as series
     if chart_type == 'SPEI category totals':
@@ -203,7 +203,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Title of the plot
         title = 'Total number of occurrences for each SPEI drought category sorted by severity'
         # Path where the plot is going to be saved
-        output_file_path = r'D:\Uni\Bachelorarbeit\Plots\Bar chart for SPEI drought category totals sorted by severity.jpg'
+        output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for SPEI drought category totals sorted by severity.jpg'
 
     # For all cases that somehow use "Category" (The SPEI categories)
     if chart_type in ['Drought', 'MODIS SPEI', 'SPEI category totals']:
@@ -310,15 +310,12 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
         plot.show()
 
-# SAVE AFTER REWORK OF SHAPEFILE
 # Generate the SPEI drought categories bar chart
 # create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'SPEI category totals')
 
-# SAVE AFTER REWORK OF SHAPEFILE
 # Generate the drought quantification keyword bar chart
 # create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'Drought')
 
-# SAVE AFTER REWORK OF SHAPEFILE
 # Generate the MODIS SPEI category bar chart
 # create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'MODIS SPEI')
 
@@ -544,7 +541,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # Set the main title as well as the file name
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
             plot.title("Distribution of the SPEI categories out of all re-analysed studies in percentage")
-            spei_category_output_file_path = r'D:\Uni\Bachelorarbeit\Plots\Pie chart with complete SPEI drought category percentages.jpg'
+            spei_category_output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Pie chart with complete SPEI drought category percentages.jpg'
 
             # Ensure that the tight layout is used for a better visualisation and readability of the 'no drought (+1 < SPEI)' percentage
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
