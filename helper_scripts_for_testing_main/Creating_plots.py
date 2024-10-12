@@ -103,7 +103,8 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
         legend_labels_with_counts = [
             f"{category} [{count}]"
             for category, count in zip(
-                drought_keywords_sums.index, drought_keywords_sums.values)
+                drought_keywords_sums.index, drought_keywords_sums.values
+            )
         ]
 
         # Sorting legend labels based on the counts numeric in descending order
