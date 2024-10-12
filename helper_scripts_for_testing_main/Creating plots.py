@@ -1,11 +1,10 @@
-# Importing pandas for data manipulation and analysis and name it pd for simpler use
+# Importing pandas for data manipulation and analysis and and giving it the alias pd for further usage
 import pandas as pd
 
-# Importing geopandas for working with geospatial data, including shapefiles
+# Importing geopandas for working with geospatial data, including shapefiles and giving it the alias geopd for further usage
 import geopandas as geopd
 
-# Creates the plots from the data handled by (geo)pandas
-
+# Creates the plots from the data handled by (geo)pandas by using patplotlib.pyplot and giving it the alias plot for further usage
 import matplotlib.pyplot as plot
 
 # Path to the shapefile containing the information needed for all plots depending on the re-analysis data
@@ -17,7 +16,7 @@ all_studies_shapefile_path = r'D:\Uni\Bachelorarbeit\complete_paper_points\compl
 excel_file_path = r'D:\Uni\Bachelorarbeit\2024Apr_Mana_Review_v2i - paper_coords_area_years_plotkeywords_speireanalysis_month_finished.xlsx'
 
 # Probably not needed since a pie chart looks way better and has a better overview for this type of analysis
-def create_drought_keywords_bar_chart(excel_file_path, chart_type):
+def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
     """
         Creates a bar chart based on the specified chart type, currently only 'MODIS drought keyword'.
         This function is used for bar charts with the given drought quantification keywords from the papers
@@ -27,34 +26,35 @@ def create_drought_keywords_bar_chart(excel_file_path, chart_type):
         without requiring the creation of additional methods.
 
         Args:
-            excel_file_path (str): The path to the shapefile containing the data.
+            shape_or_excel_file_path (str): The path to the Excel or shapefile containing the data.
             chart_type (str): The type of bar chart to generate.
 
         Returns:
             None: The function generates and displays the requested bar chart.
         """
 
-    # Reading the given shapefile using geopandas read_file() method and storing it as geodataframe
+    # Read the given shapefile for all pie chart cases using geopandas read_file() method and storing it as geodataframe
     # https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe
     # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
-    excel_df = pd.read_excel(excel_file_path, sheet_name='relevantInfo')
+    complete_gdf = geopd.read_file(shape_or_excel_file_path)
+
 
     # Clean up the 'drought quantification keyword for plots' to remove quotes (because python gives an error for "dry" if there are quotes) and extra spaces
     # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
-    excel_df['drought quantification keyword for plots'] = excel_df[
-        'drought quantification keyword for plots'].str.strip().str.lower().str.replace('"', '')
+    complete_gdf['drouquanti'] = complete_gdf[
+        'drouquanti'].str.strip().str.lower().str.replace('"', '')
 
     # For MODIS categories and SPEI drought categories
     if chart_type == 'MODIS drought keyword':
             # Grouping the data by 'MODIS' and 'dr_quanti' to count occurrences of the drought quantifications
             # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
-            drought_keywords_counts = excel_df.groupby(['MODIS_forest_type', 'drought quantification keyword for plots']).size().unstack(fill_value=0)
+            drought_keywords_counts = complete_gdf.groupby(['forest', 'drouquanti']).size().unstack(fill_value=0)
             # X-axis text
             xaxisdescription = 'Forest type'
             # Title of the plot
-            title = 'Distribution of given drought quantification keywords within each MODIS category'
+            title = 'Distribution of given drought quantification keywords within each MODIS category from all paper locations'
             # Path where the plot is going to be saved
-            output_file_path = r'D:\Uni\Bachelorarbeit\Plots\Bar chart for correlation between MODIS classes and given drought quantification keywords from excel.jpg'
+            output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation between MODIS classes and given drought quantification keywords from complete paper points shapefile.jpg'
 
     if chart_type in ['MODIS drought keyword']:
             # Change the label for 'Other' category, so it is not too long (only for bar plots with MODIS involved)
@@ -128,18 +128,18 @@ def create_drought_keywords_bar_chart(excel_file_path, chart_type):
 
             # Save the plot as a JPG file to use it in the bachelor-thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(output_file_path, format='jpg')
+            plot.savefig(output_file_path, format='jpg')
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
 
 # Generate the MODIS and given drought category keyword bar chart
-# create_drought_keywords_bar_chart(excel_file_path, 'MODIS drought keyword')
+create_drought_keywords_bar_chart(all_studies_shapefile_path, 'MODIS drought keyword')
 
 def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
     """
-    Creates a bar chart based on the specified chart type, either 'MODIS', 'Drought', or 'SPEI category totals'.
+    Creates a bar chart based on the specified chart type, either 'MODIS SPEI' or 'Drought'.
     The function is designed to combine bar chart creation logic for different cases which all use the SPEI drought category
     from the re-analysis into a single method.
     This allows for easy extension if more bar charts are needed in the future from the same shapefile data,
@@ -177,9 +177,9 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # X-axis text
         xaxisdescription = 'Given drought category'
         # Title of the plot
-        title = 'Distribution of SPEI drought categories in correlation with the given drought quantifications from the studies'
+        title = 'Distribution of SPEI drought categories in correlation with the given drought quantification keywords from the studies'
         # Path where the plot is going to be saved
-        output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation of SPEI drought category and the given drought quantifications of the studies.jpg'
+        output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation of SPEI drought category and the given drought quantifications of the studies  in percent.jpg'
 
     # For MODIS categories and SPEI drought categories
     if chart_type == 'MODIS SPEI':
@@ -191,22 +191,10 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Title of the plot
         title = 'Distribution of SPEI drought categories within each MODIS category'
         # Path where the plot is going to be saved
-        output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation MODIS classes and SPEI drought categories.jpg'
-
-    # For SPEI drought category totals only as series
-    if chart_type == 'SPEI category totals':
-        # Count occurrences of each 'Category' (SPEI drought category) and reindex using the predefined category order
-        # https://pandas.pydata.org/docs/user_guide/10min.html#categoricals
-        category_counts = gdf['Category'].value_counts().reindex(spei_category_order, fill_value=0)
-        # X-axis text
-        xaxisdescription = 'SPEI drought category'
-        # Title of the plot
-        title = 'Total number of occurrences for each SPEI drought category sorted by severity'
-        # Path where the plot is going to be saved
-        output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for SPEI drought category totals sorted by severity.jpg'
+        output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation MODIS classes and SPEI drought categories in percent.jpg'
 
     # For all cases that somehow use "Category" (The SPEI categories)
-    if chart_type in ['Drought', 'MODIS SPEI', 'SPEI category totals']:
+    if chart_type in ['Drought', 'MODIS SPEI']:
         # Change the label for 'Other' category, so it is not too long (only for bar plots with MODIS involved)
         # https://pandas.pydata.org/docs/user_guide/basics.html#renaming-mapping-labels
         category_counts.rename(
@@ -225,33 +213,30 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
         # Reindex the DataFrame with the correct category order for all stacked bar plots
         # https://pandas.pydata.org/docs/user_guide/indexing.html#indexing-and-selecting-data
-        if chart_type != 'SPEI category totals':
-            existing_categories = [cat for cat in spei_category_order if cat in category_counts.columns]
-            category_counts = category_counts[existing_categories]
+        existing_categories = [cat for cat in spei_category_order if cat in category_counts.columns]
+        category_counts = category_counts[existing_categories]
+
+        # Calculate the percentage for each category by dividing each value by the global total (sum of all counts)
+        # https://www.w3schools.com/python/pandas/ref_df_sum.asp
+        # https://www.w3schools.com/python/pandas/ref_df_div.asp
+        global_total = category_counts.values.sum()
+        category_counts_percentage = category_counts.div(global_total) * 100
 
         # Sorting the created pivot table by total occurrences (sum of rows), from most to least in descending order for all stacked bar plots
         # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html#pandas-dataframe-loc
         # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html
-        if chart_type != 'SPEI category totals':
-            category_counts_sorted = category_counts.loc[
-                category_counts.sum(axis=1).sort_values(ascending=False).index]
+        category_counts_sorted = category_counts_percentage.loc[
+            category_counts_percentage.sum(axis=1).sort_values(ascending=False).index]
 
-            # Sorting the columns by total occurrences (sum of columns) for legend and data
-            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html
-            category_sums = category_counts_sorted.sum(axis=0)
-            category_counts_sorted = category_counts_sorted[category_sums.sort_values(ascending=False).index]
+        # Sorting the columns by total occurrences (sum of columns) for legend and data
+        # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html
+        category_sums = category_counts.sum(axis=0)
+        category_counts_sorted = category_counts_sorted[category_sums.sort_values(ascending=False).index]
 
-            # Custom legend labels with counts included for clearer overview
-            # https://www.geeksforgeeks.org/matplotlib-pyplot-legend-in-python/
-            legend_labels_with_counts = [f"{category} [{count}]" for category, count in
-                                         zip(category_sums.index, category_sums.values)]
-
-        # Creating legend labels with count for non-stacked (series) bar plots (SPEI category totals)
-        # https://pandas.pydata.org/docs/reference/api/pandas.Series.items.html#pandas-series-items
-        else:
-            category_counts_sorted = category_counts
-            category_sums = category_counts
-            legend_labels_with_counts = [f"{category} [{count}]" for category, count in category_counts.items()]
+        # Custom legend labels with counts included for clearer overview
+        # https://www.geeksforgeeks.org/matplotlib-pyplot-legend-in-python/
+        legend_labels_with_counts = [f"{category} [{int(count)}]" for category, count in
+                                     zip(category_sums.index, category_sums.values)]
 
         # Replace '<='with '≤' in the legend labels for better looks
         # https://docs.python.org/3/library/stdtypes.html#str.replace
@@ -264,37 +249,27 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
         # Generate the plot with sorted categories and the customized colors
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.bar.html
-        category_counts_sorted.plot(kind='bar', stacked=(chart_type != 'SPEI category totals'), figsize=(12, 6),
-                                    color=[spei_color_mapping[cat] for cat in
-                                           category_counts_sorted.index] if chart_type == 'SPEI category totals' else [
-                                        spei_color_mapping[cat] for cat in category_counts_sorted.columns])
+        category_counts_sorted.plot(kind='bar', stacked=True, figsize=(14, 8),
+                                    color=[spei_color_mapping[cat] for cat in category_counts_sorted.columns])
 
-        # Add titles and axis labels that were defined before depending automatically from the titels
+        # Add titles and axis labels that were defined before automatically from the titels
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.xlabel.html#matplotlib.pyplot.xlabel
-        plot.title(title)
+        # plot.title(title)
         plot.xlabel(xaxisdescription)
 
         # Add manual y-axis label for all studies
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib-pyplot-ylabel
-        plot.ylabel('Number of re-analysed studies')
+        plot.ylabel('Percentage of re-analysed study locations (%)')
 
         # Place the sorted legend with counts inside the plot on the upper right
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html
-        if chart_type == 'SPEI category totals':
-            # Adding a custom legend for non-stacked bar charts (SPEI category totals)
-            legend_handles = [plot.Rectangle((0, 0), 1, 1, color=spei_color_mapping[cat]) for cat in
-                              category_counts_sorted.index]
-            plot.legend(legend_handles, sorted_legend_labels_with_counts, title="SPEI drought category",
-                        loc='upper right')
-        # Adding a custom legend for all other stacked bar charts
-        else:
-            plot.legend(sorted_legend_labels_with_counts, title="SPEI drought category", loc='upper right')
+        plot.legend(sorted_legend_labels_with_counts, title="SPEI drought category", loc='upper right')
 
         # Rotate x-axis labels for readability and better plot-text ratio and replace '<=' with '≤'
         # https://www.geeksforgeeks.org/matplotlib-pyplot-xticks-in-python/
         # https://docs.python.org/3/library/stdtypes.html#str.replace
-        plot.xticks(ticks=range(len(category_counts_sorted.index)),  # Specify the positions of the ticks
+        plot.xticks(ticks=range(len(category_counts_sorted.index)),
                     labels=[label.replace('<=', '≤') for label in category_counts_sorted.index],
                     rotation=45, ha='right')
 
@@ -304,14 +279,11 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
         # Save the plot as a JPG file to use it in the bachelor-thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        # plot.savefig(output_file_path, format='jpg')
+        plot.savefig(output_file_path, format='jpg')
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
         plot.show()
-
-# Generate the SPEI drought categories bar chart
-# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'SPEI category totals')
 
 # Generate the drought quantification keyword bar chart
 # create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'Drought')
@@ -515,12 +487,21 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Adjust the size of the plot so the picture is better usable later and nothing gets cut off
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
-            plot.figure(figsize=(11, 8))
+            plot.figure(figsize=(14, 8))
 
             # Create the pie chart with black lines between pieces and percentages as texts
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
-            wedges, category_texts, autotexts = plot.pie(spei_category_counts, autopct='%1.1f%%', colors=spei_colors, startangle=90,
-                                                wedgeprops={'edgecolor': 'black', 'linewidth': 0.4})
+            wedges, category_texts, autotexts = plot.pie(spei_category_counts,
+                                                         autopct='%1.1f%%',
+                                                         colors=spei_colors,
+                                                         startangle=90,
+                                                         wedgeprops={'edgecolor': 'black', 'linewidth': 0.4},
+                                                         )
+
+            # Change the color of the percentages to white for clearer visibility
+            # https://stackoverflow.com/questions/27898830/python-how-to-change-autopct-text-color-to-be-white-in-a-pie-chart
+            for autotext in autotexts:
+                autotext.set_color('white')
 
             # Set label position manually for the SPEI category ('no drought (+1 < SPEI)'), so it is right next to their piece and replace '<=' with '≤' if needed in the labels
             # https://stackoverflow.com/questions/43916834/matplotlib-dynamically-change-text-position
@@ -541,7 +522,21 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # Set the main title as well as the file name
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
             plot.title("Distribution of the SPEI categories out of all re-analysed studies in percentage")
-            spei_category_output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Pie chart with complete SPEI drought category percentages.jpg'
+            spei_category_output_file_path = r'D:\Uni\Bachelorarbeit\Plots\NEW Pie chart with complete SPEI drought category percentages and legend for total numbers.jpg'
+
+            # Create and add a legend for the total numbers of SPEI categories for a better overview of the data
+            # Create the labels out of the SPEI categories for the legend with counts so the total numbers are displayed
+            # Also replace '<=' with '≤' in the legend labels for better looks
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.items.html#pandas-dataframe-items
+            # https://docs.python.org/3/library/stdtypes.html#str.replace
+            spei_legend_labels = [f"{label.replace('<=', '≤')} ({count})" for label, count in spei_category_counts.items()]
+            # Now add the legend to the pie chart with the created SPEI category labels and place it in the center left outside the pie chart (with bbox_to_anchor)
+            # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
+            plot.legend(wedges, spei_legend_labels,
+                        title="SPEI Categories (Count)",
+                        loc="center right",
+                        bbox_to_anchor=(1, 0, 0.4, 1)
+                        )
 
             # Ensure that the tight layout is used for a better visualisation and readability of the 'no drought (+1 < SPEI)' percentage
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -812,7 +807,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # Generate the MODIS forest type percentage pie chart
 # create_pie_chart(all_studies_shapefile_path, 'MODIS percentage')
 
-# SAVE AFTER REWORK OF SHAPEFILE
+# DONE
 # Generate the SPEI category percentage pie chart
 # create_pie_chart(reanalysis_shapefile_path, 'SPEI category percentage')
 
