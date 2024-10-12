@@ -1,102 +1,60 @@
-// Laden des Modis Land Cover Datasets via https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#description
-var landCover = ee.ImageCollection("MODIS/061/MCD12Q1")
-                .filter(ee.Filter.date('2020-01-01', '2020-12-31'))
-                .first()
-                .select('LC_Type1');
+// Load the MODIS Land Cover Dataset, filter it for all 2020 data and only load the first image of it with .first() 
+// (this is extremely important, because eq(x) filtering for classes is not availably without it)
+// Source: https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#code-editor-javascript
+// Source: https://developers.google.com/earth-engine/guides/ic_filtering
+// Source: https://developers.google.com/earth-engine/apidocs/ee-imagecollection-first
+var dataset = ee.ImageCollection('MODIS/061/MCD12Q1').filter(ee.Filter.date('2020-01-01', '2020-12-31'))
+                .first();
 
-// Auswahl von nur den fünf Waldklassen und diesen, die 60+% tree cover haben
-var classesToDisplay = [1, 2, 3, 4, 5, 6, 8];
+// Load the 'LC_Type1' Band (Land Cover Type 1: Annual International Geosphere-Biosphere Programme (IGBP) classification)
+// Source: https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#code-editor-javascript
+// Source: select()
+var igbpLandCover = dataset.select('LC_Type1');
 
-// Maske welche nur die sieben ausgewählten Klassen enthält
-var maskedLandCover = landCover.updateMask(landCover.eq(1)
-                            .or(landCover.eq(2))
-                            .or(landCover.eq(3))
-                            .or(landCover.eq(4))
-                            .or(landCover.eq(5))
-                            .or(landCover.eq(6))
-                            .or(landCover.eq(8))
+// Only choose those forest classes from all land cover classes that have 60%+ tree cover by creating a list with only the needed classes numbers
+var relevantforestclasses = [1, 2, 3, 4, 5, 6, 8];
+
+// Create a mask that only contains the relevant forest land cover classes by filtering by metadata, in this case the class numbers with eq()
+// Source: https://courses.spatialthoughts.com/end-to-end-gee.html#filtering-image-collections
+// Source: https://gis.stackexchange.com/questions/358718/filter-featurecollection-with-multiple-values
+// Source: https://stackoverflow.com/questions/50219547/using-masking-in-google-earth-engine
+var maskedforestcover = igbpLandCover.updateMask(igbpLandCover.eq(1)
+                            .or(igbpLandCover.eq(2))
+                            .or(igbpLandCover.eq(3))
+                            .or(igbpLandCover.eq(4))
+                            .or(igbpLandCover.eq(5))
+                            .or(igbpLandCover.eq(6))
+                            .or(igbpLandCover.eq(8))
                             );
 
-// Anzeigen der Ergebnisse auf der Karte mit den entsprechenden Farben
-Map.centerObject(maskedLandCover, 2.5); // Zoom auf Welt
-Map.addLayer(maskedLandCover, {
-  min: 1,
-  max: 8,
-  palette: ['05450a', '086a10', '54a708', '78d203', '009900', 'c6b044', 'dade48'] // Farben von https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands
-}, 'All mayor Forest Classes');
+// Create the variable to store the information in which classes to display and with what colors
+// Source: https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#code-editor-javascript
+var igbpLandCoverVis = {
+  min: 1.0,
+  max: 8.0,
+  palette: [
+    '05450a', '086a10', '54a708', '78d203', '009900', 'c6b044', 'dade48'
+  ],
+}; 
 
+// Set a map canter for the visualisation of the map after running the code
+// Source: https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#code-editor-javascript
+Map.setCenter(6.746, 46.529, 2.5);
 
-// Exportieren des GeoTiffs nach Drive zum benutzen als Karte
+// Add the variable with the information what should be displayed and how ('igbpLandCover') to the Map and give it a Name
+// Source: https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#code-editor-javascript
+Map.addLayer(maskedforestcover, igbpLandCoverVis, 'All relevant forest classes');
+
+// Export the forest cover overlay as a GeoTiff to use it later as backgroundmap in QGIS and get the relevant MODIS classes for all paper locations
+// Source: https://developers.google.com/earth-engine/apidocs/export-image-todrive
 Export.image.toDrive({
-  image: maskedLandCover,
-  description: 'woody_and_forest_cover_export_world',  // Name der Datei
-  folder: 'GEE_Exports',  // Name des Ordners in Google Drive (optional)
-  scale: 500,  // Auflösung in Metern pro Pixel
-  maxPixels: 10000000000000,  // Maximal zulässige Anzahl an Pixeln
-  crs: 'EPSG:4326',  // Koordinatensystem (WGS84)
-  fileFormat: 'GeoTIFF'  // Dateiformat
+  image: maskedforestcover,
+  description: 'MODIS_forest_cover_export',  // Name of the GeoTiff
+  folder: 'GEE_Exports',  // Name of the folder to save the GeoTiff to in Google Drive
+  scale: 500,  // Maximal resolution per pixel for this product
+  maxPixels: 10000000000000,  // Maximal count of pixels in general
+  crs: 'EPSG:4326',  
+  fileFormat: 'GeoTIFF'  
 });
 
-// Erstellen einer Legende
-function createLegend() {
-  var legend = ui.Panel({
-    style: {
-      position: 'bottom-left',
-      padding: '8px 15px'
-    }
-  });
-
-  // Tite der Legende 
-  var legendTitle = ui.Label({
-    value: 'Forest Cover Legend',
-    style: {
-      fontWeight: 'bold',
-      fontSize: '18px',
-      margin: '0 0 6px 0',
-      padding: '0'
-    }
-  });
-
-  legend.add(legendTitle);
-
-  // Farben und Labels der Attribute der Legende
-  var palette = ['#05450a', '#086a10', '#54a708', '#78d203', '#009900', '#c6b044', '#dade48'];
-  var names = ['Evergreen Needleleaf Forests', 
-               'Evergreen Broadleaf Forests', 
-               'Deciduous Needleleaf Forests', 
-               'Deciduous Broadleaf Forests', 
-               'Mixed Forests',
-               'Closed Shrublands',
-               'Woody Savannas'];
-  
-  // Größen und Farbenspezifikation für die Legende selbst
-  for (var i = 0; i < palette.length; i++) {
-    var colorBox = ui.Label({
-      style: {
-        backgroundColor: palette[i],
-        padding: '8px',
-        margin: '0 0 4px 0'
-      }
-    });
-
-    var description = ui.Label({
-      value: names[i],
-      style: {
-        margin: '0 0 4px 6px'
-      }
-    });
-
-    var panel = ui.Panel({
-      widgets: [colorBox, description],
-      layout: ui.Panel.Layout.Flow('horizontal')
-    });
-
-    legend.add(panel);
-  }
-  
-  Map.add(legend);
-}
-
-// Legende erstellen
-createLegend();
 
