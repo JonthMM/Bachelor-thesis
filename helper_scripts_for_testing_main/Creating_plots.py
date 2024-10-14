@@ -45,7 +45,7 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
     # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
     complete_gdf = geopd.read_file(shape_or_excel_file_path)
 
-    # Clean up the 'drought quantification keyword for plots' to remove quotes (because python gives an error for "dry" if there are quotes) and extra spaces
+    # Clean up the "drought quantification keyword for plots" to remove quotes (because python gives an error for "dry" if there are quotes) and extra spaces
     # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
     # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
     complete_gdf["drouquanti"] = (
@@ -53,8 +53,8 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
     )
 
     # For MODIS categories and SPEI drought categories
-    if chart_type == 'MODIS drought keyword':
-        # Grouping the data by 'MODIS' and 'dr_quanti' to count occurrences of the drought quantifications
+    if chart_type == "MODIS drought keyword":
+        # Grouping the data by "MODIS" and "dr_quanti" to count occurrences of the drought quantifications
         # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
         # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
         # https://www.statology.org/pandas-unstack/
@@ -71,7 +71,7 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
 
     # For the (currently only) case with MODIS forest cover on the X-Axis and the given drought keywords as stacked bars
     if chart_type in ["MODIS drought keyword"]:
-        # Change the label for 'Other' category, so it is not too long (only for bar plots with MODIS involved)
+        # Change the label for "Other" category, so it is not too long (only for bar plots with MODIS involved)
         # https://pandas.pydata.org/docs/user_guide/basics.html#renaming-mapping-labels
         drought_keywords_counts.rename(
             index={
@@ -100,11 +100,11 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
         # https://www.geeksforgeeks.org/matplotlib-pyplot-legend-in-python/
         # https://www.geeksforgeeks.org/create-pandas-dataframe-from-lists-using-zip/
         legend_labels_with_counts = [
-                f"\"{category}\" [{count}]" if category == "Dry" else f"{category} [{count}]"
-                for category, count in zip(
-                    drought_keywords_sums.index, drought_keywords_sums.values
-                )
-            ]
+            f'"{category}" [{count}]' if category == "Dry" else f"{category} [{count}]"
+            for category, count in zip(
+                drought_keywords_sums.index, drought_keywords_sums.values
+            )
+        ]
 
         # Sorting legend labels based on the counts numeric in descending order
         # https://docs.python.org/3/howto/sorting.html
@@ -179,7 +179,7 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
 
 # DONE but not needed
 # Generate the MODIS and given drought category keyword bar chart
-# create_drought_keywords_bar_chart(all_studies_shapefile_path, 'MODIS drought keyword')
+# create_drought_keywords_bar_chart(all_studies_shapefile_path, "MODIS drought keyword")
 
 
 def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
@@ -220,7 +220,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
     # For the given drought quantification keywords from the studies and SPEI drought categories
     if chart_type == "Drought":
-        # Grouping the data by 'dr_quanti' and 'Category' to count occurrences for the drought chart
+        # Grouping the data by "dr_quanti" and "Category" to count occurrences for the drought chart
         # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
         # https://www.statology.org/pandas-unstack/
         # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
@@ -236,7 +236,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
     # For MODIS categories and SPEI drought categories
     if chart_type == "MODIS SPEI":
-        # Grouping the data by 'MODIS' and 'Category' to count occurrences for the MODIS chart
+        # Grouping the data by "MODIS" and "Category" to count occurrences for the MODIS chart
         # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
         # https://www.statology.org/pandas-unstack/
         # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
@@ -252,7 +252,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
     # For all cases that somehow use "Category" (The SPEI categories)
     if chart_type in ["Drought", "MODIS SPEI"]:
-        # Change the label for 'Other' category, so it is not too long (only for bar plots with MODIS involved)
+        # Change the label for "Other" category, so it is not too long (only for bar plots with MODIS involved)
         # https://pandas.pydata.org/docs/user_guide/basics.html#renaming-mapping-labels
         category_counts.rename(
             index={
@@ -307,7 +307,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
             for category, count in zip(category_sums.index, category_sums.values)
         ]
 
-        # Replace '<='with '≤' in the legend labels for better looks
+        # Replace "<=" with "≤" in the legend labels for better looks
         # https://docs.python.org/3/library/stdtypes.html#str.replace
         legend_labels_with_counts = [
             label.replace("<=", "≤") for label in legend_labels_with_counts
@@ -348,7 +348,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
             loc="upper right",
         )
 
-        # Rotate x-axis labels for readability and better plot-text ratio and replace '<=' with '≤'
+        # Rotate x-axis labels for readability and better plot-text ratio and replace "<=" with "≤"
         # https://www.geeksforgeeks.org/matplotlib-pyplot-xticks-in-python/
         # https://docs.python.org/3/library/stdtypes.html#str.replace
         plot.xticks(
@@ -370,17 +370,14 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
         plot.show()
 
-# In work
-# Generate the spheres SPEI category bar chart
-create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'Spheres SPEI')
 
 # DONE
 # Generate the drought quantification keyword bar chart
-# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'Drought')
+# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Drought")
 
 # DONE
 # Generate the MODIS SPEI category bar chart
-# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, 'MODIS SPEI')
+# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "MODIS SPEI")
 
 
 def create_pie_chart(shape_or_excel_file_path, chart_type):
@@ -399,20 +396,26 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
     """
 
     # Cases for the pie charts that need data from the Excel file
-    if chart_type in ["study type", "breakdown", "MODIS drought sphere", "spheres", "Spheres drought category"]:
+    if chart_type in [
+        "study type",
+        "breakdown",
+        "MODIS drought sphere",
+        "spheres",
+        "Spheres drought category",
+    ]:
         # Load the Excel file and "relevantInfo" sheet where the data for the pie charts is stored
         # https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html
         excel_df = pd.read_excel(excel_file_path, sheet_name="relevantInfo")
 
-        # Clean up the 'study type' column to avoid duplicates due to capitalization or extra spaces and make the filtering for the breakdown pie charts easier
+        # Clean up the "study type" column to avoid duplicates due to capitalization or extra spaces and make the filtering for the breakdown pie charts easier
         # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
         excel_df["study type"] = excel_df["study type"].str.strip()
 
-        # Clean up the 'drought_sphere' column to avoid duplicates due to capitalization or extra spaces and make the filtering for the pie charts easier
+        # Clean up the "drought_sphere" column to avoid duplicates due to capitalization or extra spaces and make the filtering for the pie charts easier
         # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
         excel_df["drought_sphere"] = excel_df["drought_sphere"].str.strip()
 
-        # Clean up the 'drought quantification keyword for plots' and remove quotes (because python gives an error for "Dry" if there are quotes) and extra spaces
+        # Clean up the "drought quantification keyword for plots" and remove quotes (because python gives an error for "Dry" if there are quotes) and extra spaces
         # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
         # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
         excel_df["drought quantification keyword for plots"] = (
@@ -434,10 +437,10 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             "Standardized Index": "#9370db",  # Medium Purple
         }
 
-        # If 'Spheres drought category' is selected, create the drought quantification breakdown pie charts for each MODIS forest type
-        if chart_type == 'Spheres drought category':
+        # If "Spheres drought category" is selected, create the drought quantification breakdown pie charts for each MODIS forest type
+        if chart_type == "Spheres drought category":
 
-            # Group the data by 'drought_sphere' and clean the drought quantification keywords and then count its occurrences with size()
+            # Group the data by "drought_sphere" and clean the drought quantification keywords and then count its occurrences with size()
             # Remove quotes with replace() (because python gives an error for "dry" keyword if there are quotes)
             # Also create the pivot table to have drought_sphere as columns and fill missing with 0
             # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
@@ -448,7 +451,13 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
             spheres_breakdown_data = (
                 excel_df.groupby(
-                    ["drought_sphere",excel_df["drought quantification keyword for plots"].str.strip().str.replace('"', ""),])
+                    [
+                        "drought_sphere",
+                        excel_df["drought quantification keyword for plots"]
+                        .str.strip()
+                        .str.replace('"', ""),
+                    ]
+                )
                 .size()
                 .unstack(fill_value=0)
             )
@@ -460,12 +469,12 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Flatten the axes for easier iteration and a faster plot creation
             # https://stackoverflow.com/questions/46862861/what-does-axes-flat-in-matplotlib-do
-            #axes = axes.flatten()
+            # axes = axes.flatten()
 
             # Iterate over the final dataframe that holds the wanted information to filter out zero values and assign the wanted colors
             # https://www.w3schools.com/python/pandas/ref_df_iterrows.asp
             for i, (drought_sphere, row) in enumerate(
-                    spheres_breakdown_data.iterrows()
+                spheres_breakdown_data.iterrows()
             ):
                 # Filter out redundant zero values in the rows (Given drought categories) so only the drought categories that are given for the study types are displayed
                 row = row[row > 0]
@@ -478,8 +487,12 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 # Also add the "" back to the "Dry" label since it had to be removed for python rules before
                 # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.pie.html
                 axes[i].pie(
-                    row, labels=[f"\"{label}\"" if label == "Dry" else label for label in row.index], autopct="%1.1f%%",
-                    colors=breakdown_colors
+                    row,
+                    labels=[
+                        f'"{label}"' if label == "Dry" else label for label in row.index
+                    ],
+                    autopct="%1.1f%%",
+                    colors=breakdown_colors,
                 )
 
                 # Display a title for every single pie chart containing its drought sphere type as title
@@ -501,15 +514,14 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(sphere_category_output_file_path, format='jpg')
+            # plot.savefig(sphere_category_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
 
-
-        # If 'spheres' is selected, this case is used to create the percentage overview pie chart for the drought spheres
-        if chart_type == 'spheres':
+        # If "spheres" is selected, this case is used to create the percentage overview pie chart for the drought spheres
+        if chart_type == "spheres":
             # Count the occurrences of each sphere to create the percentages
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html
@@ -567,14 +579,13 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(study_type_output_path, format='jpg')
+            # plot.savefig(study_type_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
 
-
-        # If 'study type' is selected, this case is used to create the percentage overview pie chart for the study types
+        # If "study type" is selected, this case is used to create the percentage overview pie chart for the study types
         elif chart_type == "study type":
             # Count the occurrences of each study type to create the percentages
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html
@@ -634,15 +645,15 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(study_type_output_path, format='jpg')
+            # plot.savefig(study_type_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
 
-        # If 'breakdown' is selected, create the drought quantification breakdown pie charts for each study type
-        elif chart_type == 'breakdown':
-            # Group the data by 'study type' and count the occurrences of 'drought quantification keyword for plots'
+        # If "breakdown" is selected, create the drought quantification breakdown pie charts for each study type
+        elif chart_type == "breakdown":
+            # Group the data by "study type" and count the occurrences of "drought quantification keyword for plots"
             # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
             # https://www.statology.org/pandas-unstack/
             study_type_breakdown_data = (
@@ -653,7 +664,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 .unstack(fill_value=0)
             )
 
-            # Display only the study types 'experimental', 'observational', and 'modeling' in a specific order for pie charts
+            # Display only the study types "experimental", "observational", and "modeling" in a specific order for pie charts
             desired_study_type_order = ["Experimental", "Observational", "Modeling"]
 
             # Filter and reorder the study types using .isin() to keep only the relevant types and .reindex() to match the desired order
@@ -679,7 +690,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             for i, (study_type, row) in enumerate(final_breakdown_data.iterrows()):
                 # Filter out redundant zero values in the rows (Given drought categories) so only the drought categories that are given for the study types are displayed
                 row = row[row > 0]
-                # Use consistent colors for each keyword, so it is not confusing (using the colors declared before in 'drought_keywords_color_mapping'
+                # Use consistent colors for each keyword, so it is not confusing (using the colors declared before in "drought_keywords_color_mapping"
                 breakdown_colors = [
                     drought_keywords_color_mapping[label] for label in row.index
                 ]
@@ -688,10 +699,12 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 # Also add the "" back to the "Dry" label since it had to be removed for python rules before
                 # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.pie.html
                 axes[i].pie(
-                    row, labels=[f"\"{label}\"" if label == "Dry" else label for label in row.index],
+                    row,
+                    labels=[
+                        f'"{label}"' if label == "Dry" else label for label in row.index
+                    ],
                     autopct="%1.1f%%",
-                    colors=breakdown_colors
-
+                    colors=breakdown_colors,
                 )
 
                 # Display a title for every single pie chart containing its study type
@@ -713,7 +726,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(breakdown_output_file_path, format='jpg')
+            # plot.savefig(breakdown_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -738,8 +751,8 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             "extremely dry (SPEI <= -2)": "#8B0000",  # Dark Red
         }
 
-        # If 'SPEI category percentage' is selected, create the SPEI drought category pie chart
-        if chart_type == 'SPEI category percentage':
+        # If "SPEI category percentage" is selected, create the SPEI drought category pie chart
+        if chart_type == "SPEI category percentage":
 
             # Count the occurrences of each SPEI drought category to create the percentages
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html
@@ -769,19 +782,19 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             for autotext in autotexts:
                 autotext.set_color("white")
 
-            # Set label position manually for the SPEI category ('no drought (+1 < SPEI)'), by iterating over all labels by using .index to enumerate them,
-            # so it is right next to their piece and replace '<=' with '≤' if needed in the labels
+            # Set label position manually for the SPEI category ("no drought (+1 < SPEI)"), by iterating over all labels by using .index to enumerate them,
+            # so it is right next to their piece and replace "<=" with "≤" if needed in the labels
             # https://www.w3schools.com/python/pandas/ref_df_index.asp
             # https://stackoverflow.com/a/43916835 (set_position())
             # https://docs.python.org/3/library/stdtypes.html#str.replace
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html
             for i, spei_label in enumerate(spei_category_counts.index):
-                # Replace '<=' with '≤' in the labels (pie chart pieces descriptions)
+                # Replace "<=" with "≤" in the labels (pie chart pieces descriptions)
                 cleaned_spei_label = spei_label.replace("<=", "≤")
 
-                # We only want to manually position the 'no drought (+1 < SPEI)' label because it's not right on default
+                # We only want to manually position the "no drought (+1 < SPEI)" label because it's not right on default
                 if cleaned_spei_label == "no drought (+1 < SPEI)":
-                    # Manually adjusting the position of 'no drought (+1 < SPEI)' by using coordinates
+                    # Manually adjusting the position of "no drought (+1 < SPEI)" by using coordinates
                     category_texts[i].set_position((-0.1, 1.1))
 
                 # Adding back the SPEI category label text (because set_position overrides them)
@@ -797,7 +810,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Create and add a legend for the total numbers of SPEI categories for a better overview of the data
             # Create the labels out of the SPEI categories for the legend with counts so the total numbers are displayed
-            # Also replace '<=' with '≤' in the legend labels for better looks
+            # Also replace "<=" with "≤" in the legend labels for better looks
             # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.items.html#pandas-dataframe-items
             # https://docs.python.org/3/library/stdtypes.html#str.replace
             spei_legend_labels = [
@@ -814,30 +827,27 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 bbox_to_anchor=(1, 0, 0.4, 1),
             )
 
-            # Ensure that the tight layout is used for a better visualisation and readability of the 'no drought (+1 < SPEI)' percentage
+            # Ensure that the tight layout is used for a better visualisation and readability of the "no drought (+1 < SPEI)" percentage
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
             plot.tight_layout()
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(spei_category_output_file_path, format='jpg')
+            # plot.savefig(spei_category_output_file_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
 
-        # If 'Spheres SPEI' is selected, create the Spheres SPEI pie chart
-        elif chart_type == 'Spheres SPEI':
+        # If "Spheres SPEI" is selected, create the Spheres SPEI pie chart
+        elif chart_type == "Spheres SPEI":
 
-            # Clean up the 'sphere' values to be sure there are no duplicates due to blank spaces
+            # Clean up the "sphere" values to be sure there are no duplicates due to blank spaces
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
-            reanalysed_gdf["sphere"] = (
-                reanalysed_gdf["sphere"]
-                .str.strip()
-            )
+            reanalysed_gdf["sphere"] = reanalysed_gdf["sphere"].str.strip()
 
-            # Group the data by 'sphere' and 'Category' then count its occurrences with size()
+            # Group the data by "sphere" and "Category" then count its occurrences with size()
             # Also create the pivot table to have drought_sphere as columns and fill missing with 0
             # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
@@ -845,9 +855,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # https://www.statology.org/pandas-unstack/
             # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
             sphere_spei_breakdown_data = (
-                reanalysed_gdf.groupby(
-                    ["sphere", reanalysed_gdf["Category"]]
-                )
+                reanalysed_gdf.groupby(["sphere", reanalysed_gdf["Category"]])
                 .size()
                 .unstack(fill_value=0)
             )
@@ -857,33 +865,28 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
             fig, axes = plot.subplots(2, 2, figsize=(15, 7))
 
-
             # Iterate over the final dataframe that holds the wanted information to filter out zero values and assign the wanted colors
             # https://www.w3schools.com/python/pandas/ref_df_iterrows.asp
-            for i, (spheres, row) in enumerate(
-                    sphere_spei_breakdown_data.iterrows()
-            ):
+            for i, (spheres, row) in enumerate(sphere_spei_breakdown_data.iterrows()):
                 # Filter out redundant zero values in the rows (Given drought categories) so only the drought categories that are given for the study types are displayed
                 row = row[row > 0]
 
                 # Create a list with the SPEI categories in the desired order for the segments inside the pie charts
-                desired_spei_order = ["no drought (+1 < SPEI)",
-                                 "near normal conditions (-1 < SPEI < +1)",
-                                 "moderately dry (-1.5 < SPEI <= -1)",
-                                 "severely dry (-2 < SPEI <= -1.5)",
-                                 "extremely dry (SPEI <= -2)"
-                                 ]
+                desired_spei_order = [
+                    "no drought (+1 < SPEI)",
+                    "near normal conditions (-1 < SPEI < +1)",
+                    "moderately dry (-1.5 < SPEI <= -1)",
+                    "severely dry (-2 < SPEI <= -1.5)",
+                    "extremely dry (SPEI <= -2)",
+                ]
 
                 # Reindex the segments of the pie chart (SPEI categories) with the desired order list and drop NaN values
                 # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html
                 # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.dropna.html
                 row = row.reindex(desired_spei_order).dropna()
 
-
                 # Use consistent colors for each keyword, so it is not confusing (using the colors declared before globally)
-                breakdown_colors = [
-                    spei_color_mapping[label] for label in row.index
-                ]
+                breakdown_colors = [spei_color_mapping[label] for label in row.index]
 
                 # Calculate the row and column for 2x2 layout because it can not be set in "plot.subplots" if not done
                 # https://how2matplotlib.com/plt-subplots.html
@@ -899,13 +902,13 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                     labels=row.index.str.replace("<=", "≤"),
                     autopct="%1.1f%%",
                     startangle=90,
-                    colors=breakdown_colors
+                    colors=breakdown_colors,
                 )
 
                 # Change the color of the percentages to white for clearer visibility
                 # https://stackoverflow.com/a/27899541 (set_color())
                 for autotext in autotexts:
-                    autotext.set_color('white')
+                    autotext.set_color("white")
 
                 # Display a title for every single pie chart containing its sphere as title
                 # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html
@@ -925,18 +928,18 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(sphere_reanalysis_output_file_path, format='jpg')
+            # plot.savefig(sphere_reanalysis_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
-
 
     # Cases for all pie charts that need data from the shapefile with all paper points
     elif chart_type in [
         "MODIS percentage",
         "MODIS drought sphere",
         "MODIS drought category",
+        "Continent percentage"
     ]:
 
         # Read the given shapefile for all pie chart cases using geopandas read_file() method and storing it as geodataframe
@@ -944,10 +947,10 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
         # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
         complete_gdf = geopd.read_file(shape_or_excel_file_path)
 
-        # If 'MODIS drought category' is selected, create the drought quantification breakdown pie charts for each MODIS forest type
+        # If "MODIS drought category" is selected, create the drought quantification breakdown pie charts for each MODIS forest type
         if chart_type == "MODIS drought category":
 
-            # Group the data by 'forest' and clean 'drouquanti' and then count its occurrences with size()
+            # Group the data by "forest" and clean "drouquanti" and then count its occurrences with size()
             # Remove quotes with replace() (because python gives an error for "dry" keyword if there are quotes)
             # Also create the pivot table to have drought_sphere as columns and fill missing with 0
             # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
@@ -960,9 +963,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 complete_gdf.groupby(
                     [
                         "forest",
-                        complete_gdf["drouquanti"]
-                        .str.strip()
-                        .str.replace('"', ""),
+                        complete_gdf["drouquanti"].str.strip().str.replace('"', ""),
                     ]
                 )
                 .size()
@@ -1013,9 +1014,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Iterate over the final dataframe that holds the wanted information to filter out zero values and assign the wanted colors
             # https://www.w3schools.com/python/pandas/ref_df_iterrows.asp
-            for i, (forest, row) in enumerate(
-                final_forest_breakdown_data.iterrows()
-            ):
+            for i, (forest, row) in enumerate(final_forest_breakdown_data.iterrows()):
                 # Filter out redundant zero values in the rows (Given drought categories) so only the drought categories that are given for the study types are displayed
                 row = row[row > 0]
                 # Use consistent colors for each keyword, so it is not confusing (using the colors declared before globally
@@ -1027,7 +1026,12 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 # Also add the "" back to the "Dry" label since it had to be removed for python rules before
                 # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.pie.html
                 axes[i].pie(
-                    row, labels=[f"\"{label}\"" if label == "Dry" else label for label in row.index], autopct="%1.1f%%", colors=breakdown_colors
+                    row,
+                    labels=[
+                        f'"{label}"' if label == "Dry" else label for label in row.index
+                    ],
+                    autopct="%1.1f%%",
+                    colors=breakdown_colors,
                 )
 
                 # Display a title for every single pie chart containing its MODIS forest type
@@ -1052,16 +1056,16 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(modis_drought_output_file_path, format='jpg')
+            # plot.savefig(modis_drought_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
 
-        # If 'MODIS drought sphere' is selected, create the drought quantification breakdown pie charts for each MODIS forest type
-        if chart_type == 'MODIS drought sphere':
+        # If "MODIS drought sphere" is selected, create the drought quantification breakdown pie charts for each MODIS forest type
+        if chart_type == "MODIS drought sphere":
 
-            # Group the data by 'forest' and 'sphere'. then count its occurrences with size()
+            # Group the data by "forest" and "sphere". then count its occurrences with size()
             # Also create the pivot table to have sphere as columns and fill missing with 0
             # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
@@ -1069,9 +1073,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # https://www.statology.org/pandas-unstack/
             # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
             forest_sphere_breakdown_data = (
-                complete_gdf.groupby(
-                    ["forest", complete_gdf["sphere"]]
-                )
+                complete_gdf.groupby(["forest", complete_gdf["sphere"]])
                 .size()
                 .unstack(fill_value=0)
             )
@@ -1154,19 +1156,20 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            #  plot.savefig(modis_sphere_output_file_path, format='jpg')
+            #  plot.savefig(modis_sphere_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
 
-        # If 'MODIS percentage' is selected, this case is used to create the general MODIS forest type percentage pie chart
-        if chart_type == 'MODIS percentage':
-            # Count the occurrences of each study type to create the percentages
+        # If "MODIS percentage" is selected, this case is used to create the general MODIS forest type percentage pie chart
+        if chart_type == "MODIS percentage":
+
+            # Count the occurrences of each MODIS forest type to create the percentages
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html
             modis_category_counts = complete_gdf["forest"].value_counts()
 
-            # Change the label for 'Other' category, so it is not too long (only for bar plots with MODIS involved)
+            # Change the label for "Other" category, so it is not too long (only for bar plots with MODIS involved)
             # https://pandas.pydata.org/docs/user_guide/basics.html#renaming-mapping-labels
             modis_category_counts.rename(
                 index={
@@ -1175,7 +1178,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 inplace=True,
             )
 
-            # Map the study types to their corresponding colors from https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands 'LC_Type1 Class Table'
+            # Map the study types to their corresponding colors from https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands "LC_Type1 Class Table"
             # https://stackoverflow.com/questions/26139423/plot-different-color-for-different-categorical-levels
             modis_color_mapping = {
                 "Evergreen Needleleaf Forest": "#05450a",  # Dark Green
@@ -1250,47 +1253,122 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(study_type_output_path, format='jpg')
+            # plot.savefig(study_type_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
             plot.show()
 
 
+        # If "Continent percentage" is selected, this case is used to create the general continent percentage pie chart
+        if chart_type == "Continent percentage":
+            # Count the occurrences of each continent to create the percentages
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html
+            continent_counts = complete_gdf["Continent"].value_counts()
+
+            # Map the study types to their corresponding colors from https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands "LC_Type1 Class Table"
+            # https://stackoverflow.com/questions/26139423/plot-different-color-for-different-categorical-levels
+            continent_color_mapping = {
+                "Europe": "#0000FF",  # blue
+                "Africa": "#808080",  # grey
+                "Asia": "#FFFF00",  # yellow
+                "Oceania": "#008000",  # green
+                "US": "#ADD8E6",       # light blue
+                "North America": "#FF0000",  # red
+                "Latin and South America": "#FFA500"  # orange
+            }
+
+            # Create a list of colors in the same order as the labels in modis_category_counts
+            continent_colors = [
+                continent_color_mapping[label] for label in continent_counts.index
+            ]
+
+            # Adjust the size of the plot so the picture is better usable later on
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
+            plot.figure(figsize=(8, 7))
+
+            # Create the pie chart with percentages and white lines between the pieces
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
+            wedges, texts, autotexts = plot.pie(
+                continent_counts,
+                autopct="%1.1f%%",
+                colors=continent_colors,
+                startangle=90,
+                wedgeprops={"edgecolor": "black", "linewidth": 0.5},
+            )
+
+
+            # Set label positions manually for the  continent "North America" so it is right next to its segment in the pie chart
+            # by iterating over all labels by using .index to enumerate them
+            # https://stackoverflow.com/a/43916835 (set_position())
+            # https://www.w3schools.com/python/pandas/ref_df_index.asp
+            # https://stackoverflow.com/a/43916835 (set_position())
+            # https://matplotlib.org/stable/api/text_api.html#module-matplotlib.text
+            for i, label in enumerate(continent_counts.index):
+                # Re-capitalize labels for the pie chart by defining them as titles
+                label = label
+                # Adjusting the position of "North America" by using specific coordinates
+                if label == "North America":
+                    texts[i].set_position((0.1, 1.05))
+                else:
+                    # Keep default position for other labels since they are fine on default
+                    texts[i].set_position(texts[i].get_position())
+
+                # Adding back the study type label text (since set_position overrides them)
+                # https://www.tutorialspoint.com/how-to-add-title-to-subplots-in-matplotlib#:~:text=The%20Matplotlib%20set_text()%20function,in%20a%20subplot%20or%20plot.
+                texts[i].set_text(label)
+
+            # Set the title and filename for this pie chart
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
+            plot.title("Distribution of the continents in percentages")
+            continent_output_path = r"D:\Uni\Bachelorarbeit\Plots\Pie chart with continent percentages from the complete locations shapefile.jpg"
+
+            # Save the pie chart as a JPG file to use it in the thesis
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
+            # plot.savefig(continent_output_path, format="jpg")
+
+            # Optionally display the plot (for finetuning so adjusting is easier)
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
+            plot.show()
+
+# DONE
+# Generate the general continent percentages pie chart
+# create_pie_chart(reanalysis_shapefile_path, "Continent percentage")
+
 # DONE
 # Generate the sphere SPEI category percentage pie chart
-create_pie_chart(reanalysis_shapefile_path, 'Spheres SPEI')
+# create_pie_chart(reanalysis_shapefile_path, "Spheres SPEI")
 
 # DONE
 # Generate the Spheres drought category keywords percentage pie chart
-# create_pie_chart(excel_file_path, 'Spheres drought category')
+# create_pie_chart(excel_file_path, "Spheres drought category")
 
 # DONE
 # Generate the MODIS forest type percentage pie chart
-# create_pie_chart(all_studies_shapefile_path, 'MODIS percentage')
+# create_pie_chart(all_studies_shapefile_path, "MODIS percentage")
 
 # DONE
 # Generate the SPEI category percentage pie chart
-# create_pie_chart(reanalysis_shapefile_path, 'SPEI category percentage')
+# create_pie_chart(reanalysis_shapefile_path, "SPEI category percentage")
 
 # DONE
 # Generate the general study type percentages pie chart
-# create_pie_chart(excel_file_path, 'study type')
+# create_pie_chart(excel_file_path, "study type")
 
 # DONE
 # Generate the study type breakdown of given drought quantification keyword pie chart
-# create_pie_chart(excel_file_path, 'breakdown')
+# create_pie_chart(excel_file_path, "breakdown")
 
 # DONE
 # Generate the MODIS breakdown of given drought quantification keyword pie chart
-# create_pie_chart(all_studies_shapefile_path, 'MODIS drought category')
+# create_pie_chart(all_studies_shapefile_path, "MODIS drought category")
 
 # Done
 # Generate the MODIS breakdown of drought spheres pie chart
-# create_pie_chart(all_studies_shapefile_path, 'MODIS drought sphere')
+# create_pie_chart(all_studies_shapefile_path, "MODIS drought sphere")
 
 # Generate overview pie chart of drought spheres
-# create_pie_chart(excel_file_path, 'spheres')
+# create_pie_chart(excel_file_path, "spheres")
 
 
 def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
@@ -1322,64 +1400,93 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
         # Set the output path for this bar plot
         output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Bar plot that shows the correlation between all given drought keywords and if drought was quantified in percent.jpg"
 
-        # Grouping the data by 'drought quantification keyword for plots' and 'was drought quantified**'
+        # Grouping the data by "drought quantification keyword for plots" and "was drought quantified**"
         # to count their occurrences and the percentages later
         # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
         # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
         # https://www.statology.org/pandas-unstack/
-        drought_quantification_counts = excel_df.groupby(
-            ['drought quantification keyword for plots', 'was drought quantified**']).size().unstack(fill_value=0)
+        drought_quantification_counts = (
+            excel_df.groupby(
+                ["drought quantification keyword for plots", "was drought quantified**"]
+            )
+            .size()
+            .unstack(fill_value=0)
+        )
 
         # Calculate the percentage for each drought quantification keyword by dividing each value by the global total (sum of all counts)
         # https://www.w3schools.com/python/pandas/ref_df_sum.asp
         # https://www.w3schools.com/python/pandas/ref_df_div.asp
         drought_quantification_global_total = drought_quantification_counts.values.sum()
-        drought_quantification_percentage = drought_quantification_counts.div(drought_quantification_global_total) * 100
+        drought_quantification_percentage = (
+            drought_quantification_counts.div(drought_quantification_global_total) * 100
+        )
 
         # Set the order as wanted for the X-Axis by creating a list that has all the keywords in the wanted order
-        desired_drought_keyword_order = ["\"Dry\"", "Dry season", "Differs from normal", "Low soil moisture", "Low water flow/depth",
-                         "Reduced rainfall", "Standardized Index", "Plant water stress"]
+        desired_drought_keyword_order = [
+            '"Dry"',
+            "Dry season",
+            "Differs from normal",
+            "Low soil moisture",
+            "Low water flow/depth",
+            "Reduced rainfall",
+            "Standardized Index",
+            "Plant water stress",
+        ]
 
         # Applying the desired order to the data so it will be used for the X-Axis
         # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html
-        sorted_drought_quantification_percentage = drought_quantification_percentage.reindex(desired_drought_keyword_order)
+        sorted_drought_quantification_percentage = (
+            drought_quantification_percentage.reindex(desired_drought_keyword_order)
+        )
 
         # Change the "True" and "False" values from the Excel file to strings because they could not be used to set a desired order
         # https://stackoverflow.com/a/60553529 (astype("string"))
-        sorted_drought_quantification_percentage.columns = sorted_drought_quantification_percentage.columns.astype("string")
+        sorted_drought_quantification_percentage.columns = (
+            sorted_drought_quantification_percentage.columns.astype("string")
+        )
 
         # Generate the plot with sorted categories and hardcoded colors, as well as the order for the bars
         # ("darkblue" on the bottom for "True", "red" on the top for "False")
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.bar.html
-        sorted_drought_quantification_percentage[['True', 'False']].plot(
+        sorted_drought_quantification_percentage[["True", "False"]].plot(
             kind="bar",
             stacked=True,
             figsize=(10, 6),
             color=["darkblue", "red"],
-            edgecolor="black"
+            edgecolor="black",
         )
 
-        # Counting the values for 'True' and 'False' to add them to the Legend
+        # Counting the values for "True" and "False" to add them to the Legend
         # Again, the series values had to be converted to strings first
         # https://stackoverflow.com/a/60553529 (astype("string"))
         # https://www.w3schools.com/python/pandas/ref_df_sum.asp
-        true_count = drought_quantification_counts[
-            True].sum() if 'True' in drought_quantification_counts.columns.astype("string") else 0
-        false_count = drought_quantification_counts[
-            False].sum() if 'False' in drought_quantification_counts.columns.astype("string") else 0
-
+        true_count = (
+            drought_quantification_counts[True].sum()
+            if "True" in drought_quantification_counts.columns.astype("string")
+            else 0
+        )
+        false_count = (
+            drought_quantification_counts[False].sum()
+            if "False" in drought_quantification_counts.columns.astype("string")
+            else 0
+        )
 
         # Add the legend, so it gets clear what part of the bars is "True" and "False"
         # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
         plot.legend(
-            [f"Quantified (True): {true_count}", f"Not Quantified (False): {false_count}"],
+            [
+                f"Quantified (True): {true_count}",
+                f"Not Quantified (False): {false_count}",
+            ],
             title="Was drought quantified?",
             loc="upper right",
-            alignment="left"
+            alignment="left",
         )
 
         # Optionally set a title for this case for a better overview (not needed later in the thesis)
-        title = "Correlation between given drought keywords and if drought was quantified"
+        title = (
+            "Correlation between given drought keywords and if drought was quantified"
+        )
 
         # Set the y-axis limit to 30% for a better overview
         # https://www.geeksforgeeks.org/matplotlib-pyplot-ylim-in-python/
@@ -1397,7 +1504,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
         # Set the title for this case
         title = "Bar plot to show the correctness of the given drought keywords"
 
-        # Grouping the data by 'dr_quanti' and 'drouright' to count their occurrences and the percentages later
+        # Grouping the data by "dr_quanti" and "drouright" to count their occurrences and the percentages later
         # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
         # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
         # https://www.statology.org/pandas-unstack/
@@ -1415,14 +1522,14 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
             drought_correctness_counts.div(global_total) * 100
         )
 
-        # Calculate the sum of all rows (True & False for each drought quantification keyword) and store it in a 'Total' column
-        # This new 'Total' column is then used for sorting the categories in descending order based on the total occurrences.
+        # Calculate the sum of all rows (True & False for each drought quantification keyword) and store it in a "Total" column
+        # This new "Total" column is then used for sorting the categories in descending order based on the total occurrences.
         # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html
         drought_correctness_counts_percentage["Total"] = (
             drought_correctness_counts_percentage.sum(axis=1)
         )
 
-        # Sort by the total percentage of (True & False) in descending order and then remove the 'Total' column because it served its purpose
+        # Sort by the total percentage of (True & False) in descending order and then remove the "Total" column because it served its purpose
         # https://www.w3schools.com/python/pandas/ref_df_sort_values.asp
         # https://www.w3schools.com/python/pandas/ref_df_drop.asp
         sorted_category_counts_percentage = (
@@ -1443,15 +1550,24 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
         # Again, the series values had to be converted to strings first
         # https://www.w3schools.com/python/pandas/ref_df_sum.asp
-        true_count = drought_correctness_counts[
-            'True'].sum() if 'True' in drought_correctness_counts.columns else 0
-        false_count = drought_correctness_counts[
-            'False'].sum() if 'False' in drought_correctness_counts.columns else 0
+        true_count = (
+            drought_correctness_counts["True"].sum()
+            if "True" in drought_correctness_counts.columns
+            else 0
+        )
+        false_count = (
+            drought_correctness_counts["False"].sum()
+            if "False" in drought_correctness_counts.columns
+            else 0
+        )
 
         # Add the legend, so it gets clear what part of the bars is "True" and "False"
         # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
         plot.legend(
-            [f"There was a drought (True): {true_count}", f"There was no drought (False): {false_count}"],
+            [
+                f"There was a drought (True): {true_count}",
+                f"There was no drought (False): {false_count}",
+            ],
             title="Was there a drought according to SPEI?",
             loc="upper right",
             alignment="left",
@@ -1461,7 +1577,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
         # For ALL cases so the two cases have to come back together here:
 
-        # Customize the 'False' bars with diagonal stripes by using .gca() to get the needed axis and its patches
+        # Customize the "False" bars with diagonal stripes by using .gca() to get the needed axis and its patches
         # https://www.geeksforgeeks.org/matplotlib-pyplot-gca-in-python/
         # https://stackoverflow.com/a/59586067 (set_hatch)
         # Use gca to get all axes and their patches with .patches
@@ -1494,7 +1610,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
         # Save the bar plot as a JPG file to use it in the thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        # plot.savefig(output_file_path, format='jpg')
+        # plot.savefig(output_file_path, format="jpg")
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1503,7 +1619,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
 # DONE
 # Generate the bar plot with correctness of the given drought quantification keywords for all re-analyzed paper locations
-# create_true_false_bar_chart(reanalysis_shapefile_path, 'Drought correctness')
+# create_true_false_bar_chart(reanalysis_shapefile_path, "Drought correctness")
 
 # DONE
 # Generate the bar plot that shows the correlation between all given drought keywords and if drought was quantified in percent
