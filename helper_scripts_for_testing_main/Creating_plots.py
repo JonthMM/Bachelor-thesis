@@ -6,8 +6,9 @@ import geopandas as geopd
 
 # Creates the plots from the data handled by (geo)pandas by using patplotlib.pyplot and giving it the alias plot for further usage
 import matplotlib.pyplot as plot
-import matplotlib.patches as mpatches
 
+# Add the patches module from matplotlib for a better representation of the legends and giving it the alias mpatches for further usage
+import matplotlib.patches as mpatches
 
 # Path to the shapefile containing the information needed for all plots depending on the re-analysis data
 reanalysis_shapefile_path = r"D:\Uni\Bachelorarbeit\complete_paper_points\re-analysed paper points with forest\re-analysed_paper_points_with_forest.shp"
@@ -418,15 +419,15 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
 # In work
 # Generate the Continent SPEI bar chart
-create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Continent SPEI")
+# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Continent SPEI")
 
 # DONE
 # Generate the drought quantification keyword SPEI bar chart
-create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Drought keyword SPEI")
+# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Drought keyword SPEI")
 
 # DONE
 # Generate the MODIS SPEI category bar chart
-create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "MODIS SPEI")
+# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "MODIS SPEI")
 
 
 def create_pie_chart(shape_or_excel_file_path, chart_type):
@@ -1534,13 +1535,16 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
             else 0
         )
 
+        # Set the legend entries manually with all its attributes colors and hatches so they match the bars
+        # https://stackoverflow.com/a/37296137
+        true_patch = mpatches.Patch(color="darkblue", label=f"Quantified (True): {true_count}")
+        false_patch = mpatches.Patch(facecolor="red", edgecolor="black", label=f"Not Quantified (False): {false_count}",
+                                     hatch="////")
+
         # Add the legend, so it gets clear what part of the bars is "True" and "False"
         # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
         plot.legend(
-            [
-                f"Quantified (True): {true_count}",
-                f"Not Quantified (False): {false_count}",
-            ],
+            handles=[true_patch, false_patch],
             title="Was drought quantified?",
             loc="upper right",
             alignment="left",
@@ -1624,13 +1628,16 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
             else 0
         )
 
+        # Set the legend entries manually with all its attributes colors and hatches so they match the bars
+        # https://stackoverflow.com/a/37296137
+        true_patch = mpatches.Patch(color="darkblue", label=f"Quantified (True): {true_count}")
+        false_patch = mpatches.Patch(facecolor="red", edgecolor="black", label=f"Not Quantified (False): {false_count}",
+                                     hatch="////")
+
         # Add the legend, so it gets clear what part of the bars is "True" and "False"
         # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
         plot.legend(
-            [
-                f"There was a drought (True): {true_count}",
-                f"There was no drought (False): {false_count}",
-            ],
+            handles=[true_patch, false_patch],
             title="Was there a drought according to SPEI?",
             loc="upper right",
             alignment="left",
@@ -1673,7 +1680,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
         # Save the bar plot as a JPG file to use it in the thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        # plot.savefig(output_file_path, format="jpg")
+        plot.savefig(output_file_path, format="jpg")
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1682,8 +1689,8 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
 # DONE
 # Generate the bar plot with correctness of the given drought quantification keywords for all re-analyzed paper locations
-# create_true_false_bar_chart(reanalysis_shapefile_path, "Drought correctness")
+create_true_false_bar_chart(reanalysis_shapefile_path, "Drought correctness")
 
 # DONE
 # Generate the bar plot that shows the correlation between all given drought keywords and if drought was quantified in percent
-# create_true_false_bar_chart(excel_file_path, "Drought quantified")
+create_true_false_bar_chart(excel_file_path, "Drought quantified")
