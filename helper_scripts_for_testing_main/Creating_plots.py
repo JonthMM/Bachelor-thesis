@@ -6,6 +6,8 @@ import geopandas as geopd
 
 # Creates the plots from the data handled by (geo)pandas by using patplotlib.pyplot and giving it the alias plot for further usage
 import matplotlib.pyplot as plot
+import matplotlib.patches as mpatches
+
 
 # Path to the shapefile containing the information needed for all plots depending on the re-analysis data
 reanalysis_shapefile_path = r"D:\Uni\Bachelorarbeit\complete_paper_points\re-analysed paper points with forest\re-analysed_paper_points_with_forest.shp"
@@ -208,15 +210,6 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
     # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
     gdf = geopd.read_file(shapefile_path)
 
-    # Define the category order for SPEI categories (applies to most of the chart types and thus globally defined before the cases)
-    # https://pandas.pydata.org/docs/user_guide/10min.html#categoricals
-    spei_category_order = [
-        "extremely dry (SPEI <= -2)",
-        "severely dry (-2 < SPEI <= -1.5)",
-        "moderately dry (-1.5 < SPEI <= -1)",
-        "near normal conditions (-1 < SPEI < +1)",
-        "no drought (+1 < SPEI)",
-    ]
 
     # For the given drought quantification keywords from the studies and SPEI drought categories
     if chart_type == "Drought":
@@ -272,13 +265,6 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
             "extremely dry (SPEI <= -2)": "#8B0000",  # Dark Red
         }
 
-        # Reindex the DataFrame with the correct category order for all stacked bar plots
-        # https://pandas.pydata.org/docs/user_guide/indexing.html#indexing-and-selecting-data
-        existing_categories = [
-            cat for cat in spei_category_order if cat in category_counts.columns
-        ]
-        category_counts = category_counts[existing_categories]
-
         # Calculate the percentage for each category by dividing each value by the global total (sum of all counts)
         # https://www.w3schools.com/python/pandas/ref_df_sum.asp
         # https://www.w3schools.com/python/pandas/ref_df_div.asp
@@ -299,27 +285,20 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
             category_sums.sort_values(ascending=False).index
         ]
 
-        # Create custom legend labels by combining each SPEI category with its corresponding count using zip()
-        # https://www.geeksforgeeks.org/matplotlib-pyplot-legend-in-python/
-        # https://www.geeksforgeeks.org/create-pandas-dataframe-from-lists-using-zip/
-        legend_labels_with_counts = [
-            f"{category} [{int(count)}]"
-            for category, count in zip(category_sums.index, category_sums.values)
+
+        # Create a list for the desired order of the spei categories inside the bars
+        # https://pandas.pydata.org/docs/user_guide/indexing.html#indexing-and-selecting-data
+        spei_desired_order = [
+            "extremely dry (SPEI <= -2)",
+            "severely dry (-2 < SPEI <= -1.5)",
+            "moderately dry (-1.5 < SPEI <= -1)",
+            "near normal conditions (-1 < SPEI < +1)",
+            "no drought (+1 < SPEI)"
         ]
 
-        # Replace "<=" with "≤" in the legend labels for better looks
-        # https://docs.python.org/3/library/stdtypes.html#str.replace
-        legend_labels_with_counts = [
-            label.replace("<=", "≤") for label in legend_labels_with_counts
-        ]
-
-        # Sorting legend labels based on the counts numeric in descending order
-        # https://docs.python.org/3/howto/sorting.html
-        sorted_legend_labels_with_counts = sorted(
-            legend_labels_with_counts,
-            key=lambda x: int(x.split("[")[1][:-1]),
-            reverse=True,
-        )
+        # Reindex the columns of my "category_counts_sorted" DataFrame with the created list
+        # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html
+        category_counts_sorted = category_counts_sorted.reindex(columns=spei_desired_order)
 
         # Generate the plot with sorted categories and the customized colors
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.bar.html
@@ -328,6 +307,51 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
             stacked=True,
             figsize=(14, 8),
             color=[spei_color_mapping[cat] for cat in category_counts_sorted.columns],
+        )
+
+        # Create custom legend labels by combining each SPEI category with its corresponding count using zip()
+        # https://www.geeksforgeeks.org/matplotlib-pyplot-legend-in-python/
+        # https://www.geeksforgeeks.org/create-pandas-dataframe-from-lists-using-zip/
+        legend_labels_with_counts = [
+            f"{category}: {int(category_sums[category])}"
+            for category in spei_desired_order
+        ]
+
+        # Replace "<=" with "≤" in the legend labels for the display inside the legend
+        # https://docs.python.org/3/library/stdtypes.html#str.replace
+        legend_labels_with_counts_display = [
+            label.replace("<=", "≤") for label in legend_labels_with_counts
+        ]
+
+        # Sorting legend labels (SPEI categories) based on the counts numeric in descending order by taking the last string number into account
+        # https://docs.python.org/3/howto/sorting.html
+        sorted_legend_labels_with_counts = sorted(
+            legend_labels_with_counts_display,
+            key=lambda x: int(x.split()[-1]),
+            reverse=True,
+        )
+
+        # Create a list to lign the SPEI categories with the sorted legend labels based on their counts
+        sorted_spei_categories = [
+            spei_desired_order[legend_labels_with_counts_display.index(label)]
+            for label in sorted_legend_labels_with_counts
+        ]
+
+        # Creates custom legend handles with colors matching the sorted SPEI categories and labels
+        # Use zip() to combine the two lists to align the colors with the sorted legend labels
+        # https://matplotlib.org/stable/users/explain/axes/legend_guide.html#creating-artists-specifically-for-adding-to-the-legend-aka-proxy-artists
+        # https://www.geeksforgeeks.org/create-pandas-dataframe-from-lists-using-zip/
+        legend_handles = [
+            mpatches.Patch(color=spei_color_mapping[category], label=label)
+            for category, label in zip(sorted_spei_categories, sorted_legend_labels_with_counts)
+        ]
+
+        # Place the sorted legend with counts inside the plot on the upper right
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html
+        plot.legend(
+            handles=legend_handles,
+            title="SPEI drought category",
+            loc="upper right",
         )
 
         # Add titles and axis labels that were defined before automatically from the titels
@@ -339,14 +363,6 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Add manual y-axis label for all studies
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib-pyplot-ylabel
         plot.ylabel("Percentage of re-analysed study locations (%)")
-
-        # Place the sorted legend with counts inside the plot on the upper right
-        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html
-        plot.legend(
-            sorted_legend_labels_with_counts,
-            title="SPEI drought category",
-            loc="upper right",
-        )
 
         # Rotate x-axis labels for readability and better plot-text ratio and replace "<=" with "≤"
         # https://www.geeksforgeeks.org/matplotlib-pyplot-xticks-in-python/
@@ -373,11 +389,11 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
 # DONE
 # Generate the drought quantification keyword bar chart
-# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Drought")
+create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Drought")
 
 # DONE
 # Generate the MODIS SPEI category bar chart
-# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "MODIS SPEI")
+create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "MODIS SPEI")
 
 
 def create_pie_chart(shape_or_excel_file_path, chart_type):
