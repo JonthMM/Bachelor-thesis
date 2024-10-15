@@ -1535,7 +1535,8 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
             else 0
         )
 
-        # Set the legend entries manually with all its attributes colors and hatches so they match the bars
+        # Set the legend entries manually with all its attributes colors and hatches (using mpatches.Patch()), so they match the bars
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Patch.html#matplotlib-patches-patch
         # https://stackoverflow.com/a/37296137
         true_patch = mpatches.Patch(color="darkblue", label=f"Quantified (True): {true_count}")
         false_patch = mpatches.Patch(facecolor="red", edgecolor="black", label=f"Not Quantified (False): {false_count}",
@@ -1628,7 +1629,8 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
             else 0
         )
 
-        # Set the legend entries manually with all its attributes colors and hatches so they match the bars
+        # Set the legend entries manually with all its attributes colors and hatches (using mpatches.Patch()), so they match the bars
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Patch.html#matplotlib-patches-patch
         # https://stackoverflow.com/a/37296137
         true_patch = mpatches.Patch(color="darkblue", label=f"Quantified (True): {true_count}")
         false_patch = mpatches.Patch(facecolor="red", edgecolor="black", label=f"Not Quantified (False): {false_count}",
