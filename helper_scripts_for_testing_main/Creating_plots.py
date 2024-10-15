@@ -186,10 +186,10 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
 
 def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
     """
-    Generates a stacked bar chart to visualize the distribution of SPEI drought categories.
-    The chart is based on the correlation between given drought quantification keywords or MODIS categories
-    and SPEI drought categories. The data is loaded from a shapefile, grouped, and processed to display
-    percentages in a stacked bar plot.
+    Generates a stacked bar chart to visualize the distribution of SPEI (Standardized Precipitation
+    Evapotranspiration Index) drought categories in correlation with either drought quantification
+    keywords or MODIS forest categories. The function processes the data from a shapefile, groups it,
+    calculates percentages, and generates a stacked bar chart that is saved as a JPG image.
     The function is designed to combine bar chart creation logic for different cases which all use the SPEI drought category
     from the re-analysis into a single function.
     This allows for easy extension if more bar charts are needed in the future from the same re-analysis shapefile data,
@@ -197,10 +197,11 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
     Args:
         shapefile_path (str): The path to the shapefile that contains the data for analysis.
-        chart_type (str): Specifies the type of bar chart to generate. Options are "Drought"
-                          (correlates SPEI drought categories with drought quantification keywords)
-                          or "MODIS SPEI" (correlates SPEI drought categories with MODIS forest types).
-
+        chart_type (str): Specifies the type of bar chart to generate.
+                        Options are:
+                            - "Drought": Correlates SPEI drought categories with drought quantification keywords.
+                            - "MODIS SPEI": Correlates SPEI drought categories with MODIS forest types.
+                            - "Continent SPEI": Correlates SPEI drought categories with the continent of locations.
     Returns:
         None: The function saves the generated bar chart as a JPG image.
     """
@@ -398,14 +399,25 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
 def create_pie_chart(shape_or_excel_file_path, chart_type):
     """
-    Creates pie charts based on the specified `chart_type` using data from either an Excel file or a shapefile.
-    Supports multiple types of pie charts, including study type distributions and drought-related classifications.
+    Generates pie charts based on the specified `chart_type` using data from either an Excel file or a
+    shapefile. The function supports multiple types of pie charts, such as study type distributions,
+    drought classifications, MODIS categories, and SPEI drought categories.
     Additional pie chart types can be implemented easily by adding new cases based on the same input data.
 
     Args:
         shape_or_excel_file_path (str): The path to the Excel file (.xlsx) or shapefile (.shp) to be used for data extraction.
-        chart_type (str): Specifies the type of pie chart to generate. Options are "study type",
-                          "breakdown", "MODIS drought sphere", "SPEI category percentage", etc.
+        chart_type (str): Specifies the type of pie chart to generate.
+                        Options are:
+                            - "study type": Distribution of study types.
+                            - "breakdown": Breakdown of drought quantification keywords by study type.
+                            - "MODIS drought sphere": Drought sphere categories for MODIS forest types.
+                            - "MODIS drought category": Breakdown of drought categories for MODIS forest types.
+                            - "MODIS percentage": Percentage distribution of MODIS forest types.
+                            - "SPEI category percentage": Percentage of re-analysed study locations by SPEI category.
+                            - "Spheres drought category": Drought quantification breakdown for each sphere.
+                            - "spheres": Percentage overview of drought spheres.
+                            - "Spheres SPEI": Breakdown of SPEI categories for each sphere.
+                            - "Continent percentage": Percentage distribution by continent.
 
     Returns:
         None: The function saves the generated pie chart(s) as a JPG image.
@@ -1391,7 +1403,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
     """
     Generates a stacked bar chart visualizing either the correlation of drought category keywords with
     drought quantification or the correctness of drought quantification. The chart is generated based on
-    the specified `chart_type`, either from a shapefile or an Excel file, and saved as a JPG image.
+    the specified `chart_type`, using data from either a shapefile or an Excel file, and saved as a JPG image.
     The function is designed to combine (hatched) bar chart creation logic for different cases which all use the given
     drought categories from the papers and "True" or "False" values for the stacked bars.
     This allows for easy extension if more bar charts are needed in the future from the same shapefile or Excel data,
@@ -1401,7 +1413,10 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
         shape_or_excel_file_path (str): The file path to the shapefile or Excel file to be analyzed.
                                         The path can be either a .shp or .xlsx file, and the data
                                         should contain columns for drought quantification and correctness.
-        chart_type (str): Specifies the type of pie chart to generate. Options are
+        chart_type (str): Specifies the type of pie chart to generate.
+                        Options are:
+                            - "Drought quantified": Correlation of drought category keywords with quantification.
+                            - "Drought correctness": Correctness of drought quantification based on SPEI categories.
 
     Returns:
         None: The function saves the generated bar chart as a JPG image.
