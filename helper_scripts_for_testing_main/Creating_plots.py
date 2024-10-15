@@ -199,7 +199,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         shapefile_path (str): The path to the shapefile that contains the data for analysis.
         chart_type (str): Specifies the type of bar chart to generate.
                         Options are:
-                            - "Drought": Correlates SPEI drought categories with drought quantification keywords.
+                            - "Drought keyword SPEI": Correlates SPEI drought categories with drought quantification keywords.
                             - "MODIS SPEI": Correlates SPEI drought categories with MODIS forest types.
                             - "Continent SPEI": Correlates SPEI drought categories with the continent of locations.
     Returns:
@@ -211,9 +211,24 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
     # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
     gdf = geopd.read_file(shapefile_path)
 
+    # For continents and SPEI drought categories
+    if chart_type == "Continent SPEI":
+        # Grouping the data by "dr_quanti" and "Category" to count occurrences for the drought chart
+        # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
+        # https://www.statology.org/pandas-unstack/
+        # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
+        category_counts = (
+            gdf.groupby(["Continent", "Category"]).size().unstack(fill_value=0)
+        )
+        # X-axis text
+        xaxisdescription = "Continent"
+        # Title of the plot
+        title = "Distribution of SPEI drought categories in correlation with the continents of the re-analysed paper locations"
+        # Path where the plot is going to be saved
+        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation of SPEI drought category and the continents of the re-analysed paper locations in percent.jpg"
 
     # For the given drought quantification keywords from the studies and SPEI drought categories
-    if chart_type == "Drought":
+    if chart_type == "Drought keyword SPEI":
         # Grouping the data by "dr_quanti" and "Category" to count occurrences for the drought chart
         # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
         # https://www.statology.org/pandas-unstack/
@@ -228,7 +243,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Path where the plot is going to be saved
         output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation of SPEI drought category and the given drought quantifications of the studies  in percent.jpg"
 
-    # For MODIS categories and SPEI drought categories
+    # For MODIS forest types and SPEI drought categories
     if chart_type == "MODIS SPEI":
         # Grouping the data by "MODIS" and "Category" to count occurrences for the MODIS chart
         # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
@@ -245,7 +260,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation MODIS classes and SPEI drought categories in percent.jpg"
 
     # For all cases that somehow use "Category" (The SPEI categories)
-    if chart_type in ["Drought", "MODIS SPEI"]:
+    if chart_type in ["Drought keyword SPEI", "MODIS SPEI", "Continent SPEI"]:
         # Change the label for "Other" category, so it is not too long (only for bar plots with MODIS involved)
         # https://pandas.pydata.org/docs/user_guide/basics.html#renaming-mapping-labels
         category_counts.rename(
@@ -375,6 +390,19 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
             ha="right",
         )
 
+        # Adjust the Y-Axis manually by a fixed array
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.yticks.html#matplotlib-pyplot-yticks
+        # For the two cases that only need 0-35
+        if chart_type in ["MODIS SPEI", "Continent SPEI"]:
+            plot.yticks(
+                [0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30, 32.5, 35]
+            )
+        # For the other case that needs 0-40
+        elif chart_type in ["Drought keyword SPEI"]:
+            plot.yticks(
+                [0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30, 32.5, 35, 37.5, 40]
+            )
+
         # Ensure that the tight layout is used for a better visualisation
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
         plot.tight_layout()
@@ -388,13 +416,17 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         plot.show()
 
 
+# In work
+# Generate the Continent SPEI bar chart
+create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Continent SPEI")
+
 # DONE
-# Generate the drought quantification keyword bar chart
-# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Drought")
+# Generate the drought quantification keyword SPEI bar chart
+create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Drought keyword SPEI")
 
 # DONE
 # Generate the MODIS SPEI category bar chart
-# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "MODIS SPEI")
+create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "MODIS SPEI")
 
 
 def create_pie_chart(shape_or_excel_file_path, chart_type):
