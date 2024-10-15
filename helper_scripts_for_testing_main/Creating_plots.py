@@ -102,7 +102,7 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
         # https://www.geeksforgeeks.org/matplotlib-pyplot-legend-in-python/
         # https://www.geeksforgeeks.org/create-pandas-dataframe-from-lists-using-zip/
         legend_labels_with_counts = [
-            f'"{category}" [{count}]' if category == "Dry" else f"{category} [{count}]"
+            f'"{category}": {count}' if category == "Dry" else f"{category}: {count}"
             for category, count in zip(
                 drought_keywords_sums.index, drought_keywords_sums.values
             )
@@ -112,7 +112,7 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
         # https://docs.python.org/3/howto/sorting.html
         sorted_legend_labels_with_counts = sorted(
             legend_labels_with_counts,
-            key=lambda x: int(x.split("[")[1][:-1]),
+            key=lambda x: int(x.split()[-1]),
             reverse=True,
         )
 
@@ -389,11 +389,11 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
 # DONE
 # Generate the drought quantification keyword bar chart
-create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Drought")
+# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Drought")
 
 # DONE
 # Generate the MODIS SPEI category bar chart
-create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "MODIS SPEI")
+# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "MODIS SPEI")
 
 
 def create_pie_chart(shape_or_excel_file_path, chart_type):
