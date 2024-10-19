@@ -435,6 +435,8 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
         shape_or_excel_file_path (str): The path to the Excel file (.xlsx) or shapefile (.shp) to be used for data extraction.
         chart_type (str): Specifies the type of pie chart to generate.
                         Options are:
+                            - "drought keywords percentage excel": Distribution of drought keywords from Excel.
+                            - "drought keywords percentage": Distribution of drought keywords from re-analysed paper points.
                             - "study type": Distribution of study types from Excel.
                             - "study type drought category excel": Breakdown of drought quantification keywords by study type from Excel.
                             - "study type drought category": Breakdown of drought quantification keywords by study type from re-analysed paper locations.
@@ -464,6 +466,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
         "MODIS drought sphere",
         "spheres",
         "Spheres drought category excel",
+        "drought keywords percentage excel"
     ]:
 
         # Load the Excel file and "relevantInfo" sheet where the data for the pie charts is stored
@@ -499,6 +502,91 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             "Reduced rainfall": "#adff2f",  # Green Yellow
             "Standardized Index": "#9370db",  # Medium Purple
         }
+
+        # If "drought keywords percentage excel" is selected, create the general drought keywords pie chart from the Excel
+        if chart_type == "drought keywords percentage excel":
+            # Count the occurrences of each drought keyword and clean them to create the percentages, then count its occurrences with size()
+            # Remove quotes with replace() (because python gives an error for "dry" keyword if there are quotes)
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html
+            drought_keywords_counts = excel_df["drought quantification keyword for plots"].str.strip().str.replace('"', "").value_counts()
+
+            # Create a list of colors in the same order as the labels in spei_category_counts to use it for the pie chart
+            drought_keywords_colors = [
+                drought_keywords_color_mapping[label] for label in drought_keywords_counts.index
+            ]
+
+            # Adjust the size of the plot so the picture is better usable later and nothing gets cut off
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
+            plot.figure(figsize=(11, 7))
+
+            # Create the pie chart with black lines between pieces and percentages as texts
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
+            wedges, category_texts, autotexts = plot.pie(
+                drought_keywords_counts,
+                autopct="%1.1f%%",
+                colors=drought_keywords_colors,
+                wedgeprops={"edgecolor": "black", "linewidth": 0.4},
+            )
+
+            # Change the color of the percentages to white for clearer visibility
+            # https://stackoverflow.com/a/27899541 (set_color())
+            for autotext in autotexts:
+                autotext.set_color("white")
+
+            # Manage the labels for the segments by iterating over the dataframe "drought_keywords_counts"
+            # https://www.w3schools.com/python/pandas/ref_df_index.asp
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html
+            for i, keyword_label in enumerate(drought_keywords_counts.index):
+
+                # Add back the "" for the "Dry" drought keyword since it had to be removed earlier for python rules
+                if keyword_label == "Dry":
+                    keyword_label = '"Dry"'
+
+                # Add the drought keyword label texts automatically from the drought_keywords_counts dataframe
+                # https://www.tutorialspoint.com/how-to-add-title-to-subplots-in-matplotlib#:~:text=The%20Matplotlib%20set_text()%20function,in%20a%20subplot%20or%20plot.
+                category_texts[i].set_text(keyword_label)
+
+            # Set the main title as well as the file name
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
+            plot.title(
+                "Distribution of the drought keywords out of all studies"
+            )
+            drought_keywords_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Pie chart with drought keywords percentages and legend for total numbers.jpg"
+
+            # Create and add a legend for the total numbers of drought keywords for a better overview of the data
+            # Create the labels out of the SPEI categories for the legend with counts so the total numbers are displayed
+            # Also add back the "" for the "Dry" drought keyword since it had to be removed earlier for python rules
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.items.html#pandas-dataframe-items
+            # https://docs.python.org/3/library/stdtypes.html#str.replace
+            keywords_legend_labels = [
+                f'"{label}": {count}' if label == 'Dry' else f"{label}: {count}"
+                for label, count in drought_keywords_counts.items()
+            ]
+
+            # Now add the legend to the pie chart with the drought keyword labels and place it in the upper right outside the pie chart (with bbox_to_anchor)
+            # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
+            plot.legend(
+                wedges,
+                keywords_legend_labels,
+                title="Drought keywords (Count)",
+                loc="center right",
+                bbox_to_anchor=(1, 0.15, 0.4, 1),
+            )
+
+            # Ensure that the tight layout is used for a better visualisation and readability
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
+            plot.tight_layout()
+
+            # Save the pie chart as a JPG file to use it in the thesis
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
+            # plot.savefig(drought_keywords_output_file_path, format="jpg")
+
+            # Optionally display the plot (for finetuning so adjusting is easier)
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
+            plot.show()
+
 
         # If "Spheres drought category excel" is selected, create the drought quantification breakdown pie charts for each drought sphere
         if chart_type == "Spheres drought category excel":
@@ -806,6 +894,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                         "MODIS drought category",
                         "Continent percentage", 
                         "Continent drought category",
+                        "drought keywords percentage"
                         ]:
 
         # Read the given shapefile for all pie chart cases using geopandas read_file() method and storing it as geodataframe
@@ -1354,6 +1443,92 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
             # plot.savefig(study_type_output_path, format="jpg")
+
+            # Optionally display the plot (for finetuning so adjusting is easier)
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
+            plot.show()
+
+        # If "drought keywords percentage" is selected, create the general drought keywords pie chart
+        if chart_type == "drought keywords percentage":
+
+            # Count the occurrences of each drought keyword to create the percentages and clean "drouquanti", then count its occurrences with size()
+            # Remove quotes with replace() (because python gives an error for "dry" keyword if there are quotes)
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html
+            drought_keywords_counts = reanalysed_gdf["drouquanti"].str.strip().str.replace('"', "").value_counts()
+
+            # Create a list of colors in the same order as the labels in spei_category_counts to use it for the pie chart
+            drought_keywords_colors = [
+                drought_keywords_color_mapping[label] for label in drought_keywords_counts.index
+            ]
+
+            # Adjust the size of the plot so the picture is better usable later and nothing gets cut off
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
+            plot.figure(figsize=(10, 7))
+
+            # Create the pie chart with black lines between pieces and percentages as texts
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
+            wedges, category_texts, autotexts = plot.pie(
+                drought_keywords_counts,
+                autopct="%1.1f%%",
+                colors=drought_keywords_colors,
+                wedgeprops={"edgecolor": "black", "linewidth": 0.4},
+            )
+
+            # Change the color of the percentages to white for clearer visibility
+            # https://stackoverflow.com/a/27899541 (set_color())
+            for autotext in autotexts:
+                autotext.set_color("white")
+
+
+            # Manage the labels for the segments by iterating over the dataframe "drought_keywords_counts"
+            # https://www.w3schools.com/python/pandas/ref_df_index.asp
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html
+            for i, keyword_label in enumerate(drought_keywords_counts.index):
+
+                # Add back the "" for the "Dry" drought keyword since it had to be removed earlier for python rules
+                if keyword_label == "Dry":
+                    keyword_label = '"Dry"'
+
+                # Add the drought keyword label texts automatically from the drought_keywords_counts dataframe
+                # https://www.tutorialspoint.com/how-to-add-title-to-subplots-in-matplotlib#:~:text=The%20Matplotlib%20set_text()%20function,in%20a%20subplot%20or%20plot.
+                category_texts[i].set_text(keyword_label)
+
+            # Set the main title as well as the file name
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
+            plot.title(
+                "Distribution of the drought keywords out of all re-analysed studies in percentage"
+            )
+            drought_keywords_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Pie chart with drought keywords percentages and legend for total numbers.jpg"
+
+            # Create and add a legend for the total numbers of drought keywords for a better overview of the data
+            # Create the labels out of the SPEI categories for the legend with counts so the total numbers are displayed
+            # Also add back the "" for the "Dry" drought keyword since it had to be removed earlier for python rules
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.items.html#pandas-dataframe-items
+            # https://docs.python.org/3/library/stdtypes.html#str.replace
+            keywords_legend_labels = [
+                f'"{label}": {count}' if label == 'Dry' else f"{label}: {count}"
+                for label, count in drought_keywords_counts.items()
+            ]
+
+            # Now add the legend to the pie chart with the drought keyword labels and place it in the upper right outside the pie chart (with bbox_to_anchor)
+            # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
+            plot.legend(
+                wedges,
+                keywords_legend_labels,
+                title="Drought keywords (Count)",
+                loc="upper right",
+                bbox_to_anchor=(0.9, 0, 0.4, 1),
+            )
+
+            # Ensure that the tight layout is used for a better visualisation and readability
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
+            plot.tight_layout()
+
+            # Save the pie chart as a JPG file to use it in the thesis
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
+            plot.savefig(drought_keywords_output_file_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2220,9 +2395,13 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # Generate the drought quantification keyword SPEI bar chart
 # create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Drought keyword SPEI")
 
-# TO DO
-# Generate the drought keywords percentage pie chart
+# DONE
+# Generate the drought keywords percentage pie chart from the re-analysed paper locations
 # create_pie_chart(reanalysis_shapefile_path, "drought keywords percentage")
+
+# IN WORK
+# Generate the drought keywords percentage pie chart from the Excel file to show the general paper contribution
+create_pie_chart(excel_file_path, "drought keywords percentage excel")
 
 
 def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
