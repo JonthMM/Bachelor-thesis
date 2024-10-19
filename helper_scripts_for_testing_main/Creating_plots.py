@@ -437,6 +437,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                         Options are:
                             - "study type": Distribution of study types from Excel.
                             - "study type drought category excel": Breakdown of drought quantification keywords by study type from Excel.
+                            - "study type drought category": Breakdown of drought quantification keywords by study type from re-analysed paper locations.
                             - "study type SPEI": Breakdown of SPEI categories for each study type.
                             - "MODIS drought category all": Breakdown of drought categories for MODIS forest types from all locations.
                             - "MODIS percentage all": Percentage distribution of MODIS forest types from all locations.
@@ -801,7 +802,8 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                         "Spheres drought category",
                         "study type SPEI",
                         "study type drought category",
-                        "MODIS percentage", 
+                        "MODIS percentage",
+                        "MODIS drought category",
                         "Continent percentage", 
                         "Continent drought category",
                         ]:
@@ -834,6 +836,110 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             "Reduced rainfall": "#adff2f",  # Green Yellow
             "Standardized Index": "#9370db",  # Medium Purple
         }
+
+        # If "MODIS drought category" is selected, create the drought quantification breakdown pie charts for each MODIS forest class from the re-analysed paper points
+        if chart_type == "MODIS drought category":
+            # Group the data by "forest" and clean "drouquanti" and then count its occurrences with size()
+            # Remove quotes with replace() (because python gives an error for "dry" keyword if there are quotes)
+            # Also create the pivot table to have drought_sphere as columns and fill missing with 0
+            # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
+            # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
+            # https://www.statology.org/pandas-unstack/
+            # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
+            forest_breakdown_data = (
+                reanalysed_gdf.groupby(
+                    [
+                        "forest",
+                        reanalysed_gdf["drouquanti"].str.strip().str.replace('"', ""),
+                    ]
+                )
+                .size()
+                .unstack(fill_value=0)
+            )
+
+            # Reorder the MODIS Categories based on https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MCD12Q1#bands "LC_Type1 Class Table"
+            # (No "Deciduous Needleleaf Forest" because there are no locations that have this MODIS forest type)
+            desired_forest_order = [
+                "Evergreen Needleleaf Forest",
+                "Evergreen Broadleaf Forest",
+                "Deciduous Broadleaf Forest",
+                "Mixed Forest",
+                "Closed Shrubland",
+                "Woody Savanna",
+                "Other (Mangrove Forest, Open Shrubland, Savannas, Permanent Wetlands, ...)",
+            ]
+
+            # Filter and reorder the MODIS forest types using .isin() to keep only the relevant types and .reindex() to match the desired order
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html#pandas-dataframe-loc
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.isin.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html
+            final_forest_breakdown_data = forest_breakdown_data.loc[
+                forest_breakdown_data.index.isin(desired_forest_order)
+            ].reindex(desired_forest_order)
+
+            # Set the size of the figure and define the number of subplots based on the number of relevant MODIS forest types
+            # manually because we need one pie chart for each relevant, named MODIS forest type
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
+            fig, axes = plot.subplots(2, 4, figsize=(30, 10))
+
+            # Flatten the axes for easier iteration and a faster plot creation
+            # https://stackoverflow.com/questions/46862861/what-does-axes-flat-in-matplotlib-do
+            axes = axes.flatten()
+
+            # Iterate over the final dataframe that holds the wanted information to filter out zero values and assign the wanted colors
+            # https://www.w3schools.com/python/pandas/ref_df_iterrows.asp
+            for i, (forest, row) in enumerate(final_forest_breakdown_data.iterrows()):
+                # Filter out redundant zero values in the rows (Given drought categories) so only the drought categories that are given for the study types are displayed
+                row = row[row > 0]
+                # Use consistent colors for each keyword, so it is not confusing (using the colors declared before globally
+                breakdown_colors = [
+                    drought_keywords_color_mapping[label] for label in row.index
+                ]
+
+                # Display percentages inside the pieces and assign the labels and colors to the pie chart pieces
+                # Also add the "" back to the "Dry" label since it had to be removed for python rules before
+                # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.pie.html
+                axes[i].pie(
+                    row,
+                    labels=[
+                        f'"{label}"' if label == "Dry" else label for label in row.index
+                    ],
+                    autopct="%1.1f%%",
+                    colors=breakdown_colors,
+                    startangle=90
+                )
+
+                # Display a title for every single pie chart containing its MODIS forest type
+                # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html
+                axes[i].set_title(f"{forest}")
+
+            # Set the main title for the entire figure (has to be done separately because every pie chart has its own title) aswell as the file name
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.suptitle.html
+            fig.suptitle(
+                "Breakdown of the given drought quantification for the re-analysed paper locations MODIS forest types",
+                fontsize=16,
+            )
+            modis_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for MODIS forest types from re-analysed shapefile.jpg"
+
+            # Remove the last unused pie chart since we only have 7 relevant MODIS forest types but 2 rows and 4 columns = 8 pie charts
+            # https://www.geeksforgeeks.org/matplotlib-figure-figure-delaxes-in-python/
+            fig.delaxes(axes[-1])
+
+            # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
+            plot.tight_layout()
+
+            # Save the pie chart(s) as one JPG file to use it in the thesis
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
+            plot.savefig(modis_drought_output_file_path, format="jpg")
+
+            # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
+            plot.show()
+
+
 
         # If "study type drought category" is selected, create the drought quantification breakdown pie charts for each study type from the re-analysed paper points
         if chart_type == "study type drought category":
@@ -1647,10 +1753,6 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             )
             modis_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for MODIS forest types from complete location shapefile.jpg"
 
-            # Remove the last unused pie chart since we only have 7 relevant MODIS forest types but 2 rows and 4 columns = 8 pie charts
-            # https://www.geeksforgeeks.org/matplotlib-figure-figure-delaxes-in-python/
-            # fig.delaxes(axes[-1])
-
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
             plot.tight_layout()
@@ -2076,9 +2178,8 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # Generate the MODIS breakdown of given drought quantification keyword pie chart from all paper locations since one paper can have multiple MODIS forest types
 # create_pie_chart(all_studies_shapefile_path, "MODIS drought category all")
 
-# RE-DO as its own case with reanalysis_shapefile_path
-# Requires more work to re-do because no decidious needleleaf in re-analysis location points and percentages overlap
-# Generate the MODIS breakdown of given drought quantification keyword pie chart
+# DONE
+# Generate the MODIS breakdown of given drought quantification keyword pie chart for the re-analysed paper locations
 # create_pie_chart(reanalysis_shapefile_path, "MODIS drought category")
 
 # DONE
@@ -2100,11 +2201,11 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # Generate the study type breakdown of given drought quantification keyword pie chart from Excel since every paper only has one study type
 # create_pie_chart(excel_file_path, "study type drought category excel")
 
-# RE-DO as its own case with reanalysis_shapefile_path
-# Generate the study type breakdown of given drought quantification keyword pie chart
-create_pie_chart(reanalysis_shapefile_path, "study type drought category")
+# DONE
+# Generate the study type breakdown of given drought quantification keyword pie chart from the re-analysed paper lcoations
+# create_pie_chart(reanalysis_shapefile_path, "study type drought category")
 
-# TO-DO
+# DONE
 # Generate the study type SPEI breakdown pie chart
 # create_pie_chart(reanalysis_shapefile_path, "study type SPEI")
 
@@ -2324,8 +2425,8 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
         # Set the legend entries manually with all its attributes colors and hatches (using mpatches.Patch()), so they match the bars
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Patch.html#matplotlib-patches-patch
         # https://stackoverflow.com/a/37296137
-        true_patch = mpatches.Patch(color="darkblue", label=f"Quantified (True): {true_count}")
-        false_patch = mpatches.Patch(facecolor="red", edgecolor="black", label=f"Not Quantified (False): {false_count}",
+        true_patch = mpatches.Patch(color="darkblue", label=f"True: {true_count}")
+        false_patch = mpatches.Patch(facecolor="red", edgecolor="black", label=f"False: {false_count}",
                                      hatch="////")
 
         # Add the legend, so it gets clear what part of the bars is "True" and "False"
@@ -2374,7 +2475,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
         # Save the bar plot as a JPG file to use it in the thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        plot.savefig(output_file_path, format="jpg")
+        # plot.savefig(output_file_path, format="jpg")
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
