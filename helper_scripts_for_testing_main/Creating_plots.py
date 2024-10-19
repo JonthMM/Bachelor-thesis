@@ -443,6 +443,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                             - "MODIS percentage": Percentage distribution of MODIS forest types from re-analysis locations.
                             - "MODIS drought sphere": Drought sphere categories for MODIS forest types.
                             - "Spheres drought category excel": Drought quantification breakdown for each sphere from Excel.
+                            - "Spheres drought category": Drought quantification breakdown for each sphere from re-analysed paper locations.
                             - "spheres": Percentage overview of drought spheres.
                             - "Spheres SPEI": Breakdown of SPEI categories for each sphere.
                             - "Continent percentage all": Percentage distribution by continent from all locations..
@@ -798,7 +799,8 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
     elif chart_type in ["SPEI category percentage", 
                         "Spheres SPEI",
                         "Spheres drought category",
-                        "study type SPEI", 
+                        "study type SPEI",
+                        "study type drought category",
                         "MODIS percentage", 
                         "Continent percentage", 
                         "Continent drought category",
@@ -833,6 +835,100 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             "Standardized Index": "#9370db",  # Medium Purple
         }
 
+        # If "study type drought category" is selected, create the drought quantification breakdown pie charts for each study type from the re-analysed paper points
+        if chart_type == "study type drought category":
+            # Group the data by "study type" and clean the drought quantification keywords and then count its occurrences with size()
+            # Remove quotes with replace() (because python gives an error for "dry" keyword if there are quotes)
+            # Also create the pivot table to have drought_sphere as columns and fill missing with 0
+            # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
+            # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
+            # https://www.statology.org/pandas-unstack/
+            # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
+            study_type_breakdown_data = (
+                reanalysed_gdf.groupby(
+                    [
+                        "studytype",
+                        reanalysed_gdf["drouquanti"]
+                        .str.strip()
+                        .str.replace('"', ""),
+                    ]
+                )
+                .size()
+                .unstack(fill_value=0)
+            )
+            # Display only the study types "experimental", "observational", and "modeling" in a specific order for pie charts
+            desired_study_type_order = ["Experimental", "Observational", "Modeling"]
+
+            # Filter and reorder the study types using .isin() to keep only the relevant types and .reindex() to match the desired order
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html#pandas-dataframe-loc
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.isin.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html
+            final_breakdown_data = study_type_breakdown_data.loc[
+                study_type_breakdown_data.index.isin(desired_study_type_order)
+            ].reindex(desired_study_type_order)
+
+            # Define the number of subplots based on the number of study types because we need one pie chart for each relevant, named study type
+            # https://www.programiz.com/python-programming/methods/built-in/len
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
+            number_of_study_types = len(final_breakdown_data)
+            fig, axes = plot.subplots(1, 3, figsize=(20, 8))
+
+            # Flatten the axes for easier iteration and a faster plot creation
+            # https://stackoverflow.com/questions/46862861/what-does-axes-flat-in-matplotlib-do
+            axes = axes.flatten()
+
+            # Iterate over the final dataframe that holds the wanted information to filter out zero values and assign the wanted colors
+            # https://www.w3schools.com/python/pandas/ref_df_iterrows.asp
+            for i, (study_type, row) in enumerate(final_breakdown_data.iterrows()):
+                # Filter out redundant zero values in the rows (Given drought categories) so only the drought categories that are given for the study types are displayed
+                row = row[row > 0]
+                # Use consistent colors for each keyword, so it is not confusing (using the colors declared before in "drought_keywords_color_mapping"
+                breakdown_colors = [
+                    drought_keywords_color_mapping[label] for label in row.index
+                ]
+
+                # Display percentages inside the pieces and assign the labels and colors to the pie chart axes
+                # Also add the "" back to the "Dry" label since it had to be removed for python rules before
+                # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.pie.html
+                axes[i].pie(
+                    row,
+                    labels=[
+                        f'"{label}"' if label == "Dry" else label for label in row.index
+                    ],
+                    autopct="%1.1f%%",
+                    colors=breakdown_colors,
+                    startangle=100
+                )
+
+                # Display a title for every single pie chart containing its study type
+                # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html
+                axes[i].set_title(f"{study_type}")
+
+            # Set the main title for the entire figure (has to be done separately because every pie chart has its own title) as well as the file name
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.suptitle.html
+            fig.suptitle(
+                "Breakdown of the given drought quantification for the relevant study types",
+                fontsize=16,
+            )
+            breakdown_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for study types for the re-analysed paper locations.jpg"
+
+            # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
+            plot.tight_layout()
+
+            # Save the pie chart(s) as one JPG file to use it in the thesis
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
+            plot.savefig(breakdown_output_file_path, format="jpg")
+
+            # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
+            plot.show()
+
+
+        # If "Spheres drought category" is selected, create the drought quantification breakdown pie charts for each drought sphere from the re-analysed paper points
         if chart_type == "Spheres drought category":
             # Group the data by "drought_sphere" and clean the drought quantification keywords and then count its occurrences with size()
             # Remove quotes with replace() (because python gives an error for "dry" keyword if there are quotes)
@@ -1957,9 +2053,9 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # Generate the Spheres drought category keywords percentage pie chart from the excel file since every paper can have only one sphere
 # create_pie_chart(excel_file_path, "Spheres drought category excel")
 
-# RE-DO as its own case with reanalysis_shapefile_path (plot already done, just for rightness create own one)
-# Generate the Spheres drought category keywords percentage pie chart
-create_pie_chart(reanalysis_shapefile_path, "Spheres drought category")
+# DONE
+# Generate the Spheres drought category keywords percentage pie chart from re-analysed paper locations
+# create_pie_chart(reanalysis_shapefile_path, "Spheres drought category")
 
 # DONE
 # Generate the sphere SPEI category percentage pie chart
@@ -2006,7 +2102,7 @@ create_pie_chart(reanalysis_shapefile_path, "Spheres drought category")
 
 # RE-DO as its own case with reanalysis_shapefile_path
 # Generate the study type breakdown of given drought quantification keyword pie chart
-# create_pie_chart(reanalysis_shapefile_path, "study type drought category")
+create_pie_chart(reanalysis_shapefile_path, "study type drought category")
 
 # TO-DO
 # Generate the study type SPEI breakdown pie chart
@@ -2023,6 +2119,9 @@ create_pie_chart(reanalysis_shapefile_path, "Spheres drought category")
 # Generate the drought quantification keyword SPEI bar chart
 # create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Drought keyword SPEI")
 
+# TO DO
+# Generate the drought keywords percentage pie chart
+# create_pie_chart(reanalysis_shapefile_path, "drought keywords percentage")
 
 
 def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
