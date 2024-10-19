@@ -795,7 +795,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             plot.show()
 
     # Cases for all pie charts that need data from the shapefile with all re-analysed paper locations
-    elif chart_type in ["SPEI category percentage", "Spheres SPEI", "study type SPEI", "MODIS percentage", "Continent percentage"]:
+    elif chart_type in ["SPEI category percentage", "Spheres SPEI", "study type SPEI", "MODIS percentage", "Continent percentage", "Continent drought category"]:
 
         # Read the given shapefile for all pie chart cases using geopandas read_file() method and storing it as geodataframe
         # https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe
@@ -825,6 +825,90 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             "Reduced rainfall": "#adff2f",  # Green Yellow
             "Standardized Index": "#9370db",  # Medium Purple
         }
+
+
+        "Continent drought category"
+        # If "Continent drought category" is selected, this case is used to create the drought quantification breakdown pie charts for each continent for the re-analysed locations
+        if chart_type == "Continent drought category":
+            # Group the data by "Continent" and clean "drouquanti" and then count its occurrences with size()
+            # Remove quotes with replace() (because python gives an error for "dry" keyword if there are quotes)
+            # Also create the pivot table to have drought_sphere as columns and fill missing with 0
+            # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
+            # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
+            # https://www.statology.org/pandas-unstack/
+            # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
+            continent_breakdown_data = (
+                reanalysed_gdf.groupby(
+                    [
+                        "Continent",
+                        reanalysed_gdf["drouquanti"].str.strip().str.replace('"', ""),
+                    ]
+                )
+                .size()
+                .unstack(fill_value=0)
+            )
+
+            # Set the size of the figure and define the number of subplots based on the number of continents
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
+            fig, axes = plot.subplots(2, 4, figsize=(30, 10))
+
+            # Flatten the axes for easier iteration and a faster plot creation
+            # https://stackoverflow.com/questions/46862861/what-does-axes-flat-in-matplotlib-do
+            axes = axes.flatten()
+
+            # Iterate over the final dataframe that holds the wanted information to filter out zero values and assign the wanted colors
+            # https://www.w3schools.com/python/pandas/ref_df_iterrows.asp
+            for i, (continent, row) in enumerate(continent_breakdown_data.iterrows()):
+                # Filter out redundant zero values in the rows (Given drought categories) so only the drought categories that are given for the study types are displayed
+                row = row[row > 0]
+                # Use consistent colors for each keyword, so it is not confusing (using the colors declared before globally
+                breakdown_colors = [
+                    drought_keywords_color_mapping[label] for label in row.index
+                ]
+
+                # Display percentages inside the pieces and assign the labels and colors to the pie chart pieces
+                # Also add the "" back to the "Dry" label since it had to be removed for python rules before
+                # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.pie.html
+                axes[i].pie(
+                    row,
+                    labels=[
+                        f'"{label}"' if label == "Dry" else label for label in row.index
+                    ],
+                    autopct="%1.1f%%",
+                    colors=breakdown_colors,
+                    startangle=90
+                )
+
+                # Display a title for every single pie chart containing the continents
+                # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html
+                axes[i].set_title(f"{continent}")
+
+            # Set the main title for the entire figure (has to be done separately because every pie chart has its own title) as well as the file name
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.suptitle.html
+            fig.suptitle(
+                "Breakdown of the given drought quantification for the re-analysed paper locations continents",
+                fontsize=16,
+            )
+            continent_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for all continents from re-analysed location shapefile.jpg"
+
+            # Remove the last unused pie chart since we only have 7 continents but 2 rows and 4 columns = 8 pie charts
+            # https://www.geeksforgeeks.org/matplotlib-figure-figure-delaxes-in-python/
+            fig.delaxes(axes[-1])
+
+            # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
+            plot.tight_layout()
+
+            # Save the pie chart(s) as one JPG file to use it in the thesis
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
+            # plot.savefig(continent_drought_output_file_path, format="jpg")
+
+            # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
+            plot.show()
+
 
         # If "Continent percentage" is selected, this case is used to create the general continent percentage pie chart
         if chart_type == "Continent percentage":
@@ -1765,13 +1849,13 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # Generate the general continent percentages pie chart from re-analysis locations
 # create_pie_chart(reanalysis_shapefile_path, "Continent percentage")
 
-# RE-DO as its own case with reanalysis_shapefile_path
+# DONE
 # Generate the continent percentages pie chart
 # create_pie_chart(all_studies_shapefile_path, "Continent drought category all")
 
 # RE-DO as its own case with reanalysis_shapefile_path
 # Generate the continent percentages pie chart
-# create_pie_chart(reanalysis_shapefile_path, "Continent drought category")
+create_pie_chart(reanalysis_shapefile_path, "Continent drought category")
 
 # DONE
 # Generate the Continent SPEI bar chart
