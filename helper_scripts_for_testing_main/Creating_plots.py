@@ -70,7 +70,7 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
         # Title of the plot
         title = "Distribution of given drought quantification keywords within each MODIS category from all paper locations"
         # Path where the plot is going to be saved
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation between MODIS classes and given drought quantification keywords from complete paper points shapefile.jpg"
+        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Bar chart for correlation between MODIS classes and given drought quantification keywords from complete paper points shapefile.jpg"
 
     # For the (currently only) case with MODIS forest cover on the X-Axis and the given drought keywords as stacked bars
     if chart_type in ["MODIS drought keyword"]:
@@ -155,7 +155,7 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
         # Place the sorted legend with counts inside the plot on the upper right
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html
         plot.legend(
-            sorted_legend_labels_with_counts, title="Drought Keyword", loc="upper right"
+            sorted_legend_labels_with_counts, title="Drought Keyword", loc="upper right", frameon=False
         )
 
         # Rotate x-axis labels for readability and better plot-text ratio
@@ -173,7 +173,7 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
 
         # Save the plot as a JPG file to use it in the bachelor-thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        # plot.savefig(output_file_path, format="jpg")
+        plot.savefig(output_file_path, format="jpg")
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -242,7 +242,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Title of the plot
         title = "Distribution of SPEI drought categories in correlation with the given drought quantification keywords from the studies"
         # Path where the plot is going to be saved
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation of SPEI drought category and the given drought quantifications of the studies  in percent.jpg"
+        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Bar chart for correlation of SPEI drought category and the given drought quantifications of the studies  in percent.jpg"
 
     # For MODIS forest types and SPEI drought categories
     if chart_type == "MODIS SPEI":
@@ -369,6 +369,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
             handles=legend_handles,
             title="SPEI drought category",
             loc="upper right",
+            frameon=False
         )
 
         # Add titles and axis labels that were defined before automatically from the titels
@@ -410,7 +411,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
         # Save the plot as a JPG file to use it in the bachelor-thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        # plot.savefig(output_file_path, format="jpg")
+        plot.savefig(output_file_path, format="jpg")
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -442,6 +443,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                             - "study type drought category": Breakdown of drought quantification keywords by study type from re-analysed paper locations.
                             - "study type SPEI": Breakdown of SPEI categories for each study type.
                             - "MODIS drought category all": Breakdown of drought categories for MODIS forest types from all locations.
+                            - "MODIS drought category": Breakdown of drought categories for MODIS forest types from re-analysed locations.
                             - "MODIS percentage all": Percentage distribution of MODIS forest types from all locations.
                             - "MODIS percentage": Percentage distribution of MODIS forest types from re-analysis locations.
                             - "MODIS drought sphere": Drought sphere categories for MODIS forest types.
@@ -454,6 +456,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                             - "Continent drought category": Drought quantification breakdown for each continent re-analysis locations.
                             - "Continent SPEI": Breakdown of SPEI categories for each continent.
                             - "SPEI category percentage": Percentage of re-analysed study locations by SPEI category.
+                            - "Quantified correctness": Correctness of wether drought was quantified or not.
 
     Returns:
         None: The function saves the generated pie chart(s) as a JPG image.
@@ -553,7 +556,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             plot.title(
                 "Distribution of the drought keywords out of all studies"
             )
-            drought_keywords_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Pie chart with drought keywords percentages and legend for total numbers.jpg"
+            drought_keywords_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Pie chart with drought keywords percentages and legend for total numbers from excel.jpg"
 
             # Create and add a legend for the total numbers of drought keywords for a better overview of the data
             # Create the labels out of the SPEI categories for the legend with counts so the total numbers are displayed
@@ -573,6 +576,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 title="Drought keywords (Count)",
                 loc="center right",
                 bbox_to_anchor=(1, 0.15, 0.4, 1),
+                frameon=False
             )
 
             # Ensure that the tight layout is used for a better visualisation and readability
@@ -581,7 +585,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(drought_keywords_output_file_path, format="jpg")
+            plot.savefig(drought_keywords_output_file_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -657,8 +661,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for the drought spheres",
                 fontsize=16,
             )
-
-            sphere_category_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for the drought spheres from the Excel file.jpg"
+            sphere_category_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Breakdown pie charts for percentages of drought definitions for the drought spheres from the Excel file.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -666,7 +669,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(sphere_category_output_file_path, format="jpg")
+            plot.savefig(sphere_category_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -727,11 +730,11 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # Set the title and filename for this pie chart
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
             plot.title("Distribution of the drought spheres out of all used studies")
-            study_type_output_path = r"D:\Uni\Bachelorarbeit\Plots\NEW main pie chart with complete drought sphere percentages.jpg"
+            study_type_output_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW main pie chart with complete drought sphere percentages.jpg"
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(study_type_output_path, format="jpg")
+            plot.savefig(study_type_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -797,7 +800,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(study_type_output_path, format="jpg")
+            plot.savefig(study_type_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -870,7 +873,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for the relevant study types",
                 fontsize=16,
             )
-            breakdown_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for study types.jpg"
+            breakdown_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Breakdown pie charts for percentages of drought definitions for study types.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -878,7 +881,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(breakdown_output_file_path, format="jpg")
+            plot.savefig(breakdown_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -894,7 +897,8 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                         "MODIS drought category",
                         "Continent percentage", 
                         "Continent drought category",
-                        "drought keywords percentage"
+                        "drought keywords percentage",
+                        "Quantified correctness"
                         ]:
 
         # Read the given shapefile for all pie chart cases using geopandas read_file() method and storing it as geodataframe
@@ -925,6 +929,102 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             "Reduced rainfall": "#adff2f",  # Green Yellow
             "Standardized Index": "#9370db",  # Medium Purple
         }
+
+        # If "Quantified correctness" is selected, create the correctness pie charts for if drought was quantified or not from the re-analysed paper points
+        if chart_type == "Quantified correctness":
+
+            # Group the data by "wasdrquant" and "drouright" then count its occurrences with size()
+            # Also create the pivot table to have drought_sphere as columns and fill missing with 0
+            # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
+            # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
+            # https://www.statology.org/pandas-unstack/
+            # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
+            quant_correctness_counts = (
+                reanalysed_gdf.groupby(["wasdrquant", reanalysed_gdf["drouright"]])
+                .size()
+                .unstack(fill_value=0)
+            )
+            # Set the output path for this quantification correctness pie chart
+            quant_correctness_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Quantified_correctness_pie_chart.jpg"
+
+            # Set the size of the figure and define the number of subplots
+            # manually because we need one pie chart for each sphere
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
+            fig, axes = plot.subplots(1, 2, figsize=(15, 7))
+
+            # Hard code the colors as a list to be used for the pie chart segments in this order ("red" for "False", "darkblue" for "True")
+            correctness_colors = ["red", "darkblue"]
+
+            # Flatten the axes for easier iteration and a faster plot creation
+            # https://stackoverflow.com/questions/46862861/what-does-axes-flat-in-matplotlib-do
+            axes = axes.flatten()
+
+            # Iterate over the final dataframe that holds the wanted information to filter out zero values and assign the wanted colors
+            # In this case everything has to be done in the for-loop because we need to add the legends seperately for every pie chart, not one for all
+            # https://www.w3schools.com/python/pandas/ref_df_iterrows.asp
+            for i, wasdrquant_value in enumerate(quant_correctness_counts.index):
+
+                # Get the counts for the drought quantifications and filter out any zero values.
+                counts = quant_correctness_counts.loc[wasdrquant_value]
+                # Filter out redundant zero values in the retrieved counts (drought quantifications)
+                counts = counts[counts > 0]
+
+                # Display percentages inside the pieces, assign the labels and colors to the pie chart pieces and set the startangle to 90°
+                # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.pie.html
+                wedges, texts, autotexts = axes[i].pie(
+                    counts,
+                    labels=[f"Correct (True)" if idx == "True" else "Incorrect (False)" for idx in counts.index],
+                    autopct="%1.1f%%",
+                    colors=correctness_colors,
+                    startangle=90,
+                    wedgeprops={"edgecolor": "black", "linewidth": 0.5}
+                )
+
+                # Change the color of the percentages to white for clearer visibility
+                # https://stackoverflow.com/a/27899541 (set_color())
+                for autotext in autotexts:
+                    autotext.set_color("white")
+
+                # Display a title for every single pie chart containing its MODIS forest type but change the titles according to the "status"
+                # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html
+                status = "Yes" if wasdrquant_value == "True" else "No"
+                axes[i].set_title(f"Drought quantified: {status}")
+
+                # Get the counts for "True" and "False" values from "drouright", if they do not exist they get set to 0
+                true_count = counts.get("True", 0)
+                false_count = counts.get("False", 0)
+
+                # Set the legend entries manually with all its attributes colors and hatches (using mpatches.Patch()), so they match the bars
+                # https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Patch.html#matplotlib-patches-patch
+                # https://stackoverflow.com/a/37296137
+                true_patch = mpatches.Patch(color="darkblue", label=f"Correct (True): {true_count}")
+                false_patch = mpatches.Patch(color="red", label=f"Incorrect (False): {false_count}")
+
+                # Now add a legend each pie charts separately on the upper right of the pie charts
+                # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
+                axes[i].legend(
+                    handles=[true_patch, false_patch],
+                    title="Classification of drought correctness",
+                    loc="upper right",
+                    frameon=False
+                )
+
+            # Set the main title for the entire figure (has to be done separately because every pie chart has its own title) as well as the file name
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.suptitle.html
+            fig.suptitle("Correctness of drought findings for quantified vs not quantified", fontsize=16)
+
+            # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
+            plot.tight_layout()
+
+            # Save the pie chart(s) as one JPG file to use it in the thesis
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
+            # plot.savefig(quant_correctness_output_file_path, format="jpg")
+
+            # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
+            plot.show()
 
         # If "MODIS drought category" is selected, create the drought quantification breakdown pie charts for each MODIS forest class from the re-analysed paper points
         if chart_type == "MODIS drought category":
@@ -997,7 +1097,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                     ],
                     autopct="%1.1f%%",
                     colors=breakdown_colors,
-                    startangle=90
+                    startangle=120
                 )
 
                 # Display a title for every single pie chart containing its MODIS forest type
@@ -1010,7 +1110,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for the re-analysed paper locations MODIS forest types",
                 fontsize=16,
             )
-            modis_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for MODIS forest types from re-analysed shapefile.jpg"
+            modis_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW DATA Breakdown pie charts for percentages of drought definitions for MODIS forest types from re-analysed shapefile.jpg"
 
             # Remove the last unused pie chart since we only have 7 relevant MODIS forest types but 2 rows and 4 columns = 8 pie charts
             # https://www.geeksforgeeks.org/matplotlib-figure-figure-delaxes-in-python/
@@ -1084,6 +1184,10 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                     drought_keywords_color_mapping[label] for label in row.index
                 ]
 
+                # Explode the "Plant water stress" segment in the "Observational" pie chart for bettere readability of the percentages
+                # https://www.educative.io/answers/how-to-explode-a-pie-chart-using-matplotlib-in-python
+                explode = [0.1 if i == 1 and label == "Plant water stress" else 0 for label in row.index]
+
                 # Display percentages inside the pieces and assign the labels and colors to the pie chart axes
                 # Also add the "" back to the "Dry" label since it had to be removed for python rules before
                 # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.pie.html
@@ -1094,7 +1198,8 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                     ],
                     autopct="%1.1f%%",
                     colors=breakdown_colors,
-                    startangle=100
+                    explode=explode,
+                    startangle=110
                 )
 
                 # Display a title for every single pie chart containing its study type
@@ -1108,7 +1213,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for the relevant study types",
                 fontsize=16,
             )
-            breakdown_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for study types for the re-analysed paper locations.jpg"
+            breakdown_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW DATA Breakdown pie charts for percentages of drought definitions for study types for the re-analysed paper locations.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -1191,7 +1296,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification of the drought spheres",
                 fontsize=16,
             )
-            sphere_category_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for the drought spheres from the re-analysis paper points.jpg"
+            sphere_category_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Breakdown pie charts for percentages of drought definitions for the drought spheres from the re-analysis paper points.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -1199,7 +1304,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(sphere_category_output_file_path, format="jpg")
+            plot.savefig(sphere_category_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1268,7 +1373,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for the re-analysed paper locations continents",
                 fontsize=16,
             )
-            continent_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for all continents from re-analysed location shapefile.jpg"
+            continent_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Breakdown pie charts for percentages of drought definitions for all continents from re-analysed location shapefile.jpg"
 
             # Remove the last unused pie chart since we only have 7 continents but 2 rows and 4 columns = 8 pie charts
             # https://www.geeksforgeeks.org/matplotlib-figure-figure-delaxes-in-python/
@@ -1280,7 +1385,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(continent_drought_output_file_path, format="jpg")
+            plot.savefig(continent_drought_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1314,7 +1419,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
             plot.figure(figsize=(8, 7))
 
-            # Create the pie chart with percentages and white lines between the pieces
+            # Create the pie chart with percentages and black lines between the pieces
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
             wedges, texts, autotexts = plot.pie(
                 continent_counts,
@@ -1347,11 +1452,11 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # Set the title and filename for this pie chart
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
             plot.title("Distribution of the continents in percentages")
-            continent_output_path = r"D:\Uni\Bachelorarbeit\Plots\Pie chart with continent percentages from the complete locations shapefile.jpg"
+            continent_output_path = r"D:\Uni\Bachelorarbeit\Plots\Pie chart with continent percentages from the re-analysed paper locations shapefile.jpg"
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(continent_output_path, format="jpg")
+            plot.savefig(continent_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1442,7 +1547,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(study_type_output_path, format="jpg")
+            plot.savefig(study_type_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1500,7 +1605,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             plot.title(
                 "Distribution of the drought keywords out of all re-analysed studies in percentage"
             )
-            drought_keywords_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Pie chart with drought keywords percentages and legend for total numbers.jpg"
+            drought_keywords_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Pie chart with drought keywords percentages and legend for total numbers from re-analysed paper location.jpg"
 
             # Create and add a legend for the total numbers of drought keywords for a better overview of the data
             # Create the labels out of the SPEI categories for the legend with counts so the total numbers are displayed
@@ -1520,6 +1625,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 title="Drought keywords (Count)",
                 loc="upper right",
                 bbox_to_anchor=(0.9, 0, 0.4, 1),
+                frameon=False
             )
 
             # Ensure that the tight layout is used for a better visualisation and readability
@@ -1608,6 +1714,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 title="SPEI Categories (Count)",
                 loc="center right",
                 bbox_to_anchor=(1, 0, 0.4, 1),
+                frameon=False
             )
 
             # Ensure that the tight layout is used for a better visualisation and readability of the "no drought (+1 < SPEI)" percentage
@@ -1616,7 +1723,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(spei_category_output_file_path, format="jpg")
+            plot.savefig(spei_category_output_file_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1703,7 +1810,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given SPEI categories from the drought spheres",
                 fontsize=16,
             )
-            sphere_reanalysis_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of SPEI categories for the drought spheres from the re-analysed shapefile locations.jpg"
+            sphere_reanalysis_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Breakdown pie charts for percentages of SPEI categories for the drought spheres from the re-analysed shapefile locations.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -1711,7 +1818,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(sphere_reanalysis_output_file_path, format="jpg")
+            plot.savefig(sphere_reanalysis_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1806,7 +1913,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(sphere_reanalysis_output_file_path, format="jpg")
+            plot.savefig(sphere_reanalysis_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1926,7 +2033,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for all paper locations MODIS forest types",
                 fontsize=16,
             )
-            modis_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for MODIS forest types from complete location shapefile.jpg"
+            modis_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Breakdown pie charts for percentages of drought definitions for MODIS forest types from complete location shapefile.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -1934,7 +2041,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(modis_drought_output_file_path, format="jpg")
+            plot.savefig(modis_drought_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2026,7 +2133,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought spheres for all MODIS forest types from all paper locations",
                 fontsize=16,
             )
-            modis_sphere_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Breakdown pie charts for percentages of drought spheres for MODIS forest types from all paper location.jpg"
+            modis_sphere_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\Breakdown pie charts for percentages of drought spheres for MODIS forest types from all paper location.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -2034,7 +2141,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            #  plot.savefig(modis_sphere_output_file_path, format="jpg")
+            plot.savefig(modis_sphere_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2131,7 +2238,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(study_type_output_path, format="jpg")
+            plot.savefig(study_type_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2167,9 +2274,9 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Adjust the size of the plot so the picture is better usable later on
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html
-            plot.figure(figsize=(8, 7))
+            plot.figure(figsize=(9, 7))
 
-            # Create the pie chart with percentages and white lines between the pieces
+            # Create the pie chart with percentages and black lines between the pieces
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.pie.html
             wedges, texts, autotexts = plot.pie(
                 continent_counts,
@@ -2206,8 +2313,8 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Set the title and filename for this pie chart
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
-            plot.title("Distribution of the continents in percentages")
-            continent_output_path = r"D:\Uni\Bachelorarbeit\Plots\Pie chart with continent percentages from the complete locations shapefile.jpg"
+            #plot.title("Distribution of the continents in percentages")
+            continent_output_path = r"D:\Uni\Bachelorarbeit\Plots\Pie chart with continent percentages from the complete locations shapefile from all paper location.jpg"
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
@@ -2281,7 +2388,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for all paper locations continents",
                 fontsize=16,
             )
-            continent_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of drought definitions for all continents from complete location shapefile.jpg"
+            continent_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Breakdown pie charts for percentages of drought definitions for all continents from complete location shapefile.jpg"
 
             # Remove the last unused pie chart since we only have 7 continents but 2 rows and 4 columns = 8 pie charts
             # https://www.geeksforgeeks.org/matplotlib-figure-figure-delaxes-in-python/
@@ -2293,7 +2400,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(continent_drought_output_file_path, format="jpg")
+            plot.savefig(continent_drought_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2399,9 +2506,13 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # Generate the drought keywords percentage pie chart from the re-analysed paper locations
 # create_pie_chart(reanalysis_shapefile_path, "drought keywords percentage")
 
-# IN WORK
+# DONE
 # Generate the drought keywords percentage pie chart from the Excel file to show the general paper contribution
-create_pie_chart(excel_file_path, "drought keywords percentage excel")
+# create_pie_chart(excel_file_path, "drought keywords percentage excel")
+
+# TO-DO
+# Plot that shows drought correctness for quantified or not, no matter the category.
+create_pie_chart(reanalysis_shapefile_path, "Quantified correctness")
 
 
 def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
@@ -2426,12 +2537,11 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
     Returns:
         None: The function saves the generated bar chart as a JPG image.
     """
-    # Maybe also implement cases in this one but not sure if there is another plot fitting needed
-
+    # For the case that shows the correlation between all given drought keywords and if drought was quantified in percent
     if chart_type == "Drought quantified":
         # Load the Excel file and "relevantInfo" sheet where the data for the pie charts is stored
         # https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html
-        excel_df = pd.read_excel(shape_or_excel_file_path, sheet_name="relevantInfo")
+        reanalysed_gdf = geopd.read_file(shape_or_excel_file_path)
 
         # Set the output path for this bar plot
         output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Bar plot that shows the correlation between all given drought keywords and if drought was quantified in percent.jpg"
@@ -2442,8 +2552,8 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
         # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
         # https://www.statology.org/pandas-unstack/
         drought_quantification_counts = (
-            excel_df.groupby(
-                ["drought quantification keyword for plots", "was drought quantified**"]
+            reanalysed_gdf.groupby(
+                ["drouquanti", "wasdrquant"]
             )
             .size()
             .unstack(fill_value=0)
@@ -2465,26 +2575,32 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
             "Low soil moisture",
             "Low water flow/depth",
             "Reduced rainfall",
-            "Standardized Index",
             "Plant water stress",
+            "Standardized Index"
         ]
 
-        # Applying the desired order to the data so it will be used for the X-Axis
+        # Calculate the percentage for each drought quantification keyword by dividing each value by the global total (sum of all counts)
+        # https://www.w3schools.com/python/pandas/ref_df_sum.asp
+        # https://www.w3schools.com/python/pandas/ref_df_div.asp
+        global_total = drought_quantification_counts.values.sum()
+        drought_quantification_counts_percentage = (
+                drought_quantification_counts.div(global_total) * 100
+        )
+
+        # Calculate the sum of all rows (True & False for each drought quantification keyword) and store it in a "Total" column
+        # This new "Total" column is then used for sorting the categories in descending order based on the total occurrences.
+        # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html
+        drought_quantification_counts_percentage["Total"] = (
+            drought_quantification_counts_percentage.sum(axis=1)
+        )
+
+        # Applying the desired order to the data. so the X-Axis is ordered from "worst" to "best" keyword from left to right
         # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html
-        sorted_drought_quantification_percentage = (
-            drought_quantification_percentage.reindex(desired_drought_keyword_order)
-        )
+        sorted_category_counts_percentage = drought_quantification_counts_percentage.reindex(desired_drought_keyword_order)
 
-        # Change the "True" and "False" values from the Excel file to strings because they could not be used to set a desired order
-        # https://stackoverflow.com/a/60553529 (astype("string"))
-        sorted_drought_quantification_percentage.columns = (
-            sorted_drought_quantification_percentage.columns.astype("string")
-        )
-
-        # Generate the plot with sorted categories and hardcoded colors, as well as the order for the bars
-        # ("darkblue" on the bottom for "True", "red" on the top for "False")
+        # Generate the plot with sorted categories and hardcoded colors
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.bar.html
-        sorted_drought_quantification_percentage[["True", "False"]].plot(
+        sorted_category_counts_percentage[["True", "False"]].plot(
             kind="bar",
             stacked=True,
             figsize=(10, 6),
@@ -2492,26 +2608,24 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
             edgecolor="black",
         )
 
-        # Counting the values for "True" and "False" to add them to the Legend
-        # Again, the series values had to be converted to strings first
-        # https://stackoverflow.com/a/60553529 (astype("string"))
+        # Calculate the total number of occurrences where "wasdrquant" is "True" and "False"
         # https://www.w3schools.com/python/pandas/ref_df_sum.asp
         true_count = (
-            drought_quantification_counts[True].sum()
-            if "True" in drought_quantification_counts.columns.astype("string")
+            drought_quantification_counts["True"].sum()
+            if "True" in drought_quantification_counts.columns
             else 0
         )
         false_count = (
-            drought_quantification_counts[False].sum()
-            if "False" in drought_quantification_counts.columns.astype("string")
+            drought_quantification_counts["False"].sum()
+            if "False" in drought_quantification_counts.columns
             else 0
         )
 
         # Set the legend entries manually with all its attributes colors and hatches (using mpatches.Patch()), so they match the bars
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Patch.html#matplotlib-patches-patch
         # https://stackoverflow.com/a/37296137
-        true_patch = mpatches.Patch(color="darkblue", label=f"Quantified (True): {true_count}")
-        false_patch = mpatches.Patch(facecolor="red", edgecolor="black", label=f"Not Quantified (False): {false_count}",
+        true_patch = mpatches.Patch(color="darkblue", label=f"Yes: {true_count}")
+        false_patch = mpatches.Patch(facecolor="red", edgecolor="black", label=f"No: {false_count}",
                                      hatch="////")
 
         # Add the legend, so it gets clear what part of the bars is "True" and "False"
@@ -2521,6 +2635,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
             title="Was drought quantified?",
             loc="upper right",
             alignment="left",
+            frameon=False
         )
 
         # Optionally set a title for this case for a better overview (not needed later in the thesis)
@@ -2530,13 +2645,14 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
         # Set the y-axis limit to 30% for a better overview
         # https://www.geeksforgeeks.org/matplotlib-pyplot-ylim-in-python/
-        plot.ylim(0, 35)
+        plot.ylim(0, 40)
 
+    # For the case with correctness of the given drought quantification keywords for all re-analyzed paper locations
     if chart_type == "Drought correctness":
         # Read the given shapefile geopandas read_file() method and storing it as geodataframe
         # https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe
         # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
-        complete_gdf = geopd.read_file(shape_or_excel_file_path)
+        reanalysed_gdf = geopd.read_file(shape_or_excel_file_path)
 
         # Set the output path for this bar plot
         output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Bar plot that shows the correctness of the given drought quantification keywords for all re-analyzed paper locations.jpg"
@@ -2549,7 +2665,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
         # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
         # https://www.statology.org/pandas-unstack/
         drought_correctness_counts = (
-            complete_gdf.groupby(["drouquanti", "drouright"])
+            reanalysed_gdf.groupby(["drouquanti", "drouright"])
             .size()
             .unstack(fill_value=0)
         )
@@ -2588,7 +2704,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
             edgecolor="black",
         )
 
-        # Again, the series values had to be converted to strings first
+        # Calculate the total number of occurrences where "wasdrquant" is "True" and "False"
         # https://www.w3schools.com/python/pandas/ref_df_sum.asp
         true_count = (
             drought_correctness_counts["True"].sum()
@@ -2604,8 +2720,8 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
         # Set the legend entries manually with all its attributes colors and hatches (using mpatches.Patch()), so they match the bars
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Patch.html#matplotlib-patches-patch
         # https://stackoverflow.com/a/37296137
-        true_patch = mpatches.Patch(color="darkblue", label=f"True: {true_count}")
-        false_patch = mpatches.Patch(facecolor="red", edgecolor="black", label=f"False: {false_count}",
+        true_patch = mpatches.Patch(color="darkblue", label=f"Yes: {true_count}")
+        false_patch = mpatches.Patch(facecolor="red", edgecolor="black", label=f"No: {false_count}",
                                      hatch="////")
 
         # Add the legend, so it gets clear what part of the bars is "True" and "False"
@@ -2615,11 +2731,11 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
             title="Was there a drought according to SPEI?",
             loc="upper right",
             alignment="left",
+            frameon=False
         )
 
+    # Bringing the two cases back here together, so everything below does not have to be hard-coded for each case seperately
     if chart_type in ["Drought quantified", "Drought correctness"]:
-
-        # For ALL cases so the two cases have to come back together here:
 
         # Customize the "False" bars with diagonal stripes by using .gca() to get the needed axis and its patches
         # https://www.geeksforgeeks.org/matplotlib-pyplot-gca-in-python/
@@ -2654,7 +2770,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
         # Save the bar plot as a JPG file to use it in the thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        # plot.savefig(output_file_path, format="jpg")
+        plot.savefig(output_file_path, format="jpg")
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2667,7 +2783,5 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
 # DONE
 # Generate the bar plot that shows the correlation between all given drought keywords and if drought was quantified in percent
-# create_true_false_bar_chart(excel_file_path, "Drought quantified")
+# create_true_false_bar_chart(reanalysis_shapefile_path, "Drought quantified")
 
-# TO-DO
-#
