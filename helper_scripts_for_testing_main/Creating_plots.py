@@ -456,7 +456,8 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                             - "Continent drought category": Drought quantification breakdown for each continent re-analysis locations.
                             - "Continent SPEI": Breakdown of SPEI categories for each continent.
                             - "SPEI category percentage": Percentage of re-analysed study locations by SPEI category.
-                            - "Quantified correctness": Correctness of wether drought was quantified or not.
+                            - "Quantified correctness": Correctness of whether drought was quantified or not.
+                            - "Quantification drought keywords": Contribution of drought keywords for quantified or not.
 
     Returns:
         None: The function saves the generated pie chart(s) as a JPG image.
@@ -898,7 +899,8 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                         "Continent percentage", 
                         "Continent drought category",
                         "drought keywords percentage",
-                        "Quantified correctness"
+                        "Quantified correctness",
+                        "Quantification drought keywords"
                         ]:
 
         # Read the given shapefile for all pie chart cases using geopandas read_file() method and storing it as geodataframe
@@ -930,11 +932,125 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             "Standardized Index": "#9370db",  # Medium Purple
         }
 
+        # If "Quantification drought keywords" is selected, create the drought keywords distribution pie charts for if drought was quantified or not from the re-analysed paper points
+        if chart_type == "Quantification drought keywords":
+            # Group the data by "wasdrquant" and "drouright" then count its occurrences with size()
+            # Also create the pivot table to have "wasdrquant" as columns and fill missing values with 0
+            # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
+            # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
+            # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
+            # https://www.statology.org/pandas-unstack/
+            # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
+            quant_drought_keywords_counts = (
+                reanalysed_gdf.groupby(["wasdrquant", reanalysed_gdf["Category"]])
+                .size()
+                .unstack(fill_value=0)
+            )
+            # Set the output path for this drought category per quantification pie chart
+            quant_drought_keywords_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Quantified_drought_keywords_pie_chart.jpg"
+
+            # Set the size of the figure and define the number of subplots
+            # manually because we need one pie chart for each drought quantification category
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
+            fig, axes = plot.subplots(1, 2, figsize=(19, 7))
+
+            # Flatten the axes for easier iteration and a faster plot creation
+            # https://stackoverflow.com/questions/46862861/what-does-axes-flat-in-matplotlib-do
+            axes = axes.flatten()
+
+            # Create a list for the desired order of the spei categories inside the pie chars
+            # https://pandas.pydata.org/docs/user_guide/indexing.html#indexing-and-selecting-data
+            spei_desired_order = [
+                "extremely dry (SPEI <= -2)",
+                "severely dry (-2 < SPEI <= -1.5)",
+                "moderately dry (-1.5 < SPEI <= -1)",
+                "near normal conditions (-1 < SPEI < +1)",
+                "no drought (+1 < SPEI)"
+            ]
+
+            # Iterate over the final dataframe that holds the wanted information to filter out zero values and assign the wanted colors
+            # In this case everything has to be done in the for-loop because we need to add the legends separately for every pie chart, not one for all
+            # https://www.w3schools.com/python/pandas/ref_df_iterrows.asp
+            for i, wasdrquant_value in enumerate(quant_drought_keywords_counts.index):
+
+                # Get the counts for the drought keywords per drought quantification category and filter out any zero values.
+                # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html#pandas-dataframe-loc
+                counts = quant_drought_keywords_counts.loc[wasdrquant_value]
+
+                # Reorder the counts be the desires SPEI category defined above
+                # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html
+                counts = counts.reindex(spei_desired_order)
+
+                # Filter out redundant zero values in the retrieved counts (drought quantifications) with a simple comparison
+                counts = counts[counts > 0]
+
+                # Calculate and get the total numbers of "wasdrquant" for the title of the legend(s)
+                # https://www.w3schools.com/python/ref_func_sum.asp
+                total_count = counts.sum()
+
+                # Create a list of colors in the same order as the labels in spei_category_counts to use it for the pie chart
+                spei_colors = [
+                    spei_color_mapping[label] for label in counts.index
+                ]
+
+                # Display percentages inside the pieces and assign the labels and colors to the pie chart pieces
+                # Also replace "<=" with "≤" in the pie chart segment labels
+                # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.pie.html
+                # https://docs.python.org/3/library/stdtypes.html#str.replace
+                wedges, texts, autotexts = axes[i].pie(
+                    counts,
+                    labels=counts.index.str.replace("<=", "≤"),
+                    autopct="%1.1f%%",
+                    startangle=90,
+                    colors=spei_colors,
+                )
+
+                # Change the color of the percentages to white for clearer visibility
+                # https://stackoverflow.com/a/27899541 (set_color())
+                for autotext in autotexts:
+                    autotext.set_color("white")
+
+                # Display a title for every single pie chart containing its drought quantification status
+                # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html
+                status = "Yes" if wasdrquant_value == "True" else "No"
+                axes[i].set_title(f"Drought quantified: {status}")
+
+                # Create the labels for the legends out of the segment labels and add a count for each category
+                # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.items.html#pandas-dataframe-items
+                legend_labels = [f'{label.replace("<=", "≤")}: {count}' for label, count in counts.items()]
+
+                # Now add a legend to each pie chart separately on the upper right of the pie charts and
+                # place it below the pie charts using "loc" and "bbox_to_anchor"
+                # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
+                axes[i].legend(
+                    legend_labels,
+                    title=f'Total count of "Drought quantified: {status}" studies: {total_count}',
+                    loc="upper center",
+                    frameon=False,
+                    bbox_to_anchor=(0.5, 0.1)
+                )
+
+            # Set the main title for the entire figure (has to be done separately because every pie chart has its own title) as well as the file name
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.suptitle.html
+            fig.suptitle("Distribution of drought findings for quantified vs not quantified", fontsize=16)
+
+            # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
+            plot.tight_layout()
+
+            # Save the pie chart(s) as one JPG file to use it in the thesis
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
+            # plot.savefig(quant_drought_keywords_output_file_path, format="jpg")
+
+            # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
+            # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
+            plot.show()
+
         # If "Quantified correctness" is selected, create the correctness pie charts for if drought was quantified or not from the re-analysed paper points
         if chart_type == "Quantified correctness":
 
             # Group the data by "wasdrquant" and "drouright" then count its occurrences with size()
-            # Also create the pivot table to have drought_sphere as columns and fill missing with 0
+            # Also create the pivot table to have "wasdrquant" as columns and fill missing with 0
             # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
             # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html
             # https://www.geeksforgeeks.org/list-size-method-in-java-with-examples/
@@ -949,7 +1065,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             quant_correctness_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Quantified_correctness_pie_chart.jpg"
 
             # Set the size of the figure and define the number of subplots
-            # manually because we need one pie chart for each sphere
+            # manually because we need one pie chart for each drought quantification category
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
             fig, axes = plot.subplots(1, 2, figsize=(15, 7))
 
@@ -966,9 +1082,14 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             for i, wasdrquant_value in enumerate(quant_correctness_counts.index):
 
                 # Get the counts for the drought quantifications and filter out any zero values.
+                # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html#pandas-dataframe-loc
                 counts = quant_correctness_counts.loc[wasdrquant_value]
                 # Filter out redundant zero values in the retrieved counts (drought quantifications)
                 counts = counts[counts > 0]
+
+                # Calculate and get the total numbers of "wasdrquant" for the title of the legend(s)
+                # https://www.w3schools.com/python/ref_func_sum.asp
+                total_count = counts.sum()
 
                 # Display percentages inside the pieces, assign the labels and colors to the pie chart pieces and set the startangle to 90°
                 # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.pie.html
@@ -986,16 +1107,17 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 for autotext in autotexts:
                     autotext.set_color("white")
 
-                # Display a title for every single pie chart containing its MODIS forest type but change the titles according to the "status"
+                # Display a title for every single pie chart containing its drought quantification status
                 # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html
                 status = "Yes" if wasdrquant_value == "True" else "No"
                 axes[i].set_title(f"Drought quantified: {status}")
 
                 # Get the counts for "True" and "False" values from "drouright", if they do not exist they get set to 0
+                # https://www.w3schools.com/python/ref_dictionary_get.asp
                 true_count = counts.get("True", 0)
                 false_count = counts.get("False", 0)
 
-                # Set the legend entries manually with all its attributes colors and hatches (using mpatches.Patch()), so they match the bars
+                # Set the legend entries manually with all its attributes colors and hatches (using mpatches.Patch()), so they match the segments
                 # https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Patch.html#matplotlib-patches-patch
                 # https://stackoverflow.com/a/37296137
                 true_patch = mpatches.Patch(color="darkblue", label=f"Correct (True): {true_count}")
@@ -1005,7 +1127,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 # https://matplotlib.org/stable/api/legend_api.html#module-matplotlib.legend
                 axes[i].legend(
                     handles=[true_patch, false_patch],
-                    title="Classification of drought correctness",
+                    title=f"Classification of drought correctness: {total_count}",
                     loc="upper right",
                     frameon=False
                 )
@@ -2510,9 +2632,14 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # Generate the drought keywords percentage pie chart from the Excel file to show the general paper contribution
 # create_pie_chart(excel_file_path, "drought keywords percentage excel")
 
-# TO-DO
+# DONE
 # Plot that shows drought correctness for quantified or not, no matter the category.
 create_pie_chart(reanalysis_shapefile_path, "Quantified correctness")
+
+# TO-DO
+# Plot that shows the contribution of drought keywords for quantified or not.
+# create_pie_chart(reanalysis_shapefile_path, "Quantification drought keywords")
+
 
 
 def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
