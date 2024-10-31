@@ -578,7 +578,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # Set the main title as well as the file name
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
             plot.title("Distribution of the drought keywords out of all studies")
-            drought_keywords_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Pie chart with drought keywords percentages and legend for total numbers from excel.jpg"
+            drought_keywords_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Pie chart with drought keywords percentages and legend for total numbers from excel updated.jpg"
 
             # Create and add a legend for the total numbers of drought keywords for a better overview of the data
             # Create the labels out of the SPEI categories for the legend with counts so the total numbers are displayed
@@ -595,7 +595,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             plot.legend(
                 wedges,
                 keywords_legend_labels,
-                title="Drought keywords (Count)",
+                title="Drought categories: 168 total",
                 loc="center right",
                 bbox_to_anchor=(1, 0.15, 0.4, 1),
                 frameon=False,
@@ -2667,7 +2667,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
 # DONE
 # Generate the drought keywords percentage pie chart from the Excel file to show the general paper contribution
-# create_pie_chart(excel_file_path, "drought keywords percentage excel")
+create_pie_chart(excel_file_path, "drought keywords percentage excel")
 
 # DONE
 # Plot that shows the contribution of drought keywords for quantified or not.
