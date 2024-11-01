@@ -176,7 +176,7 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
 
         # Save the plot as a JPG file to use it in the bachelor-thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        plot.savefig(output_file_path, format="jpg")
+        # plot.savefig(output_file_path, format="jpg")
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -435,7 +435,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
 
         # Save the plot as a JPG file to use it in the bachelor-thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        plot.savefig(output_file_path, format="jpg")
+        # plot.savefig(output_file_path, format="jpg")
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -516,12 +516,12 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
         drought_keywords_color_mapping = {
             "Dry": "#ff7f0e",  # Dark Orange
             "Differs from normal": "#ff4500",  # Orange-Red
-            "Dry season": "#87CEEB",  # Sky Blue
-            "Low soil moisture": "#00ced1",  # Dark Turquoise
+            "Dry season": "#adff2f",  # Green Yellow
+            "Low soil moisture": "#b47d49",  # Dark Turquoise
             "Low water flow/depth": "#4682b4",  # Steel Blue
             "Plant water stress": "#32cd32",  # Lime Green
-            "Reduced rainfall": "#adff2f",  # Green Yellow
-            "Standardized Index": "#9370db",  # Medium Purple
+            "Reduced rainfall": "#87CEEB",  #  Sky Blue
+            "Standardized Index": "#a245a8",  # Brown
         }
 
         # If "drought keywords percentage excel" is selected, create the general drought keywords pie chart from the Excel
@@ -560,7 +560,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # Change the color of the percentages to white for clearer visibility
             # https://stackoverflow.com/a/27899541 (set_color())
             for autotext in autotexts:
-                autotext.set_color("white")
+                autotext.set_color("black")
 
             # Manage the labels for the segments by iterating over the dataframe "drought_keywords_counts"
             # https://www.w3schools.com/python/pandas/ref_df_index.asp
@@ -607,7 +607,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(drought_keywords_output_file_path, format="jpg")
+            # plot.savefig(drought_keywords_output_file_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -755,7 +755,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(study_type_output_path, format="jpg")
+            # plot.savefig(study_type_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -821,7 +821,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(study_type_output_path, format="jpg")
+            # plot.savefig(study_type_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -945,12 +945,12 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
         drought_keywords_color_mapping = {
             "Dry": "#ff7f0e",  # Dark Orange
             "Differs from normal": "#ff4500",  # Orange-Red
-            "Dry season": "#87CEEB",  # Sky Blue
-            "Low soil moisture": "#00ced1",  # Dark Turquoise
+            "Dry season": "#adff2f",  # Green Yellow
+            "Low soil moisture": "#b47d49",  # Dark Turquoise
             "Low water flow/depth": "#4682b4",  # Steel Blue
             "Plant water stress": "#32cd32",  # Lime Green
-            "Reduced rainfall": "#adff2f",  # Green Yellow
-            "Standardized Index": "#9370db",  # Medium Purple
+            "Reduced rainfall": "#87CEEB",  # Sky Blue
+            "Standardized Index": "#a245a8",  # Brown
         }
 
         # If "Quantification drought keywords" is selected, create the drought keywords distribution pie charts for if drought was quantified or not from the re-analysed paper points
@@ -1612,7 +1612,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(continent_output_path, format="jpg")
+            # plot.savefig(continent_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1705,7 +1705,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(study_type_output_path, format="jpg")
+            # plot.savefig(study_type_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1797,7 +1797,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(drought_keywords_output_file_path, format="jpg")
+            # plot.savefig(drought_keywords_output_file_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1886,7 +1886,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(spei_category_output_file_path, format="jpg")
+            # plot.savefig(spei_category_output_file_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -1981,7 +1981,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(sphere_reanalysis_output_file_path, format="jpg")
+            # plot.savefig(sphere_reanalysis_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2076,7 +2076,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(sphere_reanalysis_output_file_path, format="jpg")
+            # plot.savefig(sphere_reanalysis_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2101,12 +2101,12 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
         drought_keywords_color_mapping = {
             "Dry": "#ff7f0e",  # Dark Orange
             "Differs from normal": "#ff4500",  # Orange-Red
-            "Dry season": "#87CEEB",  # Sky Blue
-            "Low soil moisture": "#00ced1",  # Dark Turquoise
+            "Dry season": "#adff2f",  # Green Yellow
+            "Low soil moisture": "#b47d49",  # Dark Turquoise
             "Low water flow/depth": "#4682b4",  # Steel Blue
             "Plant water stress": "#32cd32",  # Lime Green
-            "Reduced rainfall": "#adff2f",  # Green Yellow
-            "Standardized Index": "#9370db",  # Medium Purple
+            "Reduced rainfall": "#87CEEB",  # Sky Blue
+            "Standardized Index": "#a245a8",  # Brown
         }
 
         # If "MODIS drought category all" is selected, create the drought quantification breakdown pie charts for each MODIS forest type
@@ -2302,7 +2302,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(modis_sphere_output_file_path, format="jpg")
+            # plot.savefig(modis_sphere_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2399,7 +2399,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(study_type_output_path, format="jpg")
+            # plot.savefig(study_type_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2477,7 +2477,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart as a JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            plot.savefig(continent_output_path, format="jpg")
+            # plot.savefig(continent_output_path, format="jpg")
 
             # Optionally display the plot (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2567,16 +2567,17 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
 
 # CONTINENT:
+# DONE
 # Generate the general continent percentages pie chart from all studies
 # create_pie_chart(all_studies_shapefile_path, "Continent percentage all")
 
-# Shows the percentage of all continents from the re-analysis locations
+# DONE
 # Generate the general continent percentages pie chart from re-analysis locations
 # create_pie_chart(reanalysis_shapefile_path, "Continent percentage")
 
 # DONE
 # Generate the continent drought category keywords percentage pie chart from all paper locations since one paper can have multiple continents
-# create_pie_chart(all_studies_shapefile_path, "Continent drought category all")
+create_pie_chart(all_studies_shapefile_path, "Continent drought category all")
 
 # DONE
 # Generate the continent drought category keywords percentage pie chart from the re-analysed paper locations
@@ -2594,7 +2595,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
 # DONE
 # Generate the Spheres drought category keywords percentage pie chart from the Excel file since every paper can have only one sphere
-# create_pie_chart(excel_file_path, "Spheres drought category excel")
+create_pie_chart(excel_file_path, "Spheres drought category excel")
 
 # DONE
 # Generate the Spheres drought category keywords percentage pie chart from re-analysed paper locations
@@ -2617,7 +2618,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
 # DONE
 # Generate the MODIS breakdown of given drought quantification keyword pie chart from all paper locations since one paper can have multiple MODIS forest types
-# create_pie_chart(all_studies_shapefile_path, "MODIS drought category all")
+create_pie_chart(all_studies_shapefile_path, "MODIS drought category all")
 
 # DONE
 # Generate the MODIS breakdown of given drought quantification keyword pie chart for the re-analysed paper locations
@@ -2640,7 +2641,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
 # DONE
 # Generate the study type breakdown of given drought quantification keyword pie chart from Excel since every paper only has one study type
-# create_pie_chart(excel_file_path, "study type drought category excel")
+create_pie_chart(excel_file_path, "study type drought category excel")
 
 # DONE
 # Generate the study type breakdown of given drought quantification keyword pie chart from the re-analysed paper locations
@@ -2666,12 +2667,15 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # create_pie_chart(reanalysis_shapefile_path, "drought keywords percentage")
 
 # DONE
-# Generate the drought keywords percentage pie chart from the Excel file to show the general paper contribution
-create_pie_chart(excel_file_path, "drought keywords percentage excel")
-
-# DONE
 # Plot that shows the contribution of drought keywords for quantified or not.
 # create_pie_chart(reanalysis_shapefile_path, "Quantification drought keywords")
+
+# -------------------------------------------------------------------------------------
+# General:
+
+# DONE
+# Generate the drought keywords percentage pie chart from the Excel file to show the general paper contribution
+# create_pie_chart(excel_file_path, "drought keywords percentage excel")
 
 
 def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
@@ -2933,7 +2937,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
         # Save the bar plot as a JPG file to use it in the thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        plot.savefig(output_file_path, format="jpg")
+        # plot.savefig(output_file_path, format="jpg")
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
