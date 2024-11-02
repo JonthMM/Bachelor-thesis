@@ -122,12 +122,12 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
         drought_keywords_color_mapping = {
             "Dry": "#ff7f0e",  # Dark Orange
             "Differs from normal": "#ff4500",  # Orange-Red
-            "Dry season": "#87CEEB",  # Sky Blue
-            "Low soil moisture": "#00ced1",  # Dark Turquoise
+            "Dry season": "#adff2f",  # Green Yellow
+            "Low soil moisture": "#b47d49",  # Brown
             "Low water flow/depth": "#4682b4",  # Steel Blue
             "Plant water stress": "#32cd32",  # Lime Green
-            "Reduced rainfall": "#adff2f",  # Green Yellow
-            "Standardized Index": "#9370db",  # Medium Purple
+            "Reduced rainfall": "#87CEEB",  # Sky Blue
+            "Standardized Index": "#a245a8",  # Purple
         }
 
         # Generate the plot with sorted categories and the customized colors
@@ -517,11 +517,11 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             "Dry": "#ff7f0e",  # Dark Orange
             "Differs from normal": "#ff4500",  # Orange-Red
             "Dry season": "#adff2f",  # Green Yellow
-            "Low soil moisture": "#b47d49",  # Dark Turquoise
+            "Low soil moisture": "#b47d49",  # Brown
             "Low water flow/depth": "#4682b4",  # Steel Blue
             "Plant water stress": "#32cd32",  # Lime Green
             "Reduced rainfall": "#87CEEB",  #  Sky Blue
-            "Standardized Index": "#a245a8",  # Brown
+            "Standardized Index": "#a245a8",  # Purple
         }
 
         # If "drought keywords percentage excel" is selected, create the general drought keywords pie chart from the Excel
@@ -946,11 +946,11 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             "Dry": "#ff7f0e",  # Dark Orange
             "Differs from normal": "#ff4500",  # Orange-Red
             "Dry season": "#adff2f",  # Green Yellow
-            "Low soil moisture": "#b47d49",  # Dark Turquoise
+            "Low soil moisture": "#b47d49",  # Brown
             "Low water flow/depth": "#4682b4",  # Steel Blue
             "Plant water stress": "#32cd32",  # Lime Green
             "Reduced rainfall": "#87CEEB",  # Sky Blue
-            "Standardized Index": "#a245a8",  # Brown
+            "Standardized Index": "#a245a8",  # Purple
         }
 
         # If "Quantification drought keywords" is selected, create the drought keywords distribution pie charts for if drought was quantified or not from the re-analysed paper points
@@ -2102,11 +2102,11 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             "Dry": "#ff7f0e",  # Dark Orange
             "Differs from normal": "#ff4500",  # Orange-Red
             "Dry season": "#adff2f",  # Green Yellow
-            "Low soil moisture": "#b47d49",  # Dark Turquoise
+            "Low soil moisture": "#b47d49",  # Brown
             "Low water flow/depth": "#4682b4",  # Steel Blue
             "Plant water stress": "#32cd32",  # Lime Green
             "Reduced rainfall": "#87CEEB",  # Sky Blue
-            "Standardized Index": "#a245a8",  # Brown
+            "Standardized Index": "#a245a8",  # Purple
         }
 
         # If "MODIS drought category all" is selected, create the drought quantification breakdown pie charts for each MODIS forest type
