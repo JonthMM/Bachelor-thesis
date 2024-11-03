@@ -215,6 +215,23 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
     # https://geopandas.org/en/stable/docs/user_guide/io.html#reading-and-writing-files
     gdf = geopd.read_file(shapefile_path)
 
+    # For Study types and SPEI drought categories
+    if chart_type == "Study type SPEI Bar":
+        # Grouping the data by "studytype" and "Category" to count occurrences for the drought chart
+        # https://pandas.pydata.org/docs/user_guide/10min.html#grouping
+        # https://www.statology.org/pandas-unstack/
+        # https://note.nkmk.me/en/python-pandas-len-shape-size/#get-the-number-of-elements-dfsize
+        category_counts = (
+            gdf.groupby(["studytype", "Category"]).size().unstack(fill_value=0)
+        )
+        # X-axis text
+        xaxisdescription = "Study type"
+        # Title of the plot
+        title = "Distribution of SPEI drought categories in correlation with the used study types of the re-analysed paper locations"
+        # Path where the plot is going to be saved
+        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\re-analysis\No frame on legend\NEW Bar chart for correlation of SPEI drought category and the used study types of the re-analysed paper locations in percent.jpg"
+
+
     # For continents and SPEI drought categories
     if chart_type == "Continent SPEI":
         # Grouping the data by "Continent" and "Category" to count occurrences for the drought chart
@@ -225,11 +242,11 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
             gdf.groupby(["Continent", "Category"]).size().unstack(fill_value=0)
         )
         # X-axis text
-        xaxisdescription = "Continent"
+        xaxisdescription = "Global region"
         # Title of the plot
         title = "Distribution of SPEI drought categories in correlation with the continents of the re-analysed paper locations"
         # Path where the plot is going to be saved
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation of SPEI drought category and the continents of the re-analysed paper locations in percent.jpg"
+        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\re-analysis\No frame on legend\NEW Bar chart for correlation of SPEI drought category and the continents of the re-analysed paper locations in percent.jpg"
 
     # For the given drought quantification keywords from the studies and SPEI drought categories
     if chart_type == "Drought keyword SPEI":
@@ -245,7 +262,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Title of the plot
         title = "Distribution of SPEI drought categories in correlation with the given drought quantification keywords from the studies"
         # Path where the plot is going to be saved
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Bar chart for correlation of SPEI drought category and the given drought quantifications of the studies  in percent.jpg"
+        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\re-analysis\No frame on legend\NEW Bar chart for correlation of SPEI drought category and the given drought quantifications of the studies  in percent.jpg"
 
     # For MODIS forest types and SPEI drought categories
     if chart_type == "MODIS SPEI":
@@ -261,10 +278,10 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Title of the plot
         title = "Distribution of SPEI drought categories within each MODIS category"
         # Path where the plot is going to be saved
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Bar chart for correlation MODIS classes and SPEI drought categories in percent.jpg"
+        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\re-analysis\No frame on legend\NEW Bar chart for correlation MODIS classes and SPEI drought categories in percent.jpg"
 
     # For all cases that somehow use "Category" (The SPEI categories)
-    if chart_type in ["Drought keyword SPEI", "MODIS SPEI", "Continent SPEI"]:
+    if chart_type in ["Drought keyword SPEI", "MODIS SPEI", "Continent SPEI", "Study type SPEI Bar"]:
         # Change the label for "Other" category, so it is not too long (only for bar plots with MODIS involved)
         # https://pandas.pydata.org/docs/user_guide/basics.html#renaming-mapping-labels
         category_counts.rename(
@@ -429,13 +446,34 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
                 ]
             )
 
+        # For the study types since Observational has way more then the other
+        elif chart_type in ["Study type SPEI Bar"]:
+            plot.yticks(
+                [
+                    0,
+                    2.5,
+                    5,
+                    7.5,
+                    10,
+                    12.5,
+                    15,
+                    17.5,
+                    20,
+                    50,
+                    43,
+                    70,
+                    76
+                ]
+            )
+
+
         # Ensure that the tight layout is used for a better visualisation
         # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
         plot.tight_layout()
 
         # Save the plot as a JPG file to use it in the bachelor-thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        # plot.savefig(output_file_path, format="jpg")
+        plot.savefig(output_file_path, format="jpg")
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2016,7 +2054,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # https://www.programiz.com/python-programming/methods/built-in/len
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html
             number_of_study_types = len(final_breakdown_data)
-            fig, axes = plot.subplots(1, 3, figsize=(25, 8))
+            fig, axes = plot.subplots(1, 3, figsize=(27, 8))
 
             # Iterate over the final dataframe that holds the wanted information and the given order to filter out zero values and assign the wanted colors
             # https://www.w3schools.com/python/pandas/ref_df_iterrows.asp
@@ -2068,7 +2106,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given SPEI categories from the study types",
                 fontsize=16,
             )
-            sphere_reanalysis_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Breakdown pie charts for percentages of SPEI categories for the study types of the papers from the re-analysed shapefile locations.jpg"
+            sphere_reanalysis_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\re-analysis\BIGGER NEW Breakdown pie charts for percentages of SPEI categories for the study types of the papers from the re-analysed shapefile locations.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -2076,7 +2114,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(sphere_reanalysis_output_file_path, format="jpg")
+            plot.savefig(sphere_reanalysis_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2577,7 +2615,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
 # DONE
 # Generate the continent drought category keywords percentage pie chart from all paper locations since one paper can have multiple continents
-create_pie_chart(all_studies_shapefile_path, "Continent drought category all")
+# create_pie_chart(all_studies_shapefile_path, "Continent drought category all")
 
 # DONE
 # Generate the continent drought category keywords percentage pie chart from the re-analysed paper locations
@@ -2595,7 +2633,7 @@ create_pie_chart(all_studies_shapefile_path, "Continent drought category all")
 
 # DONE
 # Generate the Spheres drought category keywords percentage pie chart from the Excel file since every paper can have only one sphere
-create_pie_chart(excel_file_path, "Spheres drought category excel")
+# create_pie_chart(excel_file_path, "Spheres drought category excel")
 
 # DONE
 # Generate the Spheres drought category keywords percentage pie chart from re-analysed paper locations
@@ -2618,7 +2656,7 @@ create_pie_chart(excel_file_path, "Spheres drought category excel")
 
 # DONE
 # Generate the MODIS breakdown of given drought quantification keyword pie chart from all paper locations since one paper can have multiple MODIS forest types
-create_pie_chart(all_studies_shapefile_path, "MODIS drought category all")
+# create_pie_chart(all_studies_shapefile_path, "MODIS drought category all")
 
 # DONE
 # Generate the MODIS breakdown of given drought quantification keyword pie chart for the re-analysed paper locations
@@ -2641,7 +2679,7 @@ create_pie_chart(all_studies_shapefile_path, "MODIS drought category all")
 
 # DONE
 # Generate the study type breakdown of given drought quantification keyword pie chart from Excel since every paper only has one study type
-create_pie_chart(excel_file_path, "study type drought category excel")
+# create_pie_chart(excel_file_path, "study type drought category excel")
 
 # DONE
 # Generate the study type breakdown of given drought quantification keyword pie chart from the re-analysed paper locations
@@ -2657,6 +2695,10 @@ create_pie_chart(excel_file_path, "study type drought category excel")
 # DONE
 # Generate the SPEI category percentage pie chart
 # create_pie_chart(reanalysis_shapefile_path, "SPEI category percentage")
+
+# DONE
+# Generate the study type SPEI category bar chart
+create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Study type SPEI Bar")
 
 # DONE
 # Generate the drought quantification keyword SPEI bar chart
