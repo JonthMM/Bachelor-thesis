@@ -1128,7 +1128,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             )
             # Set the output path for this quantification correctness pie chart
             quant_correctness_output_file_path = (
-                r"D:\Uni\Bachelorarbeit\Plots\Quantified_correctness_pie_chart.jpg"
+                r"D:\Uni\Bachelorarbeit\Plots\Aktuell\re-analysis\NEU\Quantified_correctness_pie_chart.jpg"
             )
 
             # Set the size of the figure and define the number of subplots
@@ -1219,7 +1219,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
             # Save the pie chart(s) as one JPG file to use it in the thesis
             # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-            # plot.savefig(quant_correctness_output_file_path, format="jpg")
+            plot.savefig(quant_correctness_output_file_path, format="jpg")
 
             # Optionally display the pie chart(s) (for finetuning so adjusting is easier)
             # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2698,7 +2698,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 
 # DONE
 # Generate the study type SPEI category bar chart
-create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Study type SPEI Bar")
+# create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Study type SPEI Bar")
 
 # DONE
 # Generate the drought quantification keyword SPEI bar chart
@@ -2863,7 +2863,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
         reanalysed_gdf = geopd.read_file(shape_or_excel_file_path)
 
         # Set the output path for this bar plot
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Bar plot that shows the correctness of the given drought quantification keywords for all re-analyzed paper locations.jpg"
+        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\re-analysis\NEU\Bar plot that shows the correctness of the given drought quantification keywords for all re-analyzed paper locations.jpg"
 
         # Set the title for this case
         title = "Bar plot to show the correctness of the given drought keywords"
@@ -2979,7 +2979,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
         # Save the bar plot as a JPG file to use it in the thesis
         # https://www.geeksforgeeks.org/matplotlib-pyplot-savefig-in-python/
-        # plot.savefig(output_file_path, format="jpg")
+        plot.savefig(output_file_path, format="jpg")
 
         # Optionally display the plot (for finetuning so adjusting is easier)
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
@@ -2991,7 +2991,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
 # DONE
 # Plot that shows drought correctness for quantified or not, no matter the category.
-# create_pie_chart(reanalysis_shapefile_path, "Quantified correctness")
+create_pie_chart(reanalysis_shapefile_path, "Quantified correctness")
 
 # DONE
 # Generate the bar plot with correctness of the given drought quantification keywords for all re-analyzed paper locations
@@ -2999,4 +2999,4 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
 
 # DONE
 # Generate the bar plot that shows the correlation between all given drought keywords and if drought was quantified in percent
-# create_true_false_bar_chart(reanalysis_shapefile_path, "Drought quantified")
+create_true_false_bar_chart(reanalysis_shapefile_path, "Drought quantified")
