@@ -596,9 +596,11 @@ def find_study_type(lines, pdf_file, threshold=10):
 """
 def find_drought_definitions(lines, pdf_file):
     """
-    Searches for specific terms related to the quantification of droughts and returns the relevant lines.
+    Searches for specific terms related to the characterization of droughts and returns the relevant lines and the keywords found.
     In contrast to the search methodology in 'find_study_site(lines)', the search is not aborted as soon as a keyword is found.
-    As all possible drought definitions and their relevant text lines are searched for and saved, this makes manual verification easier
+    As all possible drought definitions and their relevant text lines are searched for and saved, this makes manual verification easier,
+    because from the keywords and the corresponding lines in the PDF, the drought definitions used for the evaluation can be derivied.
+    Because these keywords are crucial for the evaluation, the keywords are not automatically mapped, but all taken into account for manual verification.
 
     Args:
         lines (list): A list of text lines in which keywords are searched for the drought definitions
@@ -612,6 +614,7 @@ def find_drought_definitions(lines, pdf_file):
         - Python RegEx in general: https://www.w3schools.com/python/python_regex.asp
         - 're.search()': https://docs.python.org/3/library/re.html#re.search
         - 're.escape()': https://docs.python.org/3/library/re.html#re.escape
+        - 're.INGORECASE: 'https://docs.python.org/3/library/re.html#re.IGNORECASE
         - Saving context lines: https://stackoverflow.com/a/45291736
     """
 
@@ -620,14 +623,35 @@ def find_drought_definitions(lines, pdf_file):
                 'SPI',
                 'SPEI',
                 'PDSI',
+                'scPDSI',
+                'index',
                 'low soil moisture',
                 'soil water content',
                 'VPD',
                 'reduced rainfall',
                 'low precipitation',
+                'lower precipitation',
+                'soil water content',
+                'dry soil conditions',
+                'absence of precipitation',
+                'decline in precipitation',
+                'throughfall exclusion',
+                'elevated temperatures',
+                'water withdrawal',
+                'long-term mean',
                 'plant water stress',
-                'drought', 'dry season',
-                'dry period']
+                'low NPP',
+                'drought',
+                'droughts'
+                'dry conditions',
+                'drought conditions',
+                'hot droughts',
+                'big dry',
+                'dry season',
+                'dry period',
+                'drought year',
+                'El Niño',
+                'Big Dry']
 
     # This list saves all those lines which contain a keyword plus 3 lines after it
     drought_lines = []
@@ -638,7 +662,8 @@ def find_drought_definitions(lines, pdf_file):
     for keyword in keywords:
         for i, line in enumerate(lines):
             # re.escape to ensure that all special characters are treated as literals and not regex meta characters
-            if re.search(r'\b' + re.escape(keyword) + r'\b', line):
+            # re.IGNORECASE so upper and lower case is ignored here
+            if re.search(r'\b' + re.escape(keyword) + r'\b', line, re.IGNORECASE):
                 # If a term was found, it is added to 'drought_quantification_keywords'
                 drought_quantification_keywords.append(keyword)
                 # and the line in which the term was found and the following three are saved
