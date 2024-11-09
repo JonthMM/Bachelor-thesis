@@ -1,15 +1,13 @@
-version: '3.12'
-
 services:
   automated_information_retrieval:
     build: .
-    container_name: automated_information_retrieval
+    image: main_script_for_bachelor_thesis
+    container_name: main_conmtainer_for_information_retrieval
     volumes:
       - data_volume:/app/data
     environment:
       - FOLDER_PATH=/app/data/Articles_PDF/
       - EXCEL_PATH=/app/data/2024Apr_Mana_Review_v2i - Kopie.xlsx
-    command: python main.py
 
 volumes:
   data_volume:

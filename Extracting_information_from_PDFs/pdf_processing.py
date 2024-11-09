@@ -10,9 +10,6 @@ from pdfminer.high_level import extract_text
 # 'time' to make the logging overview more clear
 import time
 
-# defaultdict for weighting of values
-# from collections import defaultdict
-
 # Logging for a better understanding of the results and outputs as set up in the main module
 # Logging.info() and logging.error() are used here
 # https://docs.python.org/3/library/logging.html#logging.INFO
@@ -53,7 +50,6 @@ def clean_and_remove_control_characters(text):
 def find_matches(line):
     """
     Finds coordinates which are given as regex patterns in lines of the cleaned text from a PDF file.
-
 
     Args:
         line (str): A single line of (cleaned) text in which coordinate patterns are searched for.
@@ -270,95 +266,101 @@ def find_study_site(lines):
 
 def find_analyzed_years(lines):
     """
-    Extrahiert untersuchte Zeiträume aus den gegebenen Textzeilen.
-    Hierbei darf die maximale zu erfassende Zahl 2024 sein, was durch die Regex Muster so beschränkt wird (|2[0-4])
-    https://www.w3schools.com/python/python_regex.asp
-    https://docs.python.org/3/library/re.html#re.search
-    https://docs.python.org/3/library/re.html#re.IGNORECASE
-    https://docs.python.org/3/library/re.html#re.findall
-    https://docs.python.org/3/library/re.html#re.match
+    Extracts time periods from the given text lines using regex patterns.
 
     Args:
         lines (list of str): (Bereinigte) Zeilen aus dem PDF-Dokument.
 
     Returns:
         str oder None: Sortierte Liste der extrahierten Zeiträume, wenn nichts gefunden wurde eine leere Liste.
+
+    References:
+        - Python RegEx in general: https://www.w3schools.com/python/python_regex.asp
+        - 're.compile()': https://docs.python.org/3/library/re.html#re.compile
+        - 're.IGNORECASE': https://docs.python.org/3/library/re.html#re.IGNORECASE
+        - 're.search()': https://docs.python.org/3/library/re.html#re.search
+        - 're.findall()': https://docs.python.org/3/library/re.html#re.findall
+        - 'isinstance()': https://www.w3schools.com/python/ref_func_isinstance.asp
+
     """
-    # Regex-Muster, für die Erfassung von Zeiträumen in verschiedenen Formaten
+    # Regex pattern for recording time periods in different formats
     time_period_patterns = [
-        # Erfasst Zeiträume, welche durch einen Bindestrich getrennt sind.
-        # Beispiele: '1980-1990', '2022-2024'
+        # Captures periods that are separated by a hyphen.
+        # Examples: '1945 - 1990', '2012-2020'
         r'\b(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\b',
 
-        # Erfasst Zeiträume, welche in Klammern stehen und durch einen Bindestrich getrennt sind.
-        # Beispiele: '(1980-1990)', '(2022-2024)'
+        # Captures periods which are in brackets and separated by a hyphen.
+        # Examples: '(2020-2021)', '(2013 - 2019)'
         r'\((19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\)',
 
-        # Erfasst Zeiträume, welche durch Bindestrich getrennt sind und wo der zweite Teil nur zwei Ziffern hat.
-        # Beispiele: '1927-54', '2021-24'
+        # Captures periods with a two-digit end year suffix.
+        # Example: '2012-15', '1989 - 99'
         r'\b(19\d{2}|20(?:0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(\d{2})\b',
 
-        # Erfasst Zeiträume, welche durch 'from ... to ...' angegeben werden.
-        # Beispiele: 'from 1980 to 1990', 'from 1999-2011'
+        # Captures periods with two-digit end year suffix in brackets.
+        # Example: '(2012-15)', '(1989 - 99)'
+        r'\((19\d{2}|20(?:0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(\d{2})\)',
+
+        # Captures periods, which are given trough 'from ... to ...'
+        # Example: 'from 1991 to 1998'
         r'(?:from\s*)?(19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) to (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
 
-        # Erfasst Zeiträume, welche durch 'between ... to ...' angegeben werden.
-        # Beispiele: 'between 1980 and 1990'
+        # Captures time periods that are specified by 'between ... and ...'.
+        # Examples: 'between 2011 and 2023'
         r'between (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) and (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
 
-        # Erfasst Zeiträume mit Längenangabe in Tagen.
-        # Beispiele: 'over a 180-day period'
+        # Captures periods with length in days.
+        # Examples: 'over a 180-day period'
         r'over a (\d+)-day period'
     ]
 
-    # Liste zum Speichern der gefundenen Zeitspannen
+    # List for saving the time periods found
     found_periods = []
 
-    # Iteriert durch jede Zeile und sucht mit den oben definierten Zeitraummustern nach Zeitspannen
+    # Iterate over each given line from a PDF to search for the single years which are correlated to drought
     for line in lines:
+        # Stop searching for years if the word 'references' was found, so that years given in the reference section of a study are not included
+        if "references" in line.lower():
+            break
         for pattern in time_period_patterns:
-            # Findet alle Vorkommen, die dem aktuellen Muster (pattern) in der Zeile entsprechen
+            # Search for all occurrences that match the pattern(s) in one of the lines
             matches = re.findall(pattern, line)
             for match in matches:
-                # Überprüft, ob der Treffer (match) ein Tupel ist, was auf verschiedene Formen von Zeiträumen hinweist
+                # If the match found is a tuple (several parts, e.g. start and end year) continue here for further conversion and validation purposes
                 if isinstance(match, tuple):
-                    # Handhabung für Zeiträume im Format 'YYYY-YY' wie zum Beispiel '2020-21'
+                    # Check whether the match contains two parts and the second part has only two digits (e.g. '2012-15')
                     if len(match) == 2 and len(match[1]) == 2:
-                        # Extrahiert das Startjahr (z.B. '2020')
+                        # Assigns the first part of the match to be the start year
                         start_year = match[0]
-                        # Extrahiert die Endjahr-Suffixe (z.B. '21')
+                        # Assigns the second part of the match to be the end year suffix (the last two digits)
                         end_year_suffix = match[1]
 
-                        # Wenn das Startjahr mit "20" beginnt, prüfen wir die Endjahres-Suffixe
-                        if start_year.startswith("20"):
-                            # Fügt die ersten zwei Ziffern des Startjahres mit den Endjahres-Suffixen zusammen, um das Endjahr zu bilden
-                            end_year = int(start_year[:2] + end_year_suffix)
-                            # Überprüft, ob das Endjahr kleiner oder gleich 2024 ist, um sicherzustellen, dass es ein gültiges Jahr ist
-                            if end_year <= 2024:
-                                # Bildet die Zeitspanne (z.B. '2020-2021')
-                                period = f"{start_year}-{end_year}"
-                            else:
-                                # Überspringt ungültige Zeitspannen
-                                continue
-                        else:
-                            # Wenn das Startjahr mit "19" beginnt, wird das Endjahr direkt angefügt, da alle zweistelligen Zahlen erlaubt sind
-                            period = f"{start_year}-{start_year[:2]}{end_year_suffix}"
+                        # Check if the start year starts with '20' and if that is the case, check that the end year-suffix is not greater than 24
+                        if start_year.startswith("20") and int(end_year_suffix) > 24:
+                            # If the end year suffix is greater than 24, this period is not taken into account further
+                            continue
+
+                        # Composes the complete period by concatenating the first two start year digits with the 'end_year_suffix' to create the complete end year ({start_year[:2]}{end_year_suffix})
+                        # e.g. '2012-15' becomes '2012-2015', this is done to keep all time periods uniform
+                        period = f"{start_year}-{start_year[:2]}{end_year_suffix}"
+
+                    # When the time period does not end with only two digits the timeperiod is concatenated using the full start year (match[0]) and the full ennd year (match[2])
                     else:
-                        # Standard-Zeitraum-Muster wie 'YYYY-YYYY' (z.B. '1980-1990')
                         period = f"{match[0]}-{match[2]}"
+
+                # If the match is not a tuple but only a single time period it is taken into account directly as a time period
                 else:
-                    # Wenn der Treffer kein Tupel ist, handelt es sich um ein einfacheres Muster, das direkt zugewiesen werden kann
                     period = match
 
-                # Überprüft, ob das gefundene Muster gültig ist
-                # Es wird sichergestellt, dass es sich um einen vollständigen Zeitraum handelt (z.B. '1980-1990')
-                # Oder ein einzelnes Jahrzehnt (z.B. '1980s')
-                # Oder um einen Ausdruck wie 'over a 180-day period'
+                # Check whether the just assembled pattern is valid in general
+                # It is ensured that it is a complete time period (e.g. '1980-1990')
+                # Or a single decade (e.g. '1980s')
+                # Or an expression such as 'over a 180-day period'
                 if re.match(r'^(19|20)\d{2}[-–−](19|20)\d{2}$', period) or re.match(r'^(19|20)\d{2}s$',
                                                                                     period) or re.match(r'^over a \d+-day period$', period):
-                    # Vermeidet doppelte Einträge in der Liste
+                    # To prevent duplicates, check if the time period is not already inside the final list storing all drought time periods
                     if period not in found_periods:
-                        # Fügt die validierte Zeitspanne zur Ergebnisliste (found_periods) hinzu
+                        # When the drought time period is not already included and therefore is not a duplicate, append it to the final list storing all time periods
                         found_periods.append(period)
 
     return sorted(found_periods)
@@ -366,241 +368,234 @@ def find_analyzed_years(lines):
 
 def find_periods_with_drought(lines):
     """
-    Diese Funktion extrahiert Zeitspannen von Dürreperioden aus den gegebenen Textzeilen und validiert Zeiträume,
-    bei denen das Endjahr-Suffix in bestimmten Fällen überprüft wird.
-    https://docs.python.org/3/library/re.html#re.search
-    https://www.w3schools.com/python/ref_func_isinstance.asp
-    https://docs.python.org/3/library/re.html#re.IGNORECASE
-    https://docs.python.org/3/library/re.html#re.compile
-    https://docs.python.org/3/library/re.html#re.findall
+    Extracts time periods from the given text lines if they are related to drought by being in the same sentence as drought keywords.
 
     Args:
-        lines (list of str): Zeilen von Text aus dem PDF-Dokument.
+        lines (list of str): (Cleaned) lines holding the PDF text
 
     Returns:
-        list: Sortierte Liste der extrahierten Zeitspannen, in denen Dürre vorkam, falls gefunden, sonst eine leere Liste.
+        list: Sorted list containing the extracted drought periods or if no drought periods were found an empty list
+
+    References:
+        - Python RegEx in general: https://www.w3schools.com/python/python_regex.asp
+        - 're.compile()': https://docs.python.org/3/library/re.html#re.compile
+        - 're.IGNORECASE': https://docs.python.org/3/library/re.html#re.IGNORECASE
+        - 're.split()': https://docs.python.org/3/library/re.html#re.split
+        - 're.search()': https://docs.python.org/3/library/re.html#re.search
+        - 're.findall()': https://docs.python.org/3/library/re.html#re.findall
+        - 'isinstance()': https://www.w3schools.com/python/ref_func_isinstance.asp
+
     """
-    # Regex-Muster für die Erfassung von Zeiträumen in verschiedenen Formaten
+    # Regex pattern to catch time periods in various formats
     drought_periods_patterns = [
-        # Erfasst Zeiträume, welche durch einen Bindestrich getrennt sind.
+        # Captures periods that are separated by a hyphen.
+        # Examples: '1945 - 1990', '2012-2020'
         r'\b(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\b',
 
-        # Erfasst Zeiträume, welche in Klammern stehen und durch einen Bindestrich getrennt sind.
+        # Captures periods which are in brackets and separated by a hyphen.
+        # Examples: '(2020-2021)', '(2013 - 2019)'
         r'\((19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\)',
 
-        # Erfasst Zeiträume mit zweistelligem Endjahr-Suffix.
+        # Captures periods with a two-digit end year suffix.
+        # Example: '2012-15', '1989 - 99'
         r'\b(19\d{2}|20(?:0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(\d{2})\b',
 
-        # Erfasst Zeitspannen mit zweistelligem Endjahr-Suffix in Klammern.
+        # Captures periods with two-digit end year suffix in brackets.
+        # Example: '(2012-15)', '(1989 - 99)'
         r'\((19\d{2}|20(?:0[0-9]|1[0-9]|2[0-4]))\s*[-–−]\s*(\d{2})\)',
 
-        # Erfasst Zeiträume, welche durch 'from ... to ...' angegeben werden.
+        # Captures periods, which are given trough 'from ... to ...'
+        # Example: 'from 1991 to 1998'
         r'(?:from\s*)?(19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) to (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
 
-        # Erfasst Zeiträume, welche durch 'between ... to ...' angegeben werden.
+        # Captures time periods that are specified by 'between ... and ...'.
+        # Examples: 'between 2011 and 2023'
         r'between (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) and (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
     ]
 
-    # Regex-Muster für die Schlüsselwörter "drought", "droughts" und "drier" um sicherzugehen, dass die einzelnen Jahre im zusammenhang mit Dürre stehen
+    # Regex pattern for the keywords 'drought', 'droughts' and 'drier' to ensure that the individual years are related to drought
+    # re.IGNORECASE so upper and lower case is ignored here
     drought_pattern = re.compile(r'\bdroughts?|drier\b', re.IGNORECASE)
 
-    # Liste zum Speichern der gefundenen Zeitspannen
+    # List for saving the drought time periods found
     drought_periods = []
 
-    # Iteriert durch jede Zeile und sucht nach Zeitraum-Mustern
+    # Iterate over each given line from a PDF to search for the single years which are correlated to drought
     for line in lines:
-        # # Überprüft, ob die oben festgelegten Schlüsselwörter für Dürre in der Zeile vorhanden sind und sucht nach Zeitspannen, wenn dies der Fall ist
-        if drought_pattern.search(line):
-            # Wenn das Schlüsselwort für Dürre gefunden wurde, wird für jedes definierte Zeitraummuster (Regex-Pattern) in der Zeile gesucht
-            for pattern in drought_periods_patterns:
-                # Findet alle Vorkommen, die dem aktuellen Regex-Muster entsprechen
-                matches = re.findall(pattern, line)
-                for match in matches:
-                    # Wenn das gefundene Match ein Tuple ist (mehrere Teile, wie z.B. Start- und Endjahr):
-                    if isinstance(match, tuple):
-                        # Überprüft, ob das Match zwei Teile enthält und das zweite Teil zwei Ziffern hat (z.B. '1980-85')
-                        if len(match) == 2 and len(match[1]) == 2:
-                            # Weist den ersten Teil des Matches dem Startjahr zu
-                            start_year = match[0]
-                            # Weist den zweiten Teil des Matches dem Endjahres-Suffix zu (die letzten zwei Ziffern)
-                            end_year_suffix = match[1]
+        # Stop searching for years if the word 'references' was found, so that years given in the reference section of a study are not included
+        if "references" in line.lower():
+            break
+        # Split the lines into sentences using a regex pattern including all sentence ending characters.
+        sentences = re.split(r'(?<=[.!?])\s+', line)
+        for sentence in sentences:
+            # Check if a drought keyword from the drought pattern is included in a sentence
+            if drought_pattern.search(sentence):
+                # If the keyword for drought was found, search for each period pattern (drought_periods_patterns) in the sentences
+                for pattern in drought_periods_patterns:
+                    # Store all found time periods as matches
+                    matches = re.findall(pattern, sentence)
+                    for match in matches:
+                        # If the match found is a tuple (several parts, e.g. start and end year) continue here for further conversion and validation purposes
+                        if isinstance(match, tuple):
+                            # Check whether the match contains two parts and the second part has only two digits (e.g. '2012-15')
+                            if len(match) == 2 and len(match[1]) == 2:
+                                # Assigns the first part of the match to be the start year
+                                start_year = match[0]
+                                # Assigns the second part of the match to be the end year suffix (the last two digits)
+                                end_year_suffix = match[1]
 
-                            # Validierung: Wenn das Startjahr mit "20" beginnt, überprüft, ob das Endjahr-Suffix nicht größer als 24 ist
-                            if start_year.startswith("20") and int(end_year_suffix) > 24:
-                                # Wenn das Endjahr-Suffix größer als 24 ist, wird dieser Zeitraum übersprungen (als ungültig betrachtet)
-                                continue
+                                # Check if the start year starts with '20' and if that is the case, check that the end year-suffix is not greater than 24
+                                # This is done, because for the reanalysis only years until and including 2024 can be included, as there are obviously no SPEI datasets for the future
+                                if start_year.startswith("20") and int(end_year_suffix) > 24:
+                                    # If the end year suffix is greater than 24, this period is not taken into account further
+                                    continue
 
-                            # Setzt den vollständigen Zeitraum zusammen, indem das Startjahr und das vollständige Endjahr kombiniert werden
-                            # z.B. '1980-85' wird zu '1980-1985'
-                            period = f"{start_year}-{start_year[:2]}{end_year_suffix}"
+                                # Composes the complete period by combining the start year and the complete end year
+                                # e.g. '2012-15' becomes '2012-2015', this is done to keep all time periods uniform
+                                period = f"{start_year}-{start_year[:2]}{end_year_suffix}"
+
+                            # When the time period does not end with only two digits this case is used
+                            else:
+                                period = f"{match[0]}-{match[2]}"
+
+                        # If the match is not a tuple but only a single time period it is taken into account directly as a time period
                         else:
-                            # Für Standard-Zeitraum-Muster wie '1980-1990', bei denen das Jahr vollständig angegeben ist
-                            # (d.h. sowohl Start- als auch Endjahr sind vierstellig)
-                            period = f"{match[0]}-{match[2]}"
-                    else:
-                        # Wenn das Match kein Tuple ist (d.h. nur ein einzelner Zeitraum), wird es direkt als Zeitraum übernommen
-                        period = match
+                            period = match
 
-                    # Überprüft, ob das gefundene Muster generell gültig ist
-                    if re.match(r'^(19|20)\d{2}[-–−](19|20)\d{2}$', period):
-                        # Verhindert doppelte Einträge in der Liste der gefundenen Zeiträume
-                        if period not in drought_periods:
-                            # Fügt den gefundenen und validierten Zeitraum der Liste hinzu
-                            drought_periods.append(period)
+                        # Check whether the just assembled pattern is valid in general
+                        if re.match(r'^(19|20)\d{2}[-–−](19|20)\d{2}$', period):
+                            # To prevent duplicates, check if the time period is not already inside the final list storing all drought time periods
+                            if period not in drought_periods:
+                                # When the drought time period is not already included and therefore is not a duplicate, append it to the final list storing all drought time periods
+                                drought_periods.append(period)
 
     return sorted(drought_periods)
 
-
 def find_single_years_with_drought(lines):
     """
-    Extrahiert einzelne Jahreszahlen aus den gegebenen Textzeilen, wenn sie im Zusammenhang mit Dürre stehen.
-    Jahre, die direkt nach einem Minuszeichen '-', vor einer schließenden Klammer ')' sowie direkt nach einem Punkt und einem Leerzeichen stehen, werden ignoriert,
-    damit Angaben aus den Quellen der wissenschaftlichen Veröffentlichungen nicht eingezogen werden.
-    Hierbei darf die maximale zu erfassende Zahl 2024 sein, was durch die Regex Muster so beschränkt wird (|2[0-4])
-    https://www.w3schools.com/python/ref_func_isinstance.asp
-    https://docs.python.org/3/library/re.html#re.IGNORECASE
-    https://docs.python.org/3/library/re.html#re.compile
-    https://docs.python.org/3/library/re.html#re.findall
+    Extracts individual years from the given text lines if they are related to drought.
+    Years that appear directly after a minus sign '-', before a closing bracket ')' and directly after a period and a space are ignored,
+    so that years from the sources of scientific publications and from timespans are not included.
+    The maximum number to be entered is 2024, which is limited by the regex pattern (|2[0-4])
 
     Args:
-        lines (list of str): (Bereinigte) Zeilen aus dem PDF-Dokument.
+        lines (list of str): (Cleaned) lines holding the PDF text
 
     Returns:
-        list: Sortierte Liste der extrahierten Jahreszahlen, in denen Dürre vorkam, wenn nichts gefunden wurde eine leere Liste.
+        list: Sorted list containing the extracted drought years or if no drought years were found an empty list
+
+    References:
+        - Python RegEx in general: https://www.w3schools.com/python/python_regex.asp
+        - 're.compile()': https://docs.python.org/3/library/re.html#re.compile
+        - 're.IGNORECASE': https://docs.python.org/3/library/re.html#re.IGNORECASE
+        - 're.split()': https://docs.python.org/3/library/re.html#re.split
+        - 're.search()': https://docs.python.org/3/library/re.html#re.search
+        - 're.findall()': https://docs.python.org/3/library/re.html#re.findall
+        - 'isinstance()': https://www.w3schools.com/python/ref_func_isinstance.asp
     """
-    # Regex-Muster für die Erfassung von einzelnen Jahreszahlen mit den oben beschriebenen Restriktionen
-    #single_year_pattern = r'(?<![-])(?<!\.\s)\b(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\b(?!\))'
-    single_year_pattern = r'(?<![-])(?<!\.\s)\b(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\b(?![);])'
+    # Regex pattern to catch single years with the restrictions described in the Docstring of this function
+    single_year_pattern = r'(?<![-–−])(?<!\.\s)\b(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\b(?![);])'
 
-
-    # Regex-Muster für die Schlüsselwörter "drought", "droughts" und "drier" um sicherzugehen, dass die einzelnen Jahre im zusammenhang mit Dürre stehen
+    # Regex pattern for the keywords 'drought', 'droughts' and 'drier' to ensure that the individual years are related to drought
+    # re.IGNORECASE so upper and lower case is ignored here
     drought_pattern = re.compile(r'\bdroughts?|drier\b', re.IGNORECASE)
 
-    # Liste zum Speichern der gefundenen, einzelnen Jahreszahlen
+    # List for saving the individual years found
     single_drought_years = []
 
-    # Iteriert durch jede Zeile und sucht nach einzelnen Jahreszahlen
+    # Iterate over each given line from a PDF to search for the single years which are correlated to drought
     for line in lines:
-        # Überprüft, ob die oben festgelegten Schlüsselwörter für Dürre in der Zeile vorhanden sind und sucht nach Jahreszahlen wenn dies der Fall ist
-        if drought_pattern.search(line):
-            # Findet alle Vorkommen, die dem definierten Muster für einzelne Jahreszahlen entsprechen
-            matches = re.findall(single_year_pattern, line)
-            for match in matches:
-                # Verhindert, dass doppelte Einträge übernommen werden und überprüft, ob der Treffer ein Tupel ist (das bei bestimmten Mustern vorkommen kann)
-                # Dann wird das Jahr entsprechend aus dem Tupel extrahiert
-                if isinstance(match, tuple):
-                    # Wählt das Jahr aus dem Tupel (erste oder zweite Position)
-                    year = match[0] if match[0] else match[1]
-                # Wenn kein Tupel, wird der Treffer direkt als Jahr verwendet
-                else:
-                    year = match
-
-                # Überprüft, ob die Jahreszahl zwischen 1900 und 2024 liegt, da dies der relevante Zeitrahmen ist
-                if 1900 <= int(year) <= 2024:
-                    # Fügt die einzelne Jahreszahl zur Liste (single_drought_years) hinzu, falls sie nicht schon in der Liste vorhanden ist
-                    if year not in single_drought_years:
-                        single_drought_years.append(year)
+        # Stop searching for years if the word 'references' was found, so that years given in the reference section of a study are not included
+        if "references" in line.lower():
+            break
+        # Split the lines into sentences using a regex pattern including all sentence ending characters.
+        sentences = re.split(r'(?<=[.!?])\s+', line)
+        for sentence in sentences:
+            # Check if a drought keyword from the drought pattern is included in a sentence
+            if drought_pattern.search(sentence):
+                # If a drought keyword was found, search for the single years in the sentence
+                matches = re.findall(single_year_pattern, sentence)
+                # Iterate over all matches (the found years)
+                for match in matches:
+                    # Check if the returned match is a tuple of strings or  a single string representing the years and depending on which it is saving it for comparison
+                    year = match[0] if isinstance(match, tuple) and match[0] else match if isinstance(match, str) else \
+                    match[1]
+                    # Compare if the year is bigger or equal to 1900 and smaller or equal to 2024 as integer
+                    if 1900 <= int(year) <= 2024:
+                        # To prevent duplicates, check if the year is not already inside the final list storing all single years
+                        if year not in single_drought_years:
+                            single_drought_years.append(year)
 
     return sorted(single_drought_years)
 
 def find_study_type(lines, pdf_file):
     """
-    DISCLAIMER: Nicht zu 100% zuverlässig
-    Diese Funktion durchsucht die Zeilen eines Textes nach Schlüsselwörtern,
-    die auf verschiedene Studientypen hinweisen, und gibt den Studientyp zurück,
-    der die höchste Häufigkeit von Stichwörtern aufweist.
-    https://stackoverflow.com/questions/52862907/checking-if-a-value-in-a-python-dictionary-is-below-a-threshold-in-order-to-incr
-    https://docs.python.org/3/library/re.html#re.compile
-    https://docs.python.org/3/library/re.html#re.escape
-    https://docs.python.org/3/library/re.html#re.IGNORECASE
+    Identifies the study type of a study by estimating the highest score of each study type based on keyword occurrences.
+    If it is a close comparison, the best fitting and second best fitting study type will be taken into account.
 
     Args:
-        lines (list): Eine Liste von Textzeilen, in der nach Schlüsselwörtern für den Studientyp gesucht wird.
-        pdf_file (str): Der Name der PDF-Datei (zur Dokumentation).
+        lines (list):  A list of text lines in which keywords are searched for the study types.
+        pdf_file (str): The file name of the PDF from which the lines originate.
 
     Returns:
-        str: Der Studientyp, der den höchsten Score aufweist oder 'Unknown', wenn keiner eindeutig dominiert.
+        str: The study type that has the highest score, or if it is close also the one with the second highest score, or 'Unknown' if no keywords are found.
+
+    References:
+        - 're.compile()': https://docs.python.org/3/library/re.html#re.compile
+        - 're.escape()': https://docs.python.org/3/library/re.html#re.escape
+        - 're.IGNORECASE': https://docs.python.org/3/library/re.html#re.IGNORECASE
+        - Getting the highest score out of a dictionary using max(scores,key=scores.get): https://stackoverflow.com/a/45064535
+        - Getting the second highest score out of a dictionary by sorting the dictionary in descending order: https://stackoverflow.com/a/41866830
     """
 
+    # Mapping the study types by their keywords into a dictionary
     study_types = {
-        'observational': ['field campaigns','field campaign', 'observational', 'observed', 'field study', 'observation', 'monitoring', 'survey', 'data collection',
+        'Observational': ['field campaigns','field campaign', 'observational', 'observed', 'field study', 'observation', 'monitoring', 'survey', 'data collection',
                           'cohort study', 'case-control study', 'epidemiological study', 'prospective study', 'retrospective study',
                           'ecological study', 'correlational study'],
-        'experimental': ['experimental', 'experimentally', 'experiment', 'treatment', 'controlled', 'variable', 'manipulation',
+        'Experimental': ['experimental', 'experimentally', 'experiment', 'treatment', 'controlled', 'variable', 'manipulation',
                          'randomized controlled trial', 'placebo-controlled', 'clinical trial', 'randomized', 'intervention',
                          'controlled study', 'experimental design', 'field experiment', 'laboratory experiment'],
-        'modeling': ['model', 'modeling', 'simulation', 'algorithm', 'predictive', 'statistical model', 'computational model',
+        'Modeling': ['model', 'modeling', 'simulation', 'algorithm', 'predictive', 'statistical model', 'computational model',
                      'modeling approach', 'scenario analysis', 'projection', 'machine learning', 'data-driven model',
                      'predictive analytics', 'Monte Carlo', 'agent-based model', 'dynamic model']
     }
 
-    # Erstelle reguläre Ausdrücke für die Stichwörter jedes Studientyps
+    # Create the search patterns including all keywords for each study type out of the 'study_types' dictionary using 're.compile()'
+    # 'key' is each study type from the 'study_types' dictionary ánd re.IGNORECASE so upper and lower case is ignored for better searching
     study_type_pattern = {key: re.compile(r'\b(?:' + '|'.join(map(re.escape, terms)) + r')\b', re.IGNORECASE)
                           for key, terms in study_types.items()}
 
-    # Zähle die Vorkommen der Stichwörter in den Zeilen des Textes
-    scores = {key: 0 for key in study_types}
+    # Set up a 'scores' dictionary that stores all the counts of keywords for each study type and set all scores to zero
+    study_type_scores = {key: 0 for key in study_types}
+
+    # Search for the keywords using the patterns for each study type inside the given text lines and store the corresponding counts into the 'scores' dictionary
     for line in lines:
         for study_type, pattern in study_type_pattern.items():
-            scores[study_type] += len(pattern.findall(line))
+            study_type_scores[study_type] += len(pattern.findall(line))
 
-    # Bestimme die Kategorie mit dem höchsten Score
-    best_fit_study_type = max(scores, key=scores.get)
-    max_score = scores[best_fit_study_type]
+    # Get the study type with the highest score using 'max()' and 'scores.get as key'
+    best_fit_study_type = max(study_type_scores, key=study_type_scores.get)
+    # Store the highest of a study type to be able to compare later
+    max_score = study_type_scores[best_fit_study_type]
 
-    # Bestimme den zweithöchsten Score
-    second_best_fit_study_type = sorted(scores, key=scores.get, reverse=True)[1]
-    second_max_score = scores[second_best_fit_study_type]
+    # Get the study type with the second highest score by sorting the scores and getting the second entry
+    second_best_fit_study_type = sorted(study_type_scores, key=study_type_scores.get, reverse=True)[1]
+    # Store the second highest score of a study type to be able to compare later
+    second_highest_score = study_type_scores[second_best_fit_study_type]
 
-    if max_score == 0 or max_score == second_max_score:
+    # When no keywords were found, return 'Unknown' because no study type could be estimated
+    if max_score == 0:
         return 'Unknown'
 
-    return best_fit_study_type
+    # When the max score of a study type is equal to or one or two greater than the second max score of a study type return both study types
+    elif max_score - second_highest_score <= 2:
+        return f"{best_fit_study_type}, {second_best_fit_study_type}"
 
-""" Alte find_study_type Funktion mit defaultdict als Kriterium
-def find_study_type(lines, pdf_file, threshold=10):
-    DISCLAIMER: Alter Ansatz mit defaultdict als Gewichtung
-    Diese Funktion durchsucht die Zeilen eines Textes nach Schlüsselwörtern,
-    die auf verschiedene Studientypen hinweisen, und gibt eine Liste aller
-    gefundenen Studientypen zurück, die eine bestimmte Häufigkeit überschreiten.
-    https://stackoverflow.com/questions/52862907/checking-if-a-value-in-a-python-dictionary-is-below-a-threshold-in-order-to-incr
-    https://docs.python.org/3/library/re.html#re.compile
-    https://docs.python.org/3/library/re.html#re.escape
-    https://docs.python.org/3/library/re.html#re.IGNORECASE
+    # Return the best fitting study type with the most keywords found, if the max score is higher than the second score by more than two
+    elif max_score > second_highest_score:
+        return best_fit_study_type
 
-    Args:
-        lines (list): Eine Liste von Textzeilen, in der nach Schlüsselwörtern für den Studientyp gesucht wird
-        pdf_file (str): Der Name der PDF-Datei (zur Dokumentation).
-        threshold (int): Der Schwellenwert für die Häufigkeit von Stichwörtern, um eine Kategorie zuzuordnen.
-
-    Returns:
-        list of str: Eine Liste der gefundenen Studientypen, die den angegebenen Schwellenwert überschreiten.
-    
-
-    study_types = {
-        'observational': ['observational', 'observed', 'field study', 'observation', 'monitoring', 'survey', 'data collection'],
-        'experimental': ['experimental', 'experimentally', 'experiment', 'treatment', 'controlled', 'variable', 'manipulation'],
-        'modeling': ['model', 'modeling', 'simulation', 'algorithm', 'predictive']
-    }
-
-    # Erstelle eine Liste aller Stichwörter zum Suchen
-    search_terms = [term for sublist in study_types.values() for term in sublist]
-    
-    # Kombiniere die Stichwörter zu einem einzigen regulären Ausdruck
-    study_type_pattern = {key: re.compile(r'\b(?:' + '|'.join(map(re.escape, terms)) + r')\b', re.IGNORECASE)
-                    for key, terms in study_types.items()}
-
-    # Zähle die Vorkommen der Stichwörter in den Zeilen des Textes
-    scores = defaultdict(int)
-    for line in lines:
-        for study_type, pattern in study_type_pattern.items():
-            scores[study_type] += len(pattern.findall(line))
-
-    # Bestimme die Kategorien, deren Scores über dem Schwellenwert liegen
-    relevant_categories = [category for category, score in scores.items() if score >= threshold]
-
-    return relevant_categories
-"""
 def find_drought_definitions(lines, pdf_file):
     """
     Searches for specific terms related to the characterization of droughts and returns the relevant lines and the keywords found.
