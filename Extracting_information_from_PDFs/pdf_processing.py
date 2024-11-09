@@ -772,7 +772,7 @@ def extract_spatial_information_from_pdfs(folder_path):
                 for coord in all_coordinates:
                     include_match = True
                     for other_coord in all_coordinates:
-                        # Be sure that a match if not compared with itself and then check if it is included in another match
+                        # Be sure that a match is not compared with itself and then check if it is included in another match
                         if coord != other_coord and coord in other_coord:
                             # If a match is part of another match, indirectly exclude it by setting include to false. 'break' stops the comparison for this match, because it is already a duplicate
                             include_match = False
