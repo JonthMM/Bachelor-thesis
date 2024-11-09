@@ -104,14 +104,15 @@ def find_matches(line):
         r'\b(?<!\.)\d{1,3}[°º◦]\d{1,3}0\s*[NSEW]\b',
 
         # Captures two separate degrees, connected by a separator
-        # Examples: '123° - 45° N', '98° - 76° W'
-        r'\b(?<!\.)\d{1,3}[°º◦]\s*[-–−]*\s*\d{1,3}[°º◦]\s*[NSEW]\b',
+        # Examples: '123° - 45° N', '98° - 76° W', '78.5°−82.5°E', '123° - 45° N'
+        # r'\b(?<!\.)\d{1,3}[°º◦]\s*[-–−]*\s*\d{1,3}[°º◦]\s*[NSEW]\b',
+        r'\b(?<!\.)\d{1,3}(?:\.\d+)?[°º◦]\s*[-–−]*\s*\d{1,3}(?:\.\d+)?[°º◦]\s*[NSEW]\b',
 
         # Captures coordinates that contain three repeated degrees followed by a cardinal point.
         # Examples: '123°45°67° N', '98°76°54° W'
         r'\b(?<!\.)\d{1,3}[°º◦]\d{2}[°º◦]\d{2}[°º◦]\s*[NSEW]\b',
 
-        # ------------------- NUR [°º◦] und [ʹ′'’] Pattern-------------------------------------------
+        # ------------------- Only [°º◦] and [ʹ′'’] pattern-------------------------------------------
         # Captures ranges of coordinates in degrees and minutes connected by a separator, possibly without specific cardinal points.
         # Examples: "123°45' N -67°89'", "12°34' S- 56°78' E"
         r"(?<!\.)\d{1,3}[°º◦]\d{1,2}[ʹ′'’]\s*[NSEW]?\s*[-–−]\s*(?<!\.)\d{1,3}[°º◦]\d{1,2}[ʹ′'’]\s*[NSEW]?\b",
@@ -137,12 +138,13 @@ def find_matches(line):
         # Examples: "123°456' N", "98°765' W"
         r"\b(?<!\.)(?!0\.)\d{1,3}[°º◦]\s*\d{1,3}[ʹ′'’]?\s*[NSEW]\b",
 
-        # ------------------- [°º◦] und (?:′|\u2032|\u0027) und ″ Pattern -------------------------------------------
+        # ------------------- [°º◦] and (?:′|\u2032|\u0027) and ″ pattern -------------------------------------------
         # Note: Unicode specifications for symbols must be used here, otherwise there will be a conflict with the Python syntax because of quotation marks
 
         # Captures coordinates in the form of degrees, minutes and seconds.
         # Examples: '123°45'67″ N', '12°34'56″ S'
-        r'\b(?<!\.)\d{1,3}(?:[°º◦]|\u00B0)?\s*\d{1,3}(?:′|\u2032|\u0027)?\s*\d{1,3}(?:″|\u2033)?\s*[NSEW]\b',
+        #r'\b(?<!\.)\d{1,3}(?:[°º◦]|\u00B0)?\s*\d{1,3}(?:′|\u2032|\u0027)?\s*\d{1,3}(?:″|\u2033)?\s*[NSEW]\b',
+        r'\b(?<!\.)\d{1,3}(?:[°º◦]|\u00B0)?\s*\d{1,3}(?:′|\u2032|\u0027)?\s*\d{1,3}(?:\.\d+)?(?:″|\u2033)?\s*[NSEW]\b',
 
         # Captures coordinates in the form of degrees, minutes and seconds in tables.
         # Note: No word boundary (\b) as coordinates in table
@@ -158,13 +160,18 @@ def find_matches(line):
         # Examples: '123°45'67.89" N', '12°34'56.78"S'
         r'(?<!\.)\d{1,3}[°º◦]\s*\d{1,3}[′’\u0027\u2032]\d{1,3}\.\d{1,3}["”]\s*[NSEW]?',
 
-        # ------------------- NUR [ʹ′'’] Pattern -------------------------------------------
+        # ------------------- Only [ʹ′'’] pattern -------------------------------------------
         # Captures specific coordinates in minutes, also in tables.
         # Introduced, because '°' was converted to '0' in some PDFs
         # Examples: "43010'", "39058'"
         r"(?<!\.)\d{1,3}0\d{1,3}[ʹ′'’]",
 
-        # ------------------- Weitere besondere Pattern -------------------------------------------
+        # Captures specific coordinates in minutes, also in tables.
+        # Introduced, because '°' was converted to 'o' in some PDFs
+        # Examples: "44o26’N", "121o34’W"
+        r"(?<!\.)\d{1,3}o\d{1,3}[ʹ′'’]s*[NSEW]",
+
+        # ------------------- Other special case pattern -------------------------------------------
         # Captures simple details of coordinate ranges, separated by the word 'to'.
         # Examples: '123 to 130 N'"', '45 to 50 W'
         r'\b(?<!\.)\d{1,3}\s*to\s*\d{1,3}0\s*[NSEW]\b',
@@ -872,7 +879,7 @@ def logging_extraction_results(pdf_basename, coordinates, coordinate_context_lin
     logging.info("")
 
     # For a better overview we slow down the logging a little bit
-    time.sleep(1)
+    # time.sleep(1)
 
 def process_extraction_results(folder_path):
     """

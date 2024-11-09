@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Path to the PDFs
 # Docker: os.getenv('FOLDER_PATH', './data/Articles_PDF')
-folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\50-75'
+folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\for_testing'
 
 # Path to the Excel file where the information needs to be stored
 # Docker: os.getenv('EXCEL_PATH', './data/2024Apr_Mana_Review_v2i - Kopie.xlsx')

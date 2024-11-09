@@ -47,6 +47,7 @@ def find_first_empty_row(sheet):
         if all(sheet.cell(row=row, column=col).value is None for col in range(1, sheet.max_column + 1)):
             return row
 
+    return sheet.max_row + 1
 def update_excel_with_extracted_data(excel_path, extracted_data):
     """
     Updates the specified worksheet from an Excel file with the data previously extracted from the PDFs by the 'pdf_processing' module
