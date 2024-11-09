@@ -1,6 +1,8 @@
 # openpyxl zum Arbeiten mit Excel Dateien
 import openpyxl
 
+import logging
+
 def remove_illegal_characters(excel_data):
     """
     Entfernt Zeichen, die von Openpyxl nicht unterstützt werden und somit nicht in der Excel-Datei verwendet werden
@@ -32,8 +34,10 @@ def find_first_empty_row(sheet, columns):
         int: Die Nummer der ersten leeren Zeile, die gefunden wurde.
     """
     for row in range(1, sheet.max_row + 1):
-        if all(sheet.cell(row=row, column=col).value is None for col in columns):
+        #
+        if all(sheet.cell(row=row, column=col).value is None for col in range(1, sheet.max_column + 1)):
             return row
+        #
     return sheet.max_row + 1
 
 def update_excel_with_extracted_data(excel_path, extracted_data):
@@ -58,12 +62,12 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
     start_row = find_first_empty_row(worksheet, [2, 6, 10])
 
     # Trage die aus den PDFs extrahierten Informationen in die Excel-Datei ein
-    for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought) in enumerate(extracted_data):
+    for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type, analyzed_years, periods_with_drought, single_years_with_drought) in enumerate(extracted_data):
         # Kopiere den Namen der PDF (bzw. des Artikels), immer in Spalte A (Paper)
         worksheet.cell(row=start_row + i, column=1, value=pdf_basename)
 
         # Kopiere, falls vorhanden, die Koordinaten immer in Spalte B (location coordinates)
-        if coordinates != 'Keine Koordinaten gefunden' and len(coordinates.split(', ')) > 1:
+        if coordinates != 'No coordinates found/given' and len(coordinates.split(', ')) > 1:
             unique_coordinates = ', '.join(sorted(set(coordinates.split(', '))))
             worksheet.cell(row=start_row + i, column=2, value=unique_coordinates)
 
@@ -84,10 +88,6 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
         if study_type:
             worksheet.cell(row=start_row + i, column=7, value=study_type)
 
-        # Kopiere, falls ein Studientyp gefunden wurde den Wert immer in Spalte F (ecosystem type)
-        if forest_type:
-            worksheet.cell(row=start_row + i, column=6, value=forest_type)
-
         # Kopiere, falls ein Zeitraum, welcher sich auf die untersuchten Jahre einer Studie bezieht gefunden wurde, diesen immer in Spalte D (time period analyzed)
         if analyzed_years:
             # Konvertiere die Liste der Studientypen in eine Zeichenkette
@@ -101,20 +101,9 @@ def update_excel_with_extracted_data(excel_path, extracted_data):
             drought_years_str = ', '.join(sorted(combined_drought_years))
             worksheet.cell(row=start_row + i, column=5, value=drought_years_str)
 
-    # Speichere die durchgeführten Änderungen in der Excel-Datei
-    workbook.save(excel_path)
-
-
-def create_plots_from_shapefiles(shapefile_path):
-    """
-
-
-        Args:
-            shapefile_path (str): .
-
-
-        Returns:
-
-        """
-
-    return None
+    try:
+        # Speichere die durchgeführten Änderungen in der Excel-Datei
+        workbook.save(excel_path)
+        logging.info(f"Excel file was successfully updated!")
+    except Exception as e:
+        logging.error(f"Error saving the updated Excel file: {e}")

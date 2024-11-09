@@ -2607,7 +2607,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # CONTINENT:
 # DONE
 # Generate the general continent percentages pie chart from all studies
-# create_pie_chart(all_studies_shapefile_path, "Continent percentage all")
+create_pie_chart(all_studies_shapefile_path, "Continent percentage all")
 
 # DONE
 # Generate the general continent percentages pie chart from re-analysis locations

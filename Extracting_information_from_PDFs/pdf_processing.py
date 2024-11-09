@@ -1,243 +1,243 @@
-# os zur Datenverwaltung (Einlesen von Dateien)
+# 'os' for data management (importing files)
 import os
 
-# Regex zum Implementieren der Suchmuster (pattern)
+# 'Regex' for implementing the search patterns (pattern)
 import re
 
-# PDFMiner zum Extrahieren der Texte aus den PDFs
+# PDFMiner to extract the texts from the PDFs
 from pdfminer.high_level import extract_text
 
-# defaultdict um Zählungen durchführen
-from collections import defaultdict
+# 'time' to make the logging overview more clear
+import time
 
-# Logging zum besseren Verständnis der Ergebnisse bzw. Ausgaben
-# Hier wird dabei auf logging.info() und logging.error() zurückgegriffen:
+# defaultdict for weighting of values
+# from collections import defaultdict
+
+# Logging for a better understanding of the results and outputs as set up in the main module
+# Logging.info() and logging.error() are used here
 # https://docs.python.org/3/library/logging.html#logging.INFO
 # https://docs.python.org/3/library/logging.html#logging.error
 import logging
 
-def remove_illegal_characters(excel_data):
-    """
-    Entfernt Zeichen, die von Openpyxl nicht unterstützt werden und somit nicht in der Excel-Datei verwendet werden
-    können aus den Informationen, welche in die Excel-Datei übernommen werden sollen
-    https://www.w3schools.com/python/ref_func_ord.asp
-
-    Args:
-        excel_data (str): Der String, aus dem für openpyxl illegale Zeichen entfernt werden sollen.
-
-    Returns:
-        str: Der bereinigte String ohne für openpyxl illegale Zeichen.
-    """
-    
-    # Entferne alle ASCII-Steuerzeichen welche von Openpyxl nicht unterstützt werden mithilfe von ord()
-    return ''.join(char for char in excel_data if ord(char) in range(32, 127))
-
 
 def clean_and_remove_control_characters(text):
     """
-    Entfernt alle ASCII-Steuerzeichen, ersetzt '(cid:6)', '(cid:57\)' und '¢' durch "′" und andere '(cid:\d+)' mithilfe der re.sub() Funktion
-    durch "°". um bereits (durch das Hilfsscript "find_special_characters") bekannte Sonderzeichen zu umgehen.
-    https://www.w3schools.com/python/python_regex.asp
-    https://www.w3schools.com/python/ref_func_ord.asp
-    https://docs.python.org/3/library/re.html#re.sub
+    Removes all ASCII control characters that are not supported by Openpyxl and interfere with the format,
+    replaces '(cid:6)', '(cid:57\)' and '¢' with “′” and other '(cid:\d+)' with '°' using the re.sub() function,
+    to bypass special characters already known (by the helper script 'find_special_characters').
 
     Args:
-        text (str): Der Text, aus dem Steuerzeichen und bestimmte andere Zeichen entfernt werden sollen.
+        text (str): The string from which control characters and certain other characters are to be removed.
 
     Returns:
-        str: Der bereinigte Text.
+        str: The cleaned text as string
+
+    References:
+        - Python RegEx in general: https://www.w3schools.com/python/python_regex.asp
+        - 're.sub()': https://docs.python.org/3/library/re.html#re.sub
+        - Filtering strings: https://blog.finxter.com/5-best-ways-to-filter-strings-within-ascii-range-in-python/ (Method 5)
     """
 
-    # Ersetze "(cid:6)", "(cid:57)" und "¢" durch "′" sowie generalisiert alle anderen cid Sonderzeichen durch "°"
+    # Replace '(cid:6)', '(cid:57)' and '¢' with "′" as well as all other special 'cid' characters with '°'
     text = re.sub(r'\(cid:6\)', '′', text)
     text = re.sub(r'\(cid:57\)', '′', text)
     text = re.sub(r'\(cid:5\)', '′', text)
     text = re.sub(r'\(cid:\d+\)', '°', text)
     text = text.replace('¢', '′')
 
-    # Entferne alle anderen ASCII-Steuerzeichen mithilfe von ord()
+    # Remove all unwanted ASCII control characters using ord() to get their ASCII numbers and joining the cleaned text
     cleaned_text = ''.join(char for char in text if ord(char) >= 32 or ord(char) == 10)
 
     return cleaned_text
 
-
 def find_matches(line):
     """
-    Findet Koordinaten in einer gegebenen Zeile des bereinigten Textes einer PDF aus einem Ordner.
-    https://www.w3schools.com/python/python_regex.asp
-    https://docs.python.org/3/library/re.html#re.findall
+    Finds coordinates which are given as regex patterns in lines of the cleaned text from a PDF file.
+
 
     Args:
-        line (str): Eine einzelne Textzeile, in der nach Koordinatenmustern gesucht wird.
+        line (str): A single line of (cleaned) text in which coordinate patterns are searched for.
 
     Returns:
-        list: Eine Liste von Strings, jeder ein gefundener Koordinaten-Match.
+        list: A list of strings, each containing a found coordinate match.
+
+    References:
+        - Python RegEx in general: https://www.w3schools.com/python/python_regex.asp
+        - 're.findall()': https://docs.python.org/3/library/re.html#re.findall
+
     """
 
-    # Alle RegEx-pattern zur Suche von verschiedenen Koordinatenformaten
+    # All RegEx patterns for searching different coordinate formats
     patterns = [
-        # Die meisten der Pattern erlaubt es nicht, dass Koordinaten mit "." anfangen, um DOI Sucheinträge zu verhindern.
-        # Himmelsrichtungen sind bei der Kategorisierung automatisch inklusive
+        # Most of the patterns do not allow coordinates to start with “.” to prevent DOI search entries.
+        # Cardinal points are automatically included in the categorization
 
-        # ------------------- Dezimalgrad Pattern -------------------------------------------
-        # Dieses Muster erkennt einfache Dezimalkoordinaten ohne Vorzeichen und ohne Himmelsrichtung
-        # Beispiele: "123.456789", "32.123456"
+        # ------------------- Decimal degree pattern -------------------------------------------
+        # Captures simple decimal coordinates without sign and without cardinal direction
+        # Examples: '123.456789', '32.123456'
         r'\b(?<!\.)\d{1,3}\.\d{6}\b',
 
-        # Dieses Muster erfasst Dezimalgradangaben mit Grad-Symbol gefolgt von einer Himmelsrichtung.
-        # Beispiele: "123.456° N", "32.1234°E"
+        # Captures decimal degrees with a degree symbol followed by a cardinal point.
+        # Examples: '123.456° N', '32.1234°E'
         r'\b(?<!\.)(?!0\.)\d{1,3}\.\d{2,6}[°º◦]?\s*[NSEW](?!-)\b',
 
-        # Erfasst zusammenhängende Koordinaten in Dezimalform mit möglichem negativen Vorzeichen und Himmelsrichtungen, getrennt durch Komma.
-        # Beispiele: "-123.45678 N, -98.76543 E", "-23.4567 S, -45.6789 W"
+        # Captures contiguous coordinates in decimal form with a possible negative sign and cardinal points, separated by commas.
+        # Examples: '-123.45678 N, -98.76543 E', '-23.4567 S, -45.6789 W'
         r'\b(?<!\.)[-–−]?(?!0\.)\d{1,3}\.\d+[NS],\s*(?<!\.)[-–−]?(?!0\.)\d{1,3}\.\d+[EW]\b',
 
-        # Erfasst Koordinaten in Dezimalgrad format mit Grad-Symbol und Himmelsrichtungen, jeweils für Längen- und Breitengrad.
-        # Beispiele: "123.4567°N, 89.1234°W", "45.6789°S, 23.4567°E"
+        # Captures coordinates in decimal degree format with degree symbol and cardinal points, each for longitude and latitude.
+        # Examples: '123.4567°N, 89.1234°W', '45.6789°S, 23.4567°E'
         r'\b(?<!\.)(?!0\.)\d{1,3}\.\d{1,6}[°º◦][NS],\s*(?<!\.)\d{1,3}\.\d{1,6}[°º◦][EW]\b',
 
-        # Erfasst Koordinaten innerhalb von Klammern, getrennt durch Kommas, im Dezimalformat.
-        # Beispiele: "(123.456, 78.901)", "(-12.345, -67.890)", "(35.275, −111.721)"
+        # Captures coordinates within brackets, separated by commas, in decimal format.
+        # Examples: '(123.456, 78.901)', ‘(-12.345, -67.890)’, '(35.275, -111.721)'
         r'\(\s*(?<!\.)[-–−]?(?!0\.)\d{1,3}\.\d{3}\s*,\s*(?<!\.)\s*[-–−]?\s*(?!0\.)[\d−]{1,3}\.\d{3}\s*\)',
 
-        # ------------------- NUR [°º◦] Pattern-------------------------------------------
-        # Erfasst einfache Gradangaben mit einem Grad-Symbol und einer Himmelsrichtung.
-        # Beispiele: "123° N", "98° W"
+        # ------------------- Only [°º◦] pattern-------------------------------------------
+        # Captures simple degrees with a degree symbol and a cardinal point.
+        # Examples: '123° N”, '98° W'
         r'\b(?<!\.)(?!0{1,2}\b)\d{1,3}[°º◦]\s*[NSEW]\b',
 
-        # Erfasst Gradangaben gefolgt von einer spezifischen Null in der Zahl
-        # Anmerkung: Die Nullen sind hier falsch konvertierte "°"
-        # Beispiele: "123°270 N", "98°020 W"
+        # Captures degrees followed by a specific zero in the number
+        # Note: The zeros here are incorrectly converted “°”
+        # Examples: '123°270 N', '98°020 W'
         r'\b(?<!\.)\d{1,3}[°º◦]\d{1,3}0\s*[NSEW]\b',
 
-        # Erfasst zwei separate Gradangaben, durch ein Trennzeichen verbunden
-        # Beispiele: "123° - 45° N", "98° - 76° W"
+        # Captures two separate degrees, connected by a separator
+        # Examples: '123° - 45° N', '98° - 76° W'
         r'\b(?<!\.)\d{1,3}[°º◦]\s*[-–−]*\s*\d{1,3}[°º◦]\s*[NSEW]\b',
 
-        # Erfasst Koordinaten, die dreimal wiederholte Gradangaben enthalten, gefolgt von einer Himmelsrichtung.
-        # Beispiele: "123°45°67° N", "98°76°54° W"
+        # Captures coordinates that contain three repeated degrees followed by a cardinal point.
+        # Examples: '123°45°67° N', '98°76°54° W'
         r'\b(?<!\.)\d{1,3}[°º◦]\d{2}[°º◦]\d{2}[°º◦]\s*[NSEW]\b',
 
         # ------------------- NUR [°º◦] und [ʹ′'’] Pattern-------------------------------------------
-        # Erfasst Bereiche von Koordinaten in Grad und Minuten durch ein Trennzeichen verbunden, möglicherweise auch ohne spezifische Himmelsrichtungen.
-        # Beispiele: "123°45' N -67°89'", "12°34' S- 56°78' E"
+        # Captures ranges of coordinates in degrees and minutes connected by a separator, possibly without specific cardinal points.
+        # Examples: "123°45' N -67°89'", "12°34' S- 56°78' E"
         r"(?<!\.)\d{1,3}[°º◦]\d{1,2}[ʹ′'’]\s*[NSEW]?\s*[-–−]\s*(?<!\.)\d{1,3}[°º◦]\d{1,2}[ʹ′'’]\s*[NSEW]?\b",
 
-        # Erfasst Koordinaten in der Form von Grad und Minuten getrennt durch Komma mit Himmelsrichtungen.
-        # Beispiele: "52° 12' N, 13°28' E", "12°34', 56 78' W"
+        # Captures coordinates in the form of degrees and minutes separated by commas with cardinal points.
+        # Examples: "52° 12' N, 13°28' E", "12°34', 56 78' W"
         r"\b(?<!\.)\d{1,3}[°º◦]?\s*\d{1,3}[ʹ′'’]?\s*[NSEW],\s*\d{1,3}[°º◦]?\s*\d{1,3}[ʹ′'’]?\s*[NSEW]\b",
 
-        # Erfasst zwei vollständige Koordinatensätze, getrennt durch ein Semikolon.
-        # Beispiele: "123°045'067 N; 123°045'067 W", "12°034'056 N; 12°034'056 W"
+        # Captures two complete sets of coordinates, separated by a semicolon.
+        # Examples: "123°045'067 N; 123°045'067 W", "12°034'056 N; 12°034'056 W"
         r'\b(?<!\.)\d{1,3}[°º◦]\s*0\d{2}\s*(?<!\.)\d{1,3}[°º◦]\s*0\d{3}\s*[NSEW];\s*(?<!\.)\d{1,3}[°º◦]\s*0\d{3}\s*(?<!\.)\d{1,3}[°º◦]\s*0\d{3}\s*[NSEW]\b',
 
-        # Erfasst Koordinaten in vollständiger Notation mit Gradzeichen, Minuten und Sekunden, optional gefolgt von einer Himmelsrichtung.
-        # Beispiele: "123°45''67' N", "98°76''54' E"
+        # Captures coordinates in full notation with degree signs, minutes and seconds, optionally followed by a cardinal point.
+        # Examples: "123°45''67' N", "98°76''54' E"
         r"\d{1,3}[º°◦]\d{1,2}[ʹ′'’][ʹ′'’]\d{1,2}[ʹ′'’]\s*[N|S|E|W]?",
 
-        # Erfasst Koordinaten in Grad, Minuten und Sekunden, wobei die Sekunden dezimale Werte enthalten können.
-        # Anmerkung: Keine Wortgrenze (\b) da Koordinaten in Tabelle
-        # Beispiele: "123°45'67.89''", "98°76'54.32''"
+        # Captures coordinates in degrees, minutes and seconds, whereby the seconds can contain decimal values.
+        # Note: No word boundary (\b) as coordinates in table
+        # Examples: "123°45'67.89''", "98°76'54.32''"
         r"(?<!\.)\d{1,3}[°º◦]\d{1,3}[ʹ′'’]\d{1,3}\.\d{1,3}[ʹ′'’][ʹ′'’]",
 
-        # Erfasst Koordinaten in Grad und Minuten, direkt gefolgt von einer Himmelsrichtung.
-        # Beispiele: "123°456' N", "98°765' W"
+        # Captures coordinates in degrees and minutes, directly followed by a cardinal point.
+        # Examples: "123°456' N", "98°765' W"
         r"\b(?<!\.)(?!0\.)\d{1,3}[°º◦]\s*\d{1,3}[ʹ′'’]?\s*[NSEW]\b",
 
         # ------------------- [°º◦] und (?:′|\u2032|\u0027) und ″ Pattern -------------------------------------------
-        # Anmerkung: Hier muss auf unicode Angaben für Symbole zurückgegriffen werden, da sonst ein konflikt mit der Pythonsyntax entsteht
+        # Note: Unicode specifications for symbols must be used here, otherwise there will be a conflict with the Python syntax because of quotation marks
 
-        # Erfasst Koordinaten in Form von Grad, Minuten und Sekunden.
-        # Beispiele: "123°45'67″ N", "12°34'56″ S"
+        # Captures coordinates in the form of degrees, minutes and seconds.
+        # Examples: '123°45'67″ N', '12°34'56″ S'
         r'\b(?<!\.)\d{1,3}(?:[°º◦]|\u00B0)?\s*\d{1,3}(?:′|\u2032|\u0027)?\s*\d{1,3}(?:″|\u2033)?\s*[NSEW]\b',
 
-        # Erfasst Koordinaten in Form von Grad, Minuten und Sekunden in Tabellen.
-        # Anmerkung: Keine Wortgrenze (\b) da Koordinaten in Tabelle
-        # Beispiele: "123°45'67"", "98°76'54"
+        # Captures coordinates in the form of degrees, minutes and seconds in tables.
+        # Note: No word boundary (\b) as coordinates in table
+        # Examples: '123°45'67" ', '98°76'54" '
         r'(?<!\.)\d{1,3}[°º◦]\d{2}[′’\u0027\u2032]\d{2}["”]?',
 
-        # Erfasst zwei Koordinaten in einer Zeile, die Grad, Minuten und Sekunden in unterschiedlicher Präzision anzeigen.
-        # Beispiele: "123°45'67.89″ N - 98°76'54.32″ W", "12°34'56.78″ S - 23°45'67.89″ E"
+        # Captures two coordinates in one line, displaying degrees, minutes and seconds with different precision.
+        # Examples: '123°45'67.89″ N - 98°76'54.32″ W', '12°34'56.78″ S - 23°45'67.89″ E'
         r'\b(?<!\.)\d{1,3}(?:[°º◦]|\u00B0)?\d{1,3}(?:′|\u2032|\u0027)?(?!0\.)\d{1,3}\.\d{1,3}(?:″|\u2033)?\s*[NSEW]\s*[-–−]\s*(?<!\.)\d{1,3}(?:[°◦]|\u00B0)?\d{1,3}(?:′|\u2032|\u0027)?(?!0\.)\d{1,3}\.\d{1,3}(?:″|\u2033)?\s*[NSEW]\b',
 
-        # Erfasst Koordinaten in Tabellen in Grad, Minuten und Sekunden, wobei die Sekunden Dezimalstellen aufweisen können.
-        # Anmerkung: Keine Wortgrenze (\b) da Koordinaten in Tabelle
-        # Beispiele: "123°45'67.89" N", "12°34'56.78"S"
+        # Captures coordinates in tables in degrees, minutes and seconds, whereby the seconds can have decimal places.
+        # Note: No word boundary (\b) as coordinates in table
+        # Examples: '123°45'67.89" N', '12°34'56.78"S'
         r'(?<!\.)\d{1,3}[°º◦]\s*\d{1,3}[′’\u0027\u2032]\d{1,3}\.\d{1,3}["”]\s*[NSEW]?',
 
         # ------------------- NUR [ʹ′'’] Pattern -------------------------------------------
-        # Erfasst spezifische Koordinaten in Minutenangabe, auch in Tabellen.
-        # Eingeführt, da "°" in PDF Text zu "0" konvertiert wurde.
-        # Beispiele: "43010'", "39058'"
+        # Captures specific coordinates in minutes, also in tables.
+        # Introduced, because '°' was converted to '0' in some PDFs
+        # Examples: "43010'", "39058'"
         r"(?<!\.)\d{1,3}0\d{1,3}[ʹ′'’]",
 
         # ------------------- Weitere besondere Pattern -------------------------------------------
-        # Erfasst simple Angaben von Koordinatenbereichen, getrennt durch das Wort "to".
-        # Beispiele: "123 to 130 N", "45 to 50 W"
+        # Captures simple details of coordinate ranges, separated by the word 'to'.
+        # Examples: '123 to 130 N'"', '45 to 50 W'
         r'\b(?<!\.)\d{1,3}\s*to\s*\d{1,3}0\s*[NSEW]\b',
 
-        # Erfasst Bereiche von Dezimalgraden, getrennt durch das Wort "to", mit abschließender Himmelsrichtung bei der jeweiligen letzteren Koordinate.
-        # Beispiele: "123.456 to 789.012 N", "45.678 to 123.456 W"
+        # Captures ranges of decimal degrees, separated by the word 'to', with a final cardinal point at the latter coordinate.
+        # Examples: '123.456 to 789.012 N', '45.678 to 123.456 W'
         r'\b(?<!\.)\d{1,3}\.\d{1,3}\s*to\s*\d{1,3}\.\d{1,3}\s*[NSEW]\b',
 
-        # Erfasst Bereiche von Koordinaten, getrennt durch einen Bindestrich, gefolgt von einer Himmelsrichtung.
-        # Beispiele: "36–528 N", "52–988 W"
+        # Captures ranges of coordinates, separated by a hyphen, followed by a cardinal point.
+        # Examples: '36–528 N', '52–988 W'
         r'\b(?<!\.)\d{1,3}[-–−]\d{1,3}\s[NSWE]\b',
 
-        # Erfasst Koordinaten in Klammern, mit "lat" oder "long" prefix der länge 9 bis 10.
-        # Anmerkung: Keine Wortgrenze (\b) da Koordinaten in Tabelle
-        # Beispiele: (lat 1230230140, long 340450260)
+        # Captures coordinates in brackets, with 'lat' or 'long' prefix of length 9 to 10.
+        # Note: No word boundary (\b) as coordinates in table
+        # Examples: '(lat 1230230140, long 340450260)'
         r'\(lat \d{9,10}, long \d{9,10}\)',
 
-        # Erfasst sehr große Zahlwerte als Koordinaten mit nachfolgender Himmelsrichtung.
-        # Anmerkung: Hier fehlen durch eine falsche konversation der PDF die Sonderzeichen wie "°" und "'"
-        # Anmerkung: Keine Wortgrenze (\b) da Koordinaten in Tabelle
-        # Beispiele: "123456789N", "987654321 W"
+        # Captures very large numerical values as coordinates with subsequent cardinal points.
+        # Note: Due to a wrong conversation of the PDF the special characters like '°' and "'"
+        # Note: No word boundary (\b) as coordinates in table
+        # Examples: '123456789N', '987654321 W'
         r'(?<!\.)(?!0\.)\d{9,10}\s*[NSEW]',
 
-        # Erfasst Koordinaten mit Himmelsrichtungen, verbunden durch ein Semikolon.
-        # Anmerkung: Die Nullen sind hier falsch konvertierte "°"
-        # Beispiele: "12034 56078 N; 12034 56078 E"
+        # Captures coordinates with cardinal points, connected by a semicolon.
+        # Note: The zeros here are incorrectly converted '°'
+        # Examples: '12034 56078 N; 12034 56078 E'
         r'\b(?<!\.)\d{1,3}\s*0\d{1,3}\s*\d{1,3}\s*0\d{1,3}\s*[NSEW];\s*\d{1,3}\s*0\d{1,3}\*\d{1,3}\s*0\d{1,3}\s*[NSEW]\b'
     ]
 
-    # Alle gefundenen Koordinaten sollen in die "matches" Liste, welche hier erstellt wird
+    # Add all found coordinates to the 'matches' list, which is created here
     matches = []
-    # Es wird über die pattern iteriert und sobald ein pattern in einer Zeile ein Ergebnis gefunden hat, wird dieses zu "matches" hinzugefügt
+    # Iterate over the pattern and as soon as a pattern has found a result in a line, add it to “matches” using extend()
     for pattern in patterns:
         matches.extend(re.findall(pattern, line))
+
     return matches
 
 
 def find_study_site(lines):
     """
-    Sucht nach den bestimmten Begriffen, welche einen relevanten Eintrag in die Spalte "Area name" der Excel Tabelle darstellen und gibt die darauffolgenden vier Zeilen zurück.
-    Wichtig!: Dies wird nur ausgeführt, wenn keine Koordinaten gefunden wurden!
-    https://www.w3schools.com/python/python_regex.asp
-    https://docs.python.org/3/library/re.html#re.search
-    https://docs.python.org/3/library/re.html#re.IGNORECASE
+    Searches for specific terms/keywords that represent a relevant entry in the “Area name” column of the Excel table and returns the relevant rows.
+    Here, if one of these keywords is found, the search will be stopped on purpose.
+    Important: This is only executed if no coordinates were found to be able to add coordinates in the manual verification step.
 
-     Args:
-        lines (list): Eine Liste von Textzeilen, in der nach Schlüsselwörtern für den Bereich einer Studie gesucht wird.
+
+    Args:
+        lines (list): A list of text lines in which keywords are searched for the study area.
 
     Returns:
-        str or None: Ein String, der den Kontext der gefundenen Bereiche einer Studie enthält, oder None, falls keine gefunden wurden.
+        str or None: A string containing the context of the areas found in a study, or None if none were found.
+
+    References:
+        - Python RegEx in general: https://www.w3schools.com/python/python_regex.asp
+        - 're.search()':https://docs.python.org/3/library/re.html#re.search
+        - 're.IGNORECASE': https://docs.python.org/3/library/re.html#re.IGNORECASE
     """
 
-    # Iteriert über alle Zeilen des Textes einer PDf, falls ein Schlüsselwort gefunden wurde, wird diese Zeile
-    # und die darauffolgenden 2 Zeilen gespeichert und zu den Zeilen, welche Aufschluss über das gesuchte Gebiet geben angehangen.
+    # Iterates over all lines of the text of a PDf, if a keyword is found, this line
+    # and the following 4 lines are saved and appended to the lines that provide information about the searched area.
     for i, line in enumerate(lines):
-        # Überprüfung auf alle gesuchten Schlüsselwörter, groß- und kleinschreibung wird hierbei ignoriert
+        # Check for all searched keywords, upper and lower case is ignored here
         if (re.search(r'\bData Sources and Location\b', line, re.IGNORECASE)
                 or re.search(r'\bstudy area\b', line, re.IGNORECASE)
                 or re.search(r'\bstudy  area\b', line, re.IGNORECASE)
                 or re.search(r'\bThe area of\b', line, re.IGNORECASE)
                 or re.search(r'\bforest areas\b', line, re.IGNORECASE)
+
                 or re.search(r'\bstudy site\b', line, re.IGNORECASE)
                 or re.search(r'\bstudy sites\b', line, re.IGNORECASE)
                 or re.search(r'\bS T U D Y S I T E\b', line, re.IGNORECASE)
 
-                # Falls "study site" durch einen Zeilenumbruch getrennt ist
+
+                #  If “study site” is separated by a line break
                 or (line.strip().endswith("study") and (i + 1 < len(lines)) and lines[i + 1].strip().startswith(
                     "site"))
 
@@ -247,42 +247,19 @@ def find_study_site(lines):
                 or re.search(r'\bStudy landscapes\b', line, re.IGNORECASE)
                 or re.search(r'\bsite description\b', line, re.IGNORECASE)
                 or re.search(r'\bStudy system\b', line, re.IGNORECASE)
+                or re.search(r'\bforest sites\b', line, re.IGNORECASE)
+                or re.search(r'\bstudy was conducted at\b', line, re.IGNORECASE)
+                or re.search(r'\bstudy was conducted in\b', line, re.IGNORECASE)
+                or re.search(r'\bsite is located\b', line, re.IGNORECASE)
+                or re.search(r'\bstudy location\b', line, re.IGNORECASE)
 
         ):
-            # Kontextzeilen (also die Zeile, in welcher der Fund ist und die darauffolgenden 4) speichern
+            # Save context lines (the line in which the keyword was found and the following 4)
+            # This is done to ensure not only that the complete study site description is saved, but also that if the keywords is
+            # a headline for a section of the paper, not only this is saved but also its following content
             context_lines = lines[i:i + 4]
-            return " | ".join(context_lines).strip()
+            return " ".join(context_lines).strip()
     return None
-
-
-def find_forest_types(lines):
-    """
-    DISCLAIMER: Nicht zu 100% zuverlässig
-    Sucht nach bestimmten Begriffen, die auf Waldtypen hinweisen, und gibt die relevanten Zeilen zurück.
-    https://www.w3schools.com/python/python_regex.asp
-    https://docs.python.org/3/library/re.html#re.search
-    https://docs.python.org/3/library/re.html#re.IGNORECASE
-
-    Args:
-        lines (list): Eine Liste von Textzeilen, in der nach Schlüsselwörtern für Waldtypen gesucht wird.
-
-    Returns:
-        str or None: Ein String, der den Kontext der gefundenen Waldtypen enthält, oder None, falls keine gefunden wurden.
-    """
-    # Iteriert über alle Zeilen des Textes einer PDf, falls ein Schlüsselwort gefunden wurde, wird diese Zeile
-    # und die darauffolgenden 3 Zeilen gespeichert und zu den Zeilen, welche Aufschluss über die untersuchte Waldart geben angehangen.
-    for i, line in enumerate(lines):
-        # Überprüfung auf alle gesuchten Schlüsselwörter, groß- und kleinschreibung wird hierbei ignoriert
-        if (re.search(r'\bSpecies studied\b', line, re.IGNORECASE)
-                or re.search(r'\bforest type\b', line, re.IGNORECASE)
-                or re.search(r'\bforest types\b', line, re.IGNORECASE)
-        # Weitere hinzufügen und generell verlässlicher machen
-        ):
-            # Kontextzeilen (also die Zeile, in welcher der Fund ist und die darauffolgenden 4) speichern
-            ecosystem_context_lines = lines[i:i + 4]
-            return " | ".join(ecosystem_context_lines).strip()
-    return None
-
 
 def find_analyzed_years(lines):
     """
@@ -617,161 +594,198 @@ def find_study_type(lines, pdf_file, threshold=10):
 
     return relevant_categories
 """
-def find_drought_quantification(lines, pdf_file):
+def find_drought_definitions(lines, pdf_file):
     """
-    Sucht nach bestimmten Begriffen, die sich auf die Quantifizierung von Dürren beziehen, und gibt die relevanten Zeilen zurück.
-    Hierbei wird in jeder PDF ein mal nach jedem Begriff gesucht und dann, wenn er ein- oder keinmal vorgekommen ist, wird der nächste Begriff gesucht usw....
-    https://www.w3schools.com/python/python_regex.asp
-    https://docs.python.org/3/library/re.html#re.search
-    https://docs.python.org/3/library/re.html#re.escape
+    Searches for specific terms related to the quantification of droughts and returns the relevant lines.
+    In contrast to the search methodology in 'find_study_site(lines)', the search is not aborted as soon as a keyword is found.
+    As all possible drought definitions and their relevant text lines are searched for and saved, this makes manual verification easier
 
     Args:
-        lines (list): Eine Liste von Textzeilen, in der nach Schlüsselwörtern für die quantifizierung von Dürre gesucht wird
-        pdf_file (str): Der Dateiname der PDF, aus der die Zeilen stammen.
+        lines (list): A list of text lines in which keywords are searched for the drought definitions
+        pdf_file (str): The file name of the PDF from which the lines originate.
 
     Returns:
-        tuple: Ein Tupel, das entweder (str, list) enthält, wobei der String die zusammengefassten relevanten Zeilen und die Liste die gefundenen Schlüsselwörter enthält, oder (None, None), falls keine relevanten Informationen gefunden wurden.
+        tuple: A tuple containing either (str, list), where the string contains the summarized relevant lines and the list contains the keywords found,
+        or (None, None) if no relevant information was found.
+
+    References:
+        - Python RegEx in general: https://www.w3schools.com/python/python_regex.asp
+        - 're.search()': https://docs.python.org/3/library/re.html#re.search
+        - 're.escape()': https://docs.python.org/3/library/re.html#re.escape
     """
 
-    # Die zu suchenden Begriffe werden in dieser Liste gespeichert:
-    keywords = ['PET', 'SPI', 'SPEI', 'PDSI', 'low soil moisture', 'soil water content', 'VPD', 'reduced rainfall', 'low precipitation', 'plant water stress', 'drought', 'dry season', 'dry period']
-    # Diese Liste soll später alle relevanten Zeilen, also diese wo ein Keyword drin steckt plus 3 Zeilen danach speichern
+    # The drought definition terms to be searched for are saved in this list:
+    keywords = ['PET',
+                'SPI',
+                'SPEI',
+                'PDSI',
+                'low soil moisture',
+                'soil water content',
+                'VPD',
+                'reduced rainfall',
+                'low precipitation',
+                'plant water stress',
+                'drought', 'dry season',
+                'dry period']
+
+    # This list saves all those lines which contain a keyword plus 3 lines after it
     drought_lines = []
-    # Diese Liste speichert alle gefundenen Begriffe einer PDF aus der "keywords" Liste
+    # This list saves all terms found in a PDF from the 'keywords' list
     drought_quantification_keywords = []
 
-    # Hier wird jede Zeile einer PDF nach den Begriffen in der "keywords" Liste durchsucht
+    # Iterating each line from the PDF using enumerate() to search for the drought definitions keywords
     for keyword in keywords:
         for i, line in enumerate(lines):
-            # re.escape um sicherzustellen, dass alle Sonderzeichen als Literale behandelt werden und keine Regex-Metazeichen
+            # re.escape to ensure that all special characters are treated as literals and not regex meta characters
             if re.search(r'\b' + re.escape(keyword) + r'\b', line):
-                # Wurde ein Begriff gefunden, wird er zu "drought_quantification_keywords" hinzugefügt
+                # If a term was found, it is added to 'drought_quantification_keywords'
                 drought_quantification_keywords.append(keyword)
-                # und die Zeile, in welche der Begriff gefunden wurde und die darauffolgenden drei werden gespeichert
+                # and the line in which the term was found and the following three are saved
                 context_lines = lines[max(0, i - 1):i + 3]
-                drought_lines.append(" | ".join(context_lines).strip())
+                drought_lines.append(" ".join(context_lines).strip())
                 break
 
     if drought_lines:
-        # Die relevanten Zeilen werden zu einem einzigen String zusammengefügt, wobei jede Zeile durch " | " getrennt ist.
-        # Dabei entfernt `.strip()` alle überflüssigen Leerzeichen
-        # "drought_quantification_keywords" wird außerdem ebenfalls zurückgegeben, die alle Keywords enthält, die in der PDF gefunden wurden.
-        return " | ".join(drought_lines).strip(), drought_quantification_keywords
-        # Wenn keine relevante Zeile in der PDF gefunden wurde (d.h., "drought_lines" ist leer),
-        # gibt die Funktion ein Tupel zurück, das zwei "None" Werte enthält.
+        # The relevant lines are merged into a single string, `.strip()` removes all superfluous spaces.
+        # 'drought_quantification_keywords' is also returned, which contains all keywords found in the PDF.
+        return " ".join(drought_lines).strip(), drought_quantification_keywords
+        # If no relevant line was found in the PDF (meaning “drought_lines” is empty),
+        # the function returns a tuple containing two “None” values.
     return None, None
 
-def extract_coordinates_from_pdfs_in_folder(folder_path):
+def extract_spatial_information_from_pdfs(folder_path):
     """
-    Diese Funktion extrahiert Koordinaten aus PDF-Dateien in einem spezifizierten Ordner.
-    Duplikate und einzelne, isolierte Koordinaten werden dabei ignoriert.
-    https://docs.python.org/3/library/os.html#os.listdir
-    https://docs.python.org/3/library/os.path.html#module-os.path
-    https://www.w3schools.com/python/python_regex.asp
-    https://docs.python.org/3/library/re.html#re.split
-    https://docs.python.org/3/library/re.html#re.match
+    Extracts spatial information (coordinates and their context) from PDF files in the specified folder, ignoring duplicates
+    and isolated coordinates that match certain patterns.
 
     Args:
         folder_path (str): Pfad zum Ordner, der die PDF-Dateien enthält.
 
     Returns:
-        list: Eine Liste von Tupel wobei jedes Tupel die extrahierten Informationen einer PDF-Datei enthält, einschließlich des Dateinamens, gefundenen Koordinaten, Kontextzeilen und Informationen zur Dürre-Quantifizierung.
+        list: A list of tuples, where each tuple contains extracted information for a PDF file. Each tuple includes:
+              pdf_basename
+              final_coordinates
+              lines_with_coordinates
+              lines
+              pdf_file
+
+    References:
+        - 'os.listdir': https://docs.python.org/3/library/os.html#os.listdir
+        - 'os.path': https://docs.python.org/3/library/os.path.html
+        - Regular expressions in Python: https://www.w3schools.com/python/python_regex.asp
+        - 're.split': https://docs.python.org/3/library/re.html#re.split
+        - 're.match': https://docs.python.org/3/library/re.html#re.match
+        - 'items()': https://www.w3schools.com/python/ref_dictionary_items.asp
+        - 'next(iter())': https://www.programiz.com/python-programming/methods/built-in/next
     """
+    # Initialize the list for the results of the automatic coordinate extraction
+    spatial_data = []
 
-    # Initialisiere die Liste für die Ergebnisse der automatischen Koordinatenextraktion
-    results = []
-
-    # Muster, die für die Identifikation von Koordinatenformate verwendet werden, welche, wenn sie alleine auftreten ignoriert werden sollen
+    # Patterns used for the identification of coordinate formats, which should be ignored if they occur alone
     decimal_pattern = r'\b(?<!\.)\d{1,3}\.\d{6}\b'
     decimal_dir_pattern = r'\b(?!0\.)\d{1,3}\.\d{2}\s*[NSEW]\b'
     number_dir_pattern = r'\b(?!0\.)\d{1,6}(?<!\d8\d{2}0)\s*[NSEW]\b'
     number_dir_pattern_range = r'\b(?!0\.)\d{3}–\d{3}[NSEW]\b'
 
-    # Durchsuche alle Dateien im angegebenen Ordner
+    # Search all files in the specified folder
     for filename in os.listdir(folder_path):
+        # Make sure that only PDFs in the specified folder are used
         if filename.endswith('.pdf'):
             pdf_file = os.path.join(folder_path, filename)
             pdf_basename = os.path.splitext(os.path.basename(pdf_file))[0]
+            logging.info(f"Looking for coordinates in '{pdf_file}'")
+            logging.info("")
             try:
-                # Extrahiere den Text aus der PDF-Datei mithilfe von pdfminer
+                # Extract the text from the PDF file using pdfminer's 'extract_text' method
                 text = extract_text(pdf_file)
-                # Bereinige den Text von diversen Sonderzeichen durch die Hilfsfunktion clean_and_remove_control_characters()
+                # Clean the text of specific special characters using the helper function clean_and_remove_control_characters()
                 cleaned_text = clean_and_remove_control_characters(text)
-
-                # Set zur Speicherung aller gefundenen Koordinaten
-                coordinates = set()
-                # Liste zur Speicherung der Kontextzeilen, in denen Koordinaten gefunden wurden
+                # Set for saving all coordinates found
+                all_coordinates = set()
+                # List for saving the context lines in which coordinates were found
                 lines_with_coordinates = []
-                # Teile den bereinigten Text in Zeilen auf
+                # Divide the cleaned text into lines
                 lines = re.split('\n+', cleaned_text)
 
-                # Sets zur Verwaltung gefundener einzelner Koordinaten zum Ignorieren je nach Muster
+                # Sets for managing individual coordinates found for ignoring depending on the pattern
                 all_found_types = {decimal_pattern: set(), decimal_dir_pattern: set(), number_dir_pattern: set(), number_dir_pattern_range: set()}
-                # Liste zur Speicherung von ignorierten Koordinaten
+                # List for storing ignored coordinates
                 ignored_coordinates = []
 
-                # Durchsuche jede Zeile des bereinigten PDF-Textes nach Koordinaten, sowohl den richtigen, als die zu ignorierenden
+                # Create dictionary to store all matches so find_matches() has only be calles once
+                line_matches_dictionary = {}
+
+                # Search each line of the cleaned PDF text for coordinates, both the correct ones and those to be ignored
                 for line in lines:
+                    # Find any coordinate matches in the given lines using the helper function 'find_matches()' and store them in the corresponding dictionary
                     matches = find_matches(line)
+                    line_matches_dictionary[line] = matches
+                    # If a match was found, add it to the 'coordinates' set
                     if matches:
                         for match in matches:
-                            coordinates.add(match)
+                            all_coordinates.add(match)
+                            # Check each match against the specific given patterns which require special handling
                             for pattern in [decimal_pattern, decimal_dir_pattern, number_dir_pattern, number_dir_pattern_range]:
+                                # If a match fits one of the specified pattern, store it in `all_found_types`
                                 if re.match(pattern, match):
                                     all_found_types[pattern].add(match)
 
-                # Überprüfen, ob gefundene Koordinaten Duplikate oder Teil von anderen Koordinaten sind
+
+                # Create a new set for only these coordinates, which will be used later and are validated for duplicates
                 final_coordinates = set()
-                for coord in coordinates:
-                    include = True
-                    for other_coord in coordinates:
+                # Check whether coordinates found are duplicates or part of other coordinates
+                for coord in all_coordinates:
+                    include_match = True
+                    for other_coord in all_coordinates:
+                        # Be sure that a match if not compared with itself and then check if it is included in another match
                         if coord != other_coord and coord in other_coord:
-                            include = False
+                            # If a match is included in another match, indirectly exclude it by setting include to false. 'break' stops thje comparison for this match, because it is already a duplicate
+                            include_match = False
                             break
-                    if include:
+                    # If include is still True, add the coordinate to the final set
+                    if include_match:
                         final_coordinates.add(coord)
 
-                # Ignoriere einzelne Koordinaten der gegebenen Muster, wenn sie die einzigen ihrer Art sind
+                # This part makes sure that single coordinates are removed and not part of the final coordinate set if they match one of the, directly in this function specified patterns
                 for pattern, coord_set in all_found_types.items():
+                    # Only use single coordinates for comparison and retrieve them using next(iter()
                     if len(coord_set) == 1:
                         coord_to_ignore = next(iter(coord_set))
+                        # Remove a coordinate that matches the criteria to be ignored and keep track of them for logging
                         if coord_to_ignore in final_coordinates:
                             final_coordinates.remove(coord_to_ignore)
                             ignored_coordinates.append(coord_to_ignore)
-                            # Logging Ausgabe, wenn und welche einzelne Koordinate ignoriert wurden und in welcher PDF
-                            logging.info(
-                                f"Ignored single coordinate {coord_to_ignore} in '{pdf_basename}' as per pattern.")
+                            # log, which coordinate match was ignored in which PDF
+                            logging.info(f"Ignored single coordinate {coord_to_ignore} in '{pdf_basename}'.")
+                            logging.info("")
 
-                # Speichere Kontextzeilen nur für die gültigen Koordinaten
-                for line in lines:
-                    line_matches = find_matches(line)
+                # If a match was found and it
+                for line, line_matches in line_matches_dictionary.items():
                     valid_matches = [match for match in line_matches if match in final_coordinates]
                     if valid_matches:
                         context_lines = lines[max(0, lines.index(line) - 2):lines.index(line) + 1]
-                        lines_with_coordinates.append(" | ".join(context_lines).strip())
+                        lines_with_coordinates.append(" ".join(context_lines).strip())
 
-                # Ergebnis verarbeiten und speichern
-                process_extraction_results(pdf_basename, final_coordinates, lines_with_coordinates, lines, pdf_file, results)
+                spatial_data.append((pdf_basename, final_coordinates, lines_with_coordinates, lines, pdf_file))
 
-            # Absicherungslogging, falls es einen Fehler gab, der verhindert, dass in den PDFs nach Informationen gesucht werden kann
+            # Backup logging, if there was an error that prevents information from being searched for in the PDFs
             except Exception as e:
                 logging.error(f"Failed to extract text from '{pdf_file}': {str(e)}")
-                results.append((pdf_basename, 'Keine Koordinaten gefunden', '', None, None))
+                spatial_data.append((pdf_basename, 'No coordinates found/given', '', None, None))
 
-    return results
+    return spatial_data
 
-def logging_extraction_results(pdf_basename, coordinates, study_site_lines, study_site_context, drought_quantified, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought):
+def logging_extraction_results(pdf_basename, coordinates, study_site_lines, study_site_context, drought_quantification_keywords, study_type, analyzed_years, periods_with_drought, single_years_with_drought):
     """
     Diese Funktion protokolliert die Ergebnisse der Extraktion in einer sinnvollen Reihenfolge übersichtlich und loggt sie entsprechend.
 
     Args:
         pdf_basename (str): Der bereinigte Dateiname der PDF.
-        coordinates (str): Gefundene Koordinaten oder 'Keine Koordinaten gefunden'.
+        coordinates (str): Gefundene Koordinaten oder 'No coordinates found/given'.
         study_site_lines (str): Gefundene Studienregion basierend auf Kontextzeilen oder 'Keine Studienregion gefunden'.
         study_site_context (str): Gefundene Studienregion basierend auf dem Kontext oder 'Keine Studienregion gefunden'.
-        drought_quantified (list): Eine Liste der gefundenen Schlüsselwörter zur Dürre-Quantifizierung.
+        drought_quantification_keywords (list): Eine Liste der gefundenen Schlüsselwörter zur Dürre-Quantifizierung.
         study_type (str): Der Studientyp, falls gefunden, sonst None.
-        forest_type (LiteralString): Die Waldart bzw. Baumart, falls gefunden, sonst None
         analyzed_years (list): Die untersuchten Jahre, falls gefunden, sonst None
         periods_with_drought (list): Die Zeitperioden mit Dürre, falls gefunden, sonst None
         single_years_with_drought (list): DIe einzelnen Jahre mit Dürre, falls gefunden, sonst None
@@ -780,39 +794,35 @@ def logging_extraction_results(pdf_basename, coordinates, study_site_lines, stud
         None
     """
     # Logging des Artikelnamens um sicherzugehen um welchen wissenschaftlichen Artikel es sich handelt
+
     logging.info(f"Processing '{pdf_basename}:'")
+    time.sleep(2)
 
     # Logging ob und wenn ja welche Koordinaten gefunden wurden
-    if coordinates != 'Keine Koordinaten gefunden':
+    if coordinates != 'No coordinates found/given':
         logging.info(f"Coordinates found: '{coordinates}'")
     else:
         logging.info(f"No coordinates found/given")
 
     # Logging von entweder den gefundenen Studienregionen basierend auf Kontextzeilen oder den durch die Funktion "find_study_site" gefunden Zeilen
-    if study_site_lines != 'Keine Studienregion gefunden':
+    if study_site_lines != 'No study sites found/given':
         logging.info(f"Study site found: '{study_site_lines}'")
-    elif study_site_context != 'Keine Studienregion gefunden':
+    elif study_site_context != 'No study sites found/given':
         logging.info(f"Study site found: '{study_site_context}'")
     else:
         logging.info(f"No study site found/given")
 
     # Logging ob und wie Dürre definiert wurde
-    if drought_quantified:
-        logging.info(f"Drought quantified via: '{', '.join(drought_quantified)}'")
+    if drought_quantification_keywords:
+        logging.info(f"Drought defined via: '{', '.join(drought_quantification_keywords)}'")
     else:
-        logging.info(f"No drought quantification found/given")
+        logging.info(f"No drought definition found/given")
 
     # Logging ob und wenn welchen Studientypen ein Artikel hat
     if study_type:
         logging.info(f"Study type: '{study_type}'")
     else:
         logging.info(f"No study type found/given")
-
-    # Logging ob und wenn mit welcher Waldart bzw Baumart ein Artikel sich beschäftigt
-    if forest_type:
-        logging.info(f"Forest type: '{forest_type}'")
-    else:
-        logging.info(f"No forest type found/given")
 
     # Logging ob und wenn mit welchen Jahren sich ein Artikel beschäftigt hat
     if analyzed_years:
@@ -822,85 +832,132 @@ def logging_extraction_results(pdf_basename, coordinates, study_site_lines, stud
 
     # Logging ob und wenn welche Jahre mit dem Zustand Dürre quantifiziert wurden
     if periods_with_drought:
-        logging.info(f"Years were drought was quantified: '{periods_with_drought}'")
+        logging.info(f"Years were drought was given: '{periods_with_drought}'")
     else:
         logging.info(f"No drought periods found/given")
 
     if single_years_with_drought:
-        logging.info(f"Years were drought was quantified: '{single_years_with_drought}'")
+        logging.info(f"Years were drought was given: '{single_years_with_drought}'")
     else:
         logging.info(f"No single drought years found/given")
 
     #Logging einer Leerzeile zur Trennung zweier PDFs für einen besseren Überblick
     logging.info("")
 
-def process_extraction_results(pdf_basename, final_coordinates, lines_with_coordinates, lines, pdf_file, results):
+def process_extraction_results(folder_path):
     """
-    Verarbeitet die extrahierten Ergebnisse und speichert sie in der Ergebnisliste.
-    Erleichtert das Hinzufügen von weiteren extrahierten Informationen deutlich
+    Processes extracted results from a PDF file and appends relevant data to the results list that is used by extract_spatial_information() to give it to the main module
+
+    This function acts as a management function for this module, as it calls all other functions except extract_spatial_information_from_pdfs(),
+    converts the information to strings and then stores it in the result list. It also calls the logging function, for an information output.
 
     Args:
-        pdf_basename (str): Basisname der PDF-Datei für "Paper".
-        final_coordinates (set): Menge der endgültigen Koordinaten ohne Duplikate für "location coordinates".
-        lines_with_coordinates (list): Liste der Kontextzeilen der Koordinaten für "Area Name".
-        lines (list): Liste aller Zeilen im bereinigten Text zum Durchsuchen.
-        pdf_file (str): Pfad zu den einzelnen PDF-Dateien.
-        results (list): Liste zur Speicherung der Ergebnisse um diese mit Excel weiterzuverarbeiten.
+        folder_path (str): The path to the folder containing PDF files to be processed.
 
     Returns:
-        list: Aktualisierte Ergebnisliste mit den extrahierten Informationen aus der PDF-Datei.
+        list: A list of tuples containing extracted data for each PDF file. Each tuple represents one PDF and includes the following elements:
+            - pdf_basename (str):
+            - coordinates_str (str):
+            - study_site_lines_str (str):
+            - drought_quantified (bool):
+            - drought_quantification_keywords (list):
+            - study_type (str):
+            - analyzed_years (list):
+            - periods_with_drought (list):
+            - single_years_with_drought (list):
+
     """
-    # Ausführen der Hilfsfunktion zum Herausfinden, wie Dürre definiert wurde
-    drought_quantified, drought_quantification_keywords = find_drought_quantification(lines, pdf_file)
 
-    # Ausführen der Hilfsfunktion zum Herausfinden des Studientyps
-    study_type = find_study_type(lines, pdf_file)
+    # Call the extract_spatial_information_from_pdfs() function and store the given information into 'spatial_data'
+    spatial_data = extract_spatial_information_from_pdfs(folder_path)
 
-    # Ausführen der Hilfsfunktion zum Herausfinden der Waldtypen
-    forest_type = find_forest_types(lines)
+    # Create a list to store all information in, that will be given to 'extracted_data' in the main module
+    results = []
 
-    # Ausführen der Hilfsfunktion zum Herausfinden der erforschten Jahre
-    analyzed_years = find_analyzed_years(lines)
+    # To ensure that the PDFs are all processed in sequence and that the information always fit together, use the data from the extract_spatial_information_from_pdfs
+    for pdf_basename, final_coordinates, lines_with_coordinates, lines, pdf_file in spatial_data:
 
-    # Ausführen der Hilfsfunktion zum Herausfinden der Zeitperioden mit Dürre
-    periods_with_drought = find_periods_with_drought(lines)
+        # Execute the helper function 'find_drought_definitions()' to find out how drought was defined in a study
+        drought_quantified, drought_quantification_keywords = find_drought_definitions(lines, pdf_file)
 
-    # Ausführen der Hilfsfunktion zum Herausfinden der einzelnen Jahre mit Dürre
-    single_years_with_drought = find_single_years_with_drought(lines)
+        # Execute the helper function 'find_study_type()' to get study type of a study
+        study_type = find_study_type(lines, pdf_file)
 
-    # Überprüfen, ob Koordinaten und oder Study Areas gefunden wurden
-    coordinates_found = bool(final_coordinates)
-    study_site_lines_found  = bool(lines_with_coordinates)
+        # Execute the helper function 'find_analyzed_years()' to find out the studied years
+        analyzed_years = find_analyzed_years(lines)
 
-    # Wenn gültige Koordinaten gefunden wurden, werden diese als String zusammengefügt,
-    # andernfalls wird 'Keine Koordinaten gefunden' gesetzt, um fürs logging zu vergleichen.
-    coordinates_str = ', '.join(final_coordinates) if coordinates_found else 'Keine Koordinaten gefunden'
-    # Wenn Kontextzeilen mit Koordinaten gefunden wurden, werden diese als String zusammengefügt,
-    # andernfalls wird 'Keine Studienregion gefunden' gesetzt, um fürs logging zu vergleichen.
-    study_site_lines_str = '; '.join(
-        lines_with_coordinates) if study_site_lines_found else 'Keine Studienregion gefunden'
+        # Execute the helper function 'find_periods_with_drought()' to find out the given drought period(s) of a study
+        periods_with_drought = find_periods_with_drought(lines)
 
-    # Aufrufen der Hilfsfunktion "find_study_site(lines)" um die Study Area zu finden
-    study_site_context = find_study_site(lines)
-    study_site_context_str = remove_illegal_characters(
-        study_site_context) if study_site_context else 'Keine Studienregion gefunden'
+        # Execute the helper function find_single_years_with_drought to find out given drought year(s) of a study
+        single_years_with_drought = find_single_years_with_drought(lines)
 
-    # Loggt die Ergebnisse der Extraktion mithilfe der logging_extraction_results() Funktion
-    logging_extraction_results(pdf_basename, coordinates_str, study_site_lines_str, study_site_context_str,
-                               drought_quantification_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought)
+        # Check whether coordinates and/or study areas have been found
+        coordinates_found = bool(final_coordinates)
+        study_site_lines_found  = bool(lines_with_coordinates)
 
-    # Speichere die Ergebnisse bei gefundenen validen Koordinaten (Name des Papers, die validen Koordinaten, die Kontextzeilen von gefundenen Koordinaten und wie Dürre definiert wurde)
-    if final_coordinates:
-        results.append((pdf_basename, ', '.join(final_coordinates), '; '.join(lines_with_coordinates), drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought))
-    # Speichere die Ergebnisse, wenn keine validen Koordinaten gefunden wurden
-    else:
-        # Aufrufen der Hilfsfunktion "find_study_site(lines)" um die Bereiche der Studien zu finden, in welcher sie durchgeführt wurden
+        # If valid coordinates were found, they are joined as a string,
+        # otherwise 'No coordinates found/given' is set for logging output.
+        coordinates_str = ', '.join(final_coordinates) if coordinates_found else 'No coordinates found/given'
+
+        # If context lines with coordinates were found, these are joined as a string,
+        # otherwise 'No study sites found/given' is set for logging.
+        study_site_lines_str = '; '.join(
+            lines_with_coordinates) if study_site_lines_found else 'No study sites found/given'
+
+        # Execute the helper function 'find_study_site()' to find out the site(s) for a study
         study_site_context = find_study_site(lines)
-        # Wenn etwas von der Hilfsfunktion "find_study_site(lines)" gefunden wurde, wird das Ergebnis
-        # so bereinigt, dass es mit openpyxl weiterverarbeitet werden kann und die Ergebnisse gespeichert.
-        if study_site_context:
-            cleaned_lines_with_coordinates = remove_illegal_characters(study_site_context)
-            results.append((pdf_basename, 'Keine Koordinaten gefunden', cleaned_lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought))
-        # Wenn nichts von der Hilfsfunktion "find_study_site(lines)" gefunden wurde, wird dies als Ergebnis festgehalten und als Logging Information ausgegeben
+        study_site_context_str = clean_and_remove_control_characters(
+            study_site_context) if study_site_context else 'No study sites found/given'
+
+        # Logging the results of the extractions by calling the logging_extraction_results() function
+        logging_extraction_results(pdf_basename, coordinates_str, study_site_lines_str, study_site_context_str,
+                                   drought_quantification_keywords, study_type, analyzed_years, periods_with_drought, single_years_with_drought)
+
+        # Save all results for the case, that valid coordinates were found
+        if final_coordinates:
+            # Return tuple with all gathered information, including valid coordinates and context lines
+            results.append((
+                pdf_basename,
+                coordinates_str,
+                study_site_lines_str,
+                drought_quantified,
+                drought_quantification_keywords,
+                study_type,
+                analyzed_years,
+                periods_with_drought,
+                single_years_with_drought
+            ))
+        # If no valid coordinates were found, get the study locations from the helper function 'find_study_site()'
         else:
-            results.append((pdf_basename, 'Keine Koordinaten gefunden', '', drought_quantified, drought_quantification_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought))
+            study_site_context = find_study_site(lines)
+            # If a study region/site was found by the helper function 'find_study_site()',
+            # the result is cleaned up so that it can be further processed with openpyxl and the results are saved.
+            if study_site_context:
+                cleaned_context_lines = clean_and_remove_control_characters(study_site_context)
+                results.append((
+                    pdf_basename,
+                    'No coordinates found/given',
+                    cleaned_context_lines,
+                    drought_quantified,
+                    drought_quantification_keywords,
+                    study_type,
+                    analyzed_years,
+                    periods_with_drought,
+                    single_years_with_drought
+                ))
+                # If nothing was found by the helper function 'find_study_site()', a placeholder gets added to the results ('')
+            else:
+                results.append((
+                    pdf_basename,
+                    'No coordinates found/given',
+                    '',
+                    drought_quantified,
+                    drought_quantification_keywords,
+                    study_type,
+                    analyzed_years,
+                    periods_with_drought,
+                    single_years_with_drought
+                ))
+
+    return results
