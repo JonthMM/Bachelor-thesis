@@ -20,7 +20,7 @@ folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\50-75'
 
 # Path to the Excel file where the information needs to be stored
 # Docker: os.getenv('EXCEL_PATH', './data/2024Apr_Mana_Review_v2i - Kopie.xlsx')
-excel_path = r'D:\Uni\Bachelorarbeit\2024Apr_Mana_Review_v2i - Kopie.xlsx'
+excel_path = r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\2024Apr_Mana_Review_v2i - Kopie.xlsx'
 
 extracted_data = process_extraction_results(folder_path)
 

@@ -1,10 +1,15 @@
 # openpyxl zum Arbeiten mit Excel Dateien
 import openpyxl
 
+# Logging for a better understanding of the results and outputs as set up in the main module
+# Logging.info() and logging.error() are used here
+# https://docs.python.org/3/library/logging.html#logging.INFO
+# https://docs.python.org/3/library/logging.html#logging.error
 import logging
 
+"""
 def remove_illegal_characters(excel_data):
-    """
+    
     Entfernt Zeichen, die von Openpyxl nicht unterstützt werden und somit nicht in der Excel-Datei verwendet werden
     können aus den Informationen, welche in die Excel-Datei übernommen werden sollen
     https://www.w3schools.com/python/ref_func_ord.asp
@@ -14,96 +19,102 @@ def remove_illegal_characters(excel_data):
 
     Returns:
         str: Der bereinigte String ohne für openpyxl illegale Zeichen.
-    """
+    
     
     # Entferne alle ASCII-Steuerzeichen welche von Openpyxl nicht unterstützt werden mithilfe von ord()
     return ''.join(char for char in excel_data if ord(char) in range(32, 127))
-
-def find_first_empty_row(sheet, columns):
+"""
+def find_first_empty_row(sheet):
     """
-    Findet die erste leere Zeile in angegebenen Spalten eines Excel-Arbeitsblatts zur Festlegung eines Startpunktes
-    zum Einfügen der relevanten Informationen.
-    Dies ist nötig, um so flexibel wie möglich mit jeder möglichen Excel-Tabelle arbeiten zu können
-    https://openpyxl.readthedocs.io/en/stable/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet
+    Finds the first empty row in specified columns of an Excel worksheet to define a starting point
+    for inserting the relevant information.
+    This is necessary in order to be able to work as flexibly as possible with every possible Excel table
 
     Args:
-        sheet (openpyxl.worksheet.worksheet.Worksheet): Das Arbeitsblatt, in dem gesucht wird.
-        columns (list): Eine Liste von Spaltennummern, in denen nach der ersten leeren Zeile gesucht wird.
+        sheet (openpyxl.worksheet.worksheet.Worksheet): The worksheet we want to copy the extracted information into.
 
     Returns:
-        int: Die Nummer der ersten leeren Zeile, die gefunden wurde.
+        int: The number of the first empty row found.
+
+    References:
+        - Working with Excel worksheets using openpyxl: https://openpyxl.readthedocs.io/en/stable/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet
+        - Finding 'maximum column index containing data' using max_column: https://openpyxl.readthedocs.io/en/3.1/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet.max_column
+        - Finding 'the maximum row index containing data' using max_row: https://openpyxl.readthedocs.io/en/3.1/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet.max_row
     """
+    # Search for the first empty row by scanning all cells from row 1 to the maximum row + 1 for all columns for None values
     for row in range(1, sheet.max_row + 1):
-        #
+        # When all cells are empty (None value) in one row for all columns, give back this row as first empty row to add new data to
         if all(sheet.cell(row=row, column=col).value is None for col in range(1, sheet.max_column + 1)):
             return row
-        #
-    return sheet.max_row + 1
 
 def update_excel_with_extracted_data(excel_path, extracted_data):
     """
-    Aktualisiert die Excel-Datei mit den vorher durch das Modul "pdf_processing" extrahierten Daten aus den PDFs.
-    https://openpyxl.readthedocs.io/en/stable/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet.cell#
-    https://openpyxl.readthedocs.io/en/stable/tutorial.html
+    Updates the specified worksheet from an Excel file with the data previously extracted from the PDFs by the 'pdf_processing' module
 
     Args:
-        excel_path (str): Pfad zur Excel-Datei.
-        extracted_data (list): Liste von Tupeln mit den extrahierten Informationen.
+        excel_path (str): The full file path to the Excel file.
+        extracted_data (list): List of tuples with the extracted information by the 'pdf_processing' module.
 
     Returns:
-        workbook: Das aktualisierte Workbook-Objekt.
+        workbook: The Excel file with the updated worksheet.
+
+    References:
+        - General tutorial for openpyxl: https://openpyxl.readthedocs.io/en/stable/tutorial.html
+        - Working with Excel worksheets using openpyxl: https://openpyxl.readthedocs.io/en/stable/api/openpyxl.worksheet.worksheet.html
+        - Loading a specific worksheet from a file: https://openpyxl.readthedocs.io/en/stable/tutorial.html#loading-from-a-file
+        - Adding new data to cells for specific rows and specific columns: https://openpyxl.readthedocs.io/en/latest/tutorial.html#playing-with-data
+          & https://openpyxl.readthedocs.io/en/stable/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet.cell
     """
 
-    # Öffnen dem angegebenen Arbeitsblatt (sheet) der angegebenen Excel-Datei mithilfe von openpyxl
+    # Open the wanted worksheet from the given Excel file
     workbook = openpyxl.load_workbook(excel_path)
     worksheet = workbook['relevantInfo']
 
-    # Finde die erste leere Zeile in den Spalten A (Paper), C (location coordinates) und D (Area name)
-    start_row = find_first_empty_row(worksheet, [2, 6, 10])
+    # Finde the row from where to start adding data by using the helper function 'find_first_empty_row()'
+    start_row = find_first_empty_row(worksheet)
 
-    # Trage die aus den PDFs extrahierten Informationen in die Excel-Datei ein
-    for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, drought_quantification_keywords, study_type, analyzed_years, periods_with_drought, single_years_with_drought) in enumerate(extracted_data):
-        # Kopiere den Namen der PDF (bzw. des Artikels), immer in Spalte A (Paper)
+    # Enter the information extracted from the PDFs into the Excel file by iterating over 'extracted_data' and going one row further with each iteration
+    for i, (pdf_basename, coordinates, lines_with_coordinates, drought_characterization, drought_characterization_keywords, study_type, analyzed_years, periods_with_drought, single_years_with_drought) in enumerate(extracted_data):
+        # Insert the pure name of a study (or rather its PDF) into column A (Paper)
         worksheet.cell(row=start_row + i, column=1, value=pdf_basename)
 
-        # Kopiere, falls vorhanden, die Koordinaten immer in Spalte B (location coordinates)
-        if coordinates != 'No coordinates found/given' and len(coordinates.split(', ')) > 1:
-            unique_coordinates = ', '.join(sorted(set(coordinates.split(', '))))
-            worksheet.cell(row=start_row + i, column=2, value=unique_coordinates)
+        # Insert the coordinates into column B (location coordinates)
+        worksheet.cell(row=start_row + i, column=2, value=coordinates)
+        # Insert the study site information (either coordinate context lines or study site directly, depending what is stored in 'extracted_data') into column C (Area name)
+        worksheet.cell(row=start_row + i, column=3, value=lines_with_coordinates)
 
-            # Kopiere, falls vorhanden, die Kontextzeilen der gefundenen Koordinaten immer in Spalte C (Area name)
-            worksheet.cell(row=start_row + i, column=3, value=remove_illegal_characters(lines_with_coordinates))
-
-        # Kopiere, falls keine Koordinaten gefunden wurden die Information darüber immer in Spalte B (location coordinates)
-        else:
-            worksheet.cell(row=start_row + i, column=3, value=coordinates)
-            # Kopiere, falls keine Koordinaten gefunden, die Kontextzeilen den gefundenen Bereich der Studie immer in Spalte D (Area name)
-            worksheet.cell(row=start_row + i, column=3, value=remove_illegal_characters(lines_with_coordinates))
-
-        # Kopiere, falls ein Schlüsselwort zur Definition von Dürre gefunden wurden die Information darüber wie, immer in Spalte I (how was drought quantified)
-        if drought_quantified:
-            worksheet.cell(row=start_row + i, column=9, value=remove_illegal_characters(drought_quantified))
-
-        # Kopiere, falls ein Schlüsselwort zum Studientyp gefunden wurde, kopiere den Wert immer in Spalte G (study type)
-        if study_type:
-            worksheet.cell(row=start_row + i, column=7, value=study_type)
-
-        # Kopiere, falls ein Zeitraum, welcher sich auf die untersuchten Jahre einer Studie bezieht gefunden wurde, diesen immer in Spalte D (time period analyzed)
+        # If a time period referring to the analyzed years of a study was found, insert it into column D (time period analyzed)
         if analyzed_years:
-            # Konvertiere die Liste der Studientypen in eine Zeichenkette
+            # Convert the list to string first, so there is no type error for the Excel file
             analyzed_years_str = ', '.join(analyzed_years)
             worksheet.cell(row=start_row + i, column=4, value=analyzed_years_str)
 
-        # Kopiere, falls Zeiträume, oder einzelne Jahre mit Dürre gefunden wurden, den Wert in Spalte E (time period with drought (if mentioned))
+        # If periods or single years with drought were found, insert the combined (string) value into column E (time period with drought (if mentioned))
         if periods_with_drought or single_years_with_drought:
-            # Kombiniere beide Listen und konvertiere sie in eine Zeichenkette
+            # Combine both lists and convert them into one string so there is no type error for the Excel file
             combined_drought_years = periods_with_drought + single_years_with_drought
-            drought_years_str = ', '.join(sorted(combined_drought_years))
-            worksheet.cell(row=start_row + i, column=5, value=drought_years_str)
+            combined_drought_years_str = ', '.join(sorted(combined_drought_years))
+            worksheet.cell(row=start_row + i, column=5, value=combined_drought_years_str)
+
+        # Insert, if a method to assess drought was found its corresponding keyword into column J (study type)
+        if study_type:
+            worksheet.cell(row=start_row + i, column=9, value=study_type)
+
+        # Insert the text information, how drought was characterized into column L (how was drought characterized), if there is any
+        if drought_characterization:
+            worksheet.cell(row=start_row + i, column=11, value=drought_characterization)
+
+        # Insert the found keywords of how drought was characterized into column M (drought quantification keyword for plots), if there are any
+        if drought_characterization_keywords:
+            # Convert the list to string first, so there is no type error for the Excel file
+            drought_characterization_keywords_str = ', '.join(drought_characterization_keywords)
+            worksheet.cell(row=start_row + i, column=13, value=drought_characterization_keywords_str)
 
     try:
-        # Speichere die durchgeführten Änderungen in der Excel-Datei
+        # Save the changes made in the Excel file and log that it worked
         workbook.save(excel_path)
         logging.info(f"Excel file was successfully updated!")
+
+    # Fallback error logging if an error occurred
     except Exception as e:
         logging.error(f"Error saving the updated Excel file: {e}")

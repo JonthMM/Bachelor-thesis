@@ -214,7 +214,7 @@ def find_study_site(lines):
         lines (list): A list of text lines in which keywords are searched for the study area.
 
     Returns:
-        str or None: A string containing the context of the areas found in a study, or None if none were found.
+        str or None: A string containing the context of the areas found in a study, or None if none were found
 
     References:
         - Python RegEx in general: https://www.w3schools.com/python/python_regex.asp
@@ -612,6 +612,7 @@ def find_drought_definitions(lines, pdf_file):
         - Python RegEx in general: https://www.w3schools.com/python/python_regex.asp
         - 're.search()': https://docs.python.org/3/library/re.html#re.search
         - 're.escape()': https://docs.python.org/3/library/re.html#re.escape
+        - Saving context lines: https://stackoverflow.com/a/45291736
     """
 
     # The drought definition terms to be searched for are saved in this list:
@@ -655,19 +656,19 @@ def find_drought_definitions(lines, pdf_file):
 
 def extract_spatial_information_from_pdfs(folder_path):
     """
-    Extracts spatial information (coordinates and their context) from PDF files in the specified folder, ignoring duplicates
-    and isolated coordinates that match certain patterns.
+    Extracts spatial information (coordinates and their context) from PDF files in the specified folder,
+    ignoring duplicates coordinates and those that match certain patterns.
 
     Args:
-        folder_path (str): Pfad zum Ordner, der die PDF-Dateien enthält.
+        folder_path (str): The path to the folder containing PDF files to be processed.
 
     Returns:
-        list: A list of tuples, where each tuple contains extracted information for a PDF file. Each tuple includes:
-              pdf_basename
-              final_coordinates
-              lines_with_coordinates
-              lines
-              pdf_file
+        list: A list of tuples, where each tuple contains extracted spatial information for a PDF file. Each tuple includes:
+              pdf_basename (str): The file name of the PDF without the file extension (.pdf).
+              final_coordinates (set): The valid coordinates or 'No coordinates found/given' if there were no coordinates found or given.
+              lines_with_coordinates (list): The context lines of valid coordinates as list.
+              lines (list): All lines from a PDF as list.
+              pdf_file (str): The full file path to a PDF file.
 
     References:
         - 'os.listdir': https://docs.python.org/3/library/os.html#os.listdir
@@ -677,6 +678,7 @@ def extract_spatial_information_from_pdfs(folder_path):
         - 're.match': https://docs.python.org/3/library/re.html#re.match
         - 'items()': https://www.w3schools.com/python/ref_dictionary_items.asp
         - 'next(iter())': https://www.programiz.com/python-programming/methods/built-in/next
+        - Saving context lines using max() and index: https://python-forum.io/thread-28918-post-122845.html#pid122845
     """
     # Initialize the list for the results of the automatic coordinate extraction
     spatial_data = []
@@ -689,11 +691,12 @@ def extract_spatial_information_from_pdfs(folder_path):
 
     # Search all files in the specified folder
     for filename in os.listdir(folder_path):
-        # Make sure that only PDFs in the specified folder are used
+        # Make sure that only PDFs in the specified folder are used and their file extension gets removed
         if filename.endswith('.pdf'):
             pdf_file = os.path.join(folder_path, filename)
             pdf_basename = os.path.splitext(os.path.basename(pdf_file))[0]
-            logging.info(f"Looking for coordinates in '{pdf_file}'")
+            # Log the pure name of the PDF file which is being searched for coordinates and their context
+            logging.info(f"Looking for coordinates in '{pdf_basename}'")
             logging.info("")
             try:
                 # Extract the text from the PDF file using pdfminer's 'extract_text' method
@@ -702,9 +705,9 @@ def extract_spatial_information_from_pdfs(folder_path):
                 cleaned_text = clean_and_remove_control_characters(text)
                 # Set for saving all coordinates found
                 all_coordinates = set()
-                # List for saving the context lines in which coordinates were found
+                # List for saving the context lines of these where coordinates were found
                 lines_with_coordinates = []
-                # Divide the cleaned text into lines
+                # Divide the cleaned text into lines for a clearer search process
                 lines = re.split('\n+', cleaned_text)
 
                 # Sets for managing individual coordinates found for ignoring depending on the pattern
@@ -739,7 +742,7 @@ def extract_spatial_information_from_pdfs(folder_path):
                     for other_coord in all_coordinates:
                         # Be sure that a match if not compared with itself and then check if it is included in another match
                         if coord != other_coord and coord in other_coord:
-                            # If a match is included in another match, indirectly exclude it by setting include to false. 'break' stops thje comparison for this match, because it is already a duplicate
+                            # If a match is part of another match, indirectly exclude it by setting include to false. 'break' stops the comparison for this match, because it is already a duplicate
                             include_match = False
                             break
                     # If include is still True, add the coordinate to the final set
@@ -759,7 +762,7 @@ def extract_spatial_information_from_pdfs(folder_path):
                             logging.info(f"Ignored single coordinate {coord_to_ignore} in '{pdf_basename}'.")
                             logging.info("")
 
-                # If a match was found and it
+                # If a match was found, and it is valid, take the line it was in and the previous 2 lines as context
                 for line, line_matches in line_matches_dictionary.items():
                     valid_matches = [match for match in line_matches if match in final_coordinates]
                     if valid_matches:
@@ -775,74 +778,76 @@ def extract_spatial_information_from_pdfs(folder_path):
 
     return spatial_data
 
-def logging_extraction_results(pdf_basename, coordinates, study_site_lines, study_site_context, drought_quantification_keywords, study_type, analyzed_years, periods_with_drought, single_years_with_drought):
+def logging_extraction_results(pdf_basename, coordinates, coordinate_context_lines, cleaned_study_site_context, drought_characterization_keywords, study_type, analyzed_years, periods_with_drought, single_years_with_drought):
     """
-    Diese Funktion protokolliert die Ergebnisse der Extraktion in einer sinnvollen Reihenfolge übersichtlich und loggt sie entsprechend.
+    This function logs all results of the automated information extraction
 
     Args:
-        pdf_basename (str): Der bereinigte Dateiname der PDF.
-        coordinates (str): Gefundene Koordinaten oder 'No coordinates found/given'.
-        study_site_lines (str): Gefundene Studienregion basierend auf Kontextzeilen oder 'Keine Studienregion gefunden'.
-        study_site_context (str): Gefundene Studienregion basierend auf dem Kontext oder 'Keine Studienregion gefunden'.
-        drought_quantification_keywords (list): Eine Liste der gefundenen Schlüsselwörter zur Dürre-Quantifizierung.
-        study_type (str): Der Studientyp, falls gefunden, sonst None.
-        analyzed_years (list): Die untersuchten Jahre, falls gefunden, sonst None
-        periods_with_drought (list): Die Zeitperioden mit Dürre, falls gefunden, sonst None
-        single_years_with_drought (list): DIe einzelnen Jahre mit Dürre, falls gefunden, sonst None
+        - pdf_basename (str): The file name of the PDF without the file extension (.pdf)
+        - coordinates (str): The valid coordinates or 'No coordinates found/given' if there were no coordinates found or given
+        - coordinate_context_lines (str): The context lines of coordinates as string
+        - cleaned_context_lines (str): The context lines of study sites as string (only if no valid coordinates were found) or a placeholder '' (if no valid coordinates and no study site were found)
+        - drought_characterization_keywords (list): The found keywords how drought was characterized
+        - study_type (str): The approach to study drought of a study.
+        - analyzed_years (list): The general years analyzed by a study or 'No analyzed years specified'
+        - periods_with_drought (list): Time periods were a study characterized drought or 'No drought periods found/given'.
+        - single_years_with_drought (list): Year(s) were a study characterized drought or 'No single drought years found/given'.
 
     Returns:
-        None
+        None, since it only logs the results to the console
     """
-    # Logging des Artikelnamens um sicherzugehen um welchen wissenschaftlichen Artikel es sich handelt
-
+    # Logging of the pure study name to make sure which scientific article is being processed
     logging.info(f"Processing '{pdf_basename}:'")
-    time.sleep(2)
 
-    # Logging ob und wenn ja welche Koordinaten gefunden wurden
+    # Logging whether and if so which (valid) coordinates were found
     if coordinates != 'No coordinates found/given':
         logging.info(f"Coordinates found: '{coordinates}'")
     else:
         logging.info(f"No coordinates found/given")
 
-    # Logging von entweder den gefundenen Studienregionen basierend auf Kontextzeilen oder den durch die Funktion "find_study_site" gefunden Zeilen
-    if study_site_lines != 'No study sites found/given':
-        logging.info(f"Study site found: '{study_site_lines}'")
-    elif study_site_context != 'No study sites found/given':
-        logging.info(f"Study site found: '{study_site_context}'")
+    # Logging of either the study sites found based on context lines of coordinates or the lines found by the 'find_study_site()' function
+    if coordinate_context_lines != 'No study sites found/given':
+        logging.info(f"Study site found: '{coordinate_context_lines}'")
+    elif cleaned_study_site_context != 'No study sites found/given':
+        logging.info(f"Study site found: '{cleaned_study_site_context}'")
     else:
         logging.info(f"No study site found/given")
 
-    # Logging ob und wie Dürre definiert wurde
-    if drought_quantification_keywords:
-        logging.info(f"Drought defined via: '{', '.join(drought_quantification_keywords)}'")
+    # Logging whether and how drought was characterized
+    if drought_characterization_keywords:
+        logging.info(f"Drought defined via: '{', '.join(drought_characterization_keywords)}'")
     else:
         logging.info(f"No drought definition found/given")
 
-    # Logging ob und wenn welchen Studientypen ein Artikel hat
+    # Logging whether and if, which approach to study drought was used by a study
     if study_type:
         logging.info(f"Study type: '{study_type}'")
     else:
         logging.info(f"No study type found/given")
 
-    # Logging ob und wenn mit welchen Jahren sich ein Artikel beschäftigt hat
+    # Logging what year was analyzed in general by a study or the information that no years were found or given
     if analyzed_years:
         logging.info(f"Analyzed years: '{analyzed_years}'")
     else:
-        logging.info(f"No Analyzed years specified")
+        logging.info(f"No analyzed years found/given")
 
-    # Logging ob und wenn welche Jahre mit dem Zustand Dürre quantifiziert wurden
+    # Logging whether and if so which time periods are characterized by a drought according to the studies
     if periods_with_drought:
-        logging.info(f"Years were drought was given: '{periods_with_drought}'")
+        logging.info(f"Periods were drought was given: '{periods_with_drought}'")
     else:
         logging.info(f"No drought periods found/given")
 
+    # # Logging whether and if so which year(s) are characterized by a drought according to the studies
     if single_years_with_drought:
         logging.info(f"Years were drought was given: '{single_years_with_drought}'")
     else:
         logging.info(f"No single drought years found/given")
 
-    #Logging einer Leerzeile zur Trennung zweier PDFs für einen besseren Überblick
+    # Logging a blank line to separate two PDFs for a better overview
     logging.info("")
+
+    # For a better overview we slow down the logging a little bit
+    time.sleep(1)
 
 def process_extraction_results(folder_path):
     """
@@ -856,16 +861,16 @@ def process_extraction_results(folder_path):
 
     Returns:
         list: A list of tuples containing extracted data for each PDF file. Each tuple represents one PDF and includes the following elements:
-            - pdf_basename (str):
-            - coordinates_str (str):
-            - study_site_lines_str (str):
-            - drought_quantified (bool):
-            - drought_quantification_keywords (list):
-            - study_type (str):
-            - analyzed_years (list):
-            - periods_with_drought (list):
-            - single_years_with_drought (list):
-
+            - pdf_basename (str): The file name of the PDF without the file extension (.pdf)
+            - coordinates_str (str): The valid coordinates or 'No coordinates found/given' if there were no coordinates found or given
+            - coordinate_context_lines (str): The context lines of coordinates as string
+            - cleaned_context_lines (str): The context lines of study sites as string (only if no valid coordinates were found) or a placeholder '' (if no valid coordinates and no study site were found)
+            - drought_characterization (str) The context lines of the found drought keywords
+            - drought_characterization_keywords (list): The found keywords how drought was characterized
+            - study_type (str): The approach to study drought of a study.
+            - analyzed_years (list): The general years analyzed by a study or 'No analyzed years specified'
+            - periods_with_drought (list): Time periods were a study characterized drought or 'No drought periods found/given'.
+            - single_years_with_drought (list): Year(s) were a study characterized drought or 'No single drought years found/given'.
     """
 
     # Call the extract_spatial_information_from_pdfs() function and store the given information into 'spatial_data'
@@ -874,11 +879,11 @@ def process_extraction_results(folder_path):
     # Create a list to store all information in, that will be given to 'extracted_data' in the main module
     results = []
 
-    # To ensure that the PDFs are all processed in sequence and that the information always fit together, use the data from the extract_spatial_information_from_pdfs
+    # To ensure that the PDFs are all processed in sequence and that the information always fit together, use the data from the extract_spatial_information_from_pdfs() function
     for pdf_basename, final_coordinates, lines_with_coordinates, lines, pdf_file in spatial_data:
 
         # Execute the helper function 'find_drought_definitions()' to find out how drought was defined in a study
-        drought_quantified, drought_quantification_keywords = find_drought_definitions(lines, pdf_file)
+        drought_characterization, drought_characterization_keywords = find_drought_definitions(lines, pdf_file)
 
         # Execute the helper function 'find_study_type()' to get study type of a study
         study_type = find_study_type(lines, pdf_file)
@@ -902,27 +907,27 @@ def process_extraction_results(folder_path):
 
         # If context lines with coordinates were found, these are joined as a string,
         # otherwise 'No study sites found/given' is set for logging.
-        study_site_lines_str = '; '.join(
+        coordinate_context_lines = '; '.join(
             lines_with_coordinates) if study_site_lines_found else 'No study sites found/given'
 
         # Execute the helper function 'find_study_site()' to find out the site(s) for a study
         study_site_context = find_study_site(lines)
-        study_site_context_str = clean_and_remove_control_characters(
+        cleaned_study_site_context = clean_and_remove_control_characters(
             study_site_context) if study_site_context else 'No study sites found/given'
 
         # Logging the results of the extractions by calling the logging_extraction_results() function
-        logging_extraction_results(pdf_basename, coordinates_str, study_site_lines_str, study_site_context_str,
-                                   drought_quantification_keywords, study_type, analyzed_years, periods_with_drought, single_years_with_drought)
+        logging_extraction_results(pdf_basename, coordinates_str, coordinate_context_lines, cleaned_study_site_context,
+                                   drought_characterization_keywords, study_type, analyzed_years, periods_with_drought, single_years_with_drought)
 
         # Save all results for the case, that valid coordinates were found
         if final_coordinates:
-            # Return tuple with all gathered information, including valid coordinates and context lines
+            # Return tuple with all extracted information, including valid coordinates and context lines
             results.append((
                 pdf_basename,
                 coordinates_str,
-                study_site_lines_str,
-                drought_quantified,
-                drought_quantification_keywords,
+                coordinate_context_lines,
+                drought_characterization,
+                drought_characterization_keywords,
                 study_type,
                 analyzed_years,
                 periods_with_drought,
@@ -939,21 +944,21 @@ def process_extraction_results(folder_path):
                     pdf_basename,
                     'No coordinates found/given',
                     cleaned_context_lines,
-                    drought_quantified,
-                    drought_quantification_keywords,
+                    drought_characterization,
+                    drought_characterization_keywords,
                     study_type,
                     analyzed_years,
                     periods_with_drought,
                     single_years_with_drought
                 ))
-                # If nothing was found by the helper function 'find_study_site()', a placeholder gets added to the results ('')
+            # If nothing was found by the helper function 'find_study_site()', a placeholder gets added to the results ('')
             else:
                 results.append((
                     pdf_basename,
                     'No coordinates found/given',
                     '',
-                    drought_quantified,
-                    drought_quantification_keywords,
+                    drought_characterization,
+                    drought_characterization_keywords,
                     study_type,
                     analyzed_years,
                     periods_with_drought,
