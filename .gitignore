@@ -161,7 +161,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Ignore specific Python scripts
+# Ignore helper Python scripts which are only for testing purposes
 find_drought_periods.py
 find_drought_years.py
 find_special_characters.py
