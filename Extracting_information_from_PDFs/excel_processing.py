@@ -24,6 +24,7 @@ def remove_illegal_characters(excel_data):
     # Entferne alle ASCII-Steuerzeichen welche von Openpyxl nicht unterstützt werden mithilfe von ord()
     return ''.join(char for char in excel_data if ord(char) in range(32, 127))
 """
+
 def find_first_empty_row(sheet):
     """
     Finds the first empty row in specified columns of an Excel worksheet to define a starting point

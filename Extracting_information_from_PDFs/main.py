@@ -22,24 +22,8 @@ folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\for_testing'
 # Docker: os.getenv('EXCEL_PATH', './data/2024Apr_Mana_Review_v2i - Kopie.xlsx')
 excel_path = r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\2024Apr_Mana_Review_v2i - Kopie.xlsx'
 
+# Use the process_extraction_results() function from the pdf_processing module toe extract the relevant data
 extracted_data = process_extraction_results(folder_path)
 
-# Fill in the information into the Excel file using the update_excel_with_extracted_data
+# Fill in the information into the Excel file using the update_excel_with_extracted_data() function of the excel_processing module
 update_excel_with_extracted_data(excel_path, extracted_data)
-
-"""
-# Ausgabe der extrahierten Informationen im Terminal zur Überprüfung
-for i, (pdf_basename, coordinates, lines_with_coordinates, drought_quantified, found_keywords, study_type, forest_type, analyzed_years, periods_with_drought, single_years_with_drought) in enumerate(extracted_data):
-    print(f"Paper: '{pdf_basename}'")
-    print(f"Location coordinates: {coordinates}")
-    print(f"Vorkommende Zeilen im Text: '{lines_with_coordinates}'")
-    print(f"Dürre quantifiziert: '{drought_quantified}'")
-    if found_keywords:
-        print(f"Dürre quantifiziert: '{found_keywords}'")
-    print(f"Studientyp: '{study_type}'")
-    print(f"Waldtyp: '{forest_type}'")
-    print(f"Untersuchte Jahre: '{analyzed_years}'")
-    print(f"Jahre mit Dürre: '{periods_with_drought}', {single_years_with_drought}")
-    if i != len(extracted_data) - 1:
-        print()
-"""
