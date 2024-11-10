@@ -2,7 +2,7 @@ services:
   automated_information_retrieval:
     build: .
     image: main_script_for_bachelor_thesis
-    container_name: main_conmtainer_for_information_retrieval
+    container_name: container_for_information_retrieval
     volumes:
       - data_volume:/app/data
     environment:

@@ -16,11 +16,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Path to the PDFs
 # Docker: os.getenv('FOLDER_PATH', './data/Articles_PDF')
-folder_path = r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\for_testing'
+folder_path = os.getenv('FOLDER_PATH', './data/Articles_PDF') #r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\good'
 
 # Path to the Excel file where the information needs to be stored
 # Docker: os.getenv('EXCEL_PATH', './data/2024Apr_Mana_Review_v2i - Kopie.xlsx')
-excel_path = r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\2024Apr_Mana_Review_v2i - Kopie.xlsx'
+excel_path = os.getenv('EXCEL_PATH', './data/2024Apr_Mana_Review_v2i - Kopie.xlsx') # r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\2024Apr_Mana_Review_v2i - Kopie.xlsx'
 
 # Use the process_extraction_results() function from the pdf_processing module toe extract the relevant data
 extracted_data = process_extraction_results(folder_path)
