@@ -173,3 +173,4 @@ Notes
 
 # Ignore the Folder including the helper scripts since they are only used to test out the main script and are not part of the thesis
 helper_scripts_for_testing_main\
+Extracting_information_from_PDFs/data/2024Apr_Mana_Review_v2i.xlsx
