@@ -64,7 +64,10 @@ When Docker Desktop is installed and set up, the following steps can be taken to
     ```
 
    
-3. Start the Image using Docker Desktop:  ```sh $ docker compose up ```
+3. Start the Image using Docker Desktop:  
+    ```sh 
+    $ docker compose up
+    ```
 
 or press the 'run' bottom next to the pulled image in the 'Images' section  
 ![run.png](run.png)
