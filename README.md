@@ -56,17 +56,17 @@ When Docker Desktop is installed and set up, the following steps can be taken to
 2. Pull the Docker image from Dockerhub:  
     2.1. For Windows (amd64) operating system:
     ```sh
-    $ docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:amd64  
+    docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:amd64  
     ```
     2.2. For Mac (arm64) operating system:  
     ```sh
-    $ docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:arm64
+    docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:arm64
     ```
 
    
 3. Start the Image using Docker Desktop:  
     ```sh 
-    $ docker compose up
+    docker compose up
     ```
 
 or press the 'run' bottom next to the pulled image in the 'Images' section  
