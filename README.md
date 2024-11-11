@@ -27,30 +27,54 @@ All my code for the automatic information extraction, as well as the re-analysis
 ## About The Project
 
 Einführung ins Thema und was das Programm macht und wofür es gedacht ist
-
+This Python program is part of my Bachelorthesis. 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Getting Started
 
+The here published program is published to Docker, to allow all users to access and run it  
+and offers the possibility for reproducible working and testing, since example data is added for users to   
+run the program without having to provide their own data.
 
 ### Prerequisites
 
-Docker Desktop
+To execute the program, Docker Desktop is needed.
 
+[Installation manual for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+[Installation manual for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
   
 ### Usage
 
-How to execute:
-1. Pull Docker image from Dockerhub: Command(s)
-2. Start the Image using Docker Desktop: Docker compose up (oder auf das Dreieck klicken)
+When Docker Desktop is installed and set up, the following steps can be taken to run the program:
+
+1. Open the internal terminal of Docker Desktop on the bottom right:
+![Internal Docker Desktop Terminal](Docker Desktop Terminal.png)
+
+
+2. Pull the Docker image from Dockerhub: 
+    2.1. For Windows (amd64) operating system: $
+    2.2. For Mac (arm64) operating system: $
+
+
+3. Start the Image using Docker Desktop:  
+
+$ docker compose up  
+
+or press the 'run' bottom next to the pulled image in the 'Images' section
+![run.png](run.png)
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Results
 
-Download the updated Excel file from the created Volume in Docker Desktop (maybe implement direct output in the excel_processing.py script)
+The output of the program is an updated Excel Open XML Spreadsheet (XLSX) file.  
+This file can be downloaded from the, by the Image and its Container created, Volume in the 'Volumes'  
+section. 
+
+![volume.png](volume.png)
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -73,10 +97,10 @@ Project Link: [https://github.com/JonthMM/Bachelor-thesis](https://github.com/Jo
 <!-- LINKS -->
 ## Links
 
-More data available here, including the shapefile and their attribute tables as XSLX files, the manually verified XSLX file
+More data available here, including the shapefile and their attribute tables as XSLX files, the manually verified XSLX file.  
 https://uni-muenster.sciebo.de/s/Gy1fD6fWTfTYStg
 
-This readme template is based on the BLANK_README.md example of the following project:
+This readme template is based on the BLANK_README.md example of the following project:  
 https://github.com/othneildrew/Best-README-Template/tree/main
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
