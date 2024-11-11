@@ -6,7 +6,6 @@ This is the repository for my bachelor thesis
 All my code for the automatic information extraction, as well as the re-analysis of the drought definitions will be uploaded and managed here.
 
 <!-- TABLE OF CONTENTS -->
-<details>
   <summary>Table of Contents</summary>
   <ol>
     <li>
@@ -27,7 +26,6 @@ All my code for the automatic information extraction, as well as the re-analysis
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
-</details>
 
 ## About The Project
 
@@ -77,8 +75,10 @@ Project Link: [https://github.com/JonthMM/Bachelor-thesis](https://github.com/Jo
 <!-- LINKS -->
 ## Links
 
+More data available here, including the shapefile and their attribute tables as XSLX files, the manually verified XSLX file
 https://uni-muenster.sciebo.de/s/Gy1fD6fWTfTYStg
 
+This readme template is based on the BLANK_README.md example of the following project:
 https://github.com/othneildrew/Best-README-Template/tree/main
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
