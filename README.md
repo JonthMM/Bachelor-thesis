@@ -61,8 +61,9 @@ When Docker Desktop is installed and set up, the following steps can be taken to
 
 $ docker compose up  
 
-or press the 'run' bottom next to the pulled image in the 'Images' section
+or press the 'run' bottom next to the pulled image in the 'Images' section  
 ![run.png](run.png)
+
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -70,8 +71,7 @@ or press the 'run' bottom next to the pulled image in the 'Images' section
 ### Results
 
 The output of the program is an updated Excel Open XML Spreadsheet (XLSX) file.  
-This file can be downloaded from the, by the Image and its Container created, Volume in the 'Volumes'  
-section. 
+This file can be downloaded from the, by the Image and its Container created, Volume in the 'Volumes' section. 
 
 ![volume.png](volume.png)
 
