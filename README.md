@@ -1,6 +1,5 @@
-## Repository for my bachelorthesis
-
-## “Evaluation of drought definitions in scientific publications using automated information retrieval:  An examination of the methodology and accuracy of scientific publications in forested areas on drought”
+## Repository for my Bachelorthesis
+“Evaluation of drought definitions in scientific publications using automated information retrieval:  An examination of the methodology and accuracy of scientific publications in forested areas on drought”
 
 <a id="readme-top"></a>
 <!-- TABLE OF CONTENTS -->
@@ -25,7 +24,7 @@
 ## About The Project
 
 This Python program was implemented, to test the possibilities of automatic information retrieval with the help of (Python) scripts to speed up 
-and simplify the time-consuming manual   
+and simplify the time-consuming manual
 information retrieval part of literature reviews in general within the scope of a Bachelorthesis.
 
 The literature review conducted in my thesis is in the context of drought characterization and the used definitions in forested ecosystems.
