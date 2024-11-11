@@ -16,15 +16,12 @@ All my code for the automatic information extraction, as well as the re-analysis
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
-        <li><a href="#results">Installation</a></li>
+        <li><a href="#results">Results</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#links">Links</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 
 ## About The Project
@@ -36,16 +33,17 @@ Einführung ins Thema und was das Programm macht und wofür es gedacht ist
 
 ## Getting Started
 
-How to execute:
-1. Pull Docker image from Dockerhub: Command
-2. Start the Image using Docker Desktop
 
 ### Prerequisites
 
 Docker Desktop
 
   
-### Installation
+### Usage
+
+How to execute:
+1. Pull Docker image from Dockerhub: Command(s)
+2. Start the Image using Docker Desktop: Docker compose up (oder auf das Dreieck klicken)
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -59,7 +57,7 @@ Download the updated Excel file from the created Volume in Docker Desktop (maybe
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License. See [LICENSE](https://github.com/JonthMM/Bachelor-thesis/blob/main/LICENSE) for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
