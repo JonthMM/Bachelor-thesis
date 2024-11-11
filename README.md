@@ -36,7 +36,7 @@ Therefore, this program is specifically designed for extracting different inform
 ## Getting Started
 
 The program published here is also available via Docker Hub. This allows all users to access and run it and offers the possibility for reproducible working and testing. 
-Example data is made available for users to execute the program without having to provide their own data. Also the example data and results can be downloaded easily in this way.
+Example data is made available for users to execute the program without having to provide their own data. Also the example data and results can be downloaded easily through this way.
 
 ### Prerequisites
 
@@ -54,15 +54,12 @@ When Docker Desktop is installed and set up, the following steps can be taken to
 
 
 2. Pull the Docker image from Dockerhub:  
-    2.1. For Windows (amd64) operating system: $ docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:amd64  
-    2.2. For Mac (arm64) operating system: $ docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:arm64
+    2.1. For Windows (amd64) operating system:  $ docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:amd64  
+    2.2. For Mac (arm64) operating system:  $ docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:arm64
 
 
-
-
-3. Start the Image using Docker Desktop:  
-
-$ docker compose up  
+   
+3. Start the Image using Docker Desktop:  $ docker compose up  
 
 or press the 'run' bottom next to the pulled image in the 'Images' section  
 ![run.png](run.png)
