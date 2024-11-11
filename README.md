@@ -1,9 +1,5 @@
-# Bachelor thesis
-This is the repository for my bachelor thesis
+# “Evaluation of drought definitions in scientific publications using automated information retrieval:  An examination of the methodology and accuracy of scientific publications in forested areas on drought”
 
-“Evaluation of drought definitions in scientific publications using automated information retrieval:  An examination of the methodology and accuracy of scientific publications in forested areas on drought”
-
-All my code for the automatic information extraction, as well as the re-analysis of the drought definitions will be uploaded and managed here.
 
 <!-- TABLE OF CONTENTS -->
   <summary>Table of Contents</summary>
@@ -26,37 +22,41 @@ All my code for the automatic information extraction, as well as the re-analysis
 
 ## About The Project
 
-This Python program was implemented, to test the possibilities of automatic information retrieval with the help of (Python) scripts to speed up   
-and simplify the time-consuming manual information retrieval part of literature reviews in general within the scope of a Bachelorthesis.
+This Python program was implemented, to test the possibilities of automatic information retrieval with the help of (Python) scripts to speed up 
+and simplify the time-consuming manual   
+information retrieval part of literature reviews in general within the scope of a Bachelorthesis.
 
 The literature review conducted in my thesis is in the context of drought characterization and the used definitions in forested ecosystems.
+Therefore, this program is specifically designed for extracting different information about and in correlation of drought.
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Getting Started
 
-The here published program is published to Docker. THis allows all users to access and run it and offers the possibility for reproducible working and testing. 
-Example data is added for users torun the program without having to provide their own data and the example data and results can be downloaded there.
+The program published here is also available via Docker Hub. This allows all users to access and run it and offers the possibility for reproducible working and testing. 
+Example data is made available for users to execute the program without having to provide their own data. Also the example data and results can be downloaded easily in this way.
 
 ### Prerequisites
 
 To execute the program, Docker Desktop is needed.
 
-[Installation manual for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+[Installation manual for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)  
 [Installation manual for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
   
 ### Usage
 
 When Docker Desktop is installed and set up, the following steps can be taken to run the program:
 
-1. Open the internal terminal of Docker Desktop on the bottom right:
-![Internal Docker Desktop Terminal](Docker Desktop Terminal.png)
+1. Open the internal terminal of Docker Desktop on the bottom right:  
+   ![Internal Docker Desktop Terminal](Terminal.png)
 
 
-2. Pull the Docker image from Dockerhub: 
-    2.1. For Windows (amd64) operating system: $
-    2.2. For Mac (arm64) operating system: $
+2. Pull the Docker image from Dockerhub:  
+    2.1. For Windows (amd64) operating system: $ docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:amd64  
+    2.2. For Mac (arm64) operating system: $ docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:arm64
+
+
 
 
 3. Start the Image using Docker Desktop:  
