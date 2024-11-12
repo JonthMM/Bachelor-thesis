@@ -65,7 +65,7 @@ When Docker Desktop is installed and set up, the following steps can be taken to
 2. Pull the Docker image from Dockerhub:  
     2.1. For Windows (amd64) operating system:
     ```sh
-    docker pull --platform linux/arm64 jonathanmw/automated_information_retrieval:amd64  
+    docker pull --platform linux/amd64 jonathanmw/automated_information_retrieval:amd64  
     ```
     2.2. For Mac (arm64) operating system:  
     ```sh
