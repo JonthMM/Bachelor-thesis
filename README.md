@@ -76,7 +76,7 @@ When Docker Desktop is installed and set up, the following steps can be taken to
 3. Start the Image using Docker Desktop:  
    3.1. For Windows (amd64) operating system:
    ```sh
-    docker run jonathanmw/automated_information_retrieval:amd64  
+    docker run -d -v data_volume:/data jonathanmw/automated_information_retrieval:amd64  
     ```
    3.2. For Mac (arm64) operating system:  
     ```sh 
@@ -93,7 +93,7 @@ or press the 'run' bottom next to the pulled image in the 'Images' section
 ### Results
 
 The output of the program is an updated Excel Open XML Spreadsheet (XLSX) file.  
-This file can be downloaded from the, by the Image and its Container automatically created, Volume in the 'Volumes' section' of Docker Desktop.
+This file can be downloaded from the, by the command created, Volume in the 'Volumes' section' of Docker Desktop.
 
 ![volume.png](tutorial_pictures/volume.png)
 
