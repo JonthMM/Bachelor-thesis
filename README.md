@@ -72,7 +72,6 @@ When Docker Desktop is installed and set up, the following steps can be taken to
     docker pull --platform linux/arm64 jonathanmw/automated_information_retrieval:arm64
     ```
 
-   
 3. Start the Image using Docker Desktop:  
    3.1. For Windows (amd64) operating system:
    ```sh
