@@ -106,13 +106,13 @@ This file can be downloaded from the, by the Image and its Container automatical
 All plots (bar- and pie- charts) presented in the Bachelorthesis were also created using Python.
 Since the functionality of this Python script is higher when working locally (allows to directly save and show the plots and better debugging), it is not available via Docker Hub.
 
-# Prerequisites
+### Prerequisites
 Instead, it is recommended to use the GitHub Desktop application, to clone this repository, and the execute this script using the individually preferred IDE.
 
 [Installation manual for Windows](https://docs.github.com/en/desktop/installing-and-authenticating-to-github-desktop/installing-github-desktop?platform=windows)  
 [Installation manual for Mac](https://docs.github.com/en/desktop/installing-and-authenticating-to-github-desktop/installing-github-desktop?platform=mac)
 
-# Usage
+### Usage
 Once GitHub Desktop is installed and set up, clone the repository by clicking on 'File' on the upper left and then selecting 'Clone Repository'
 
 ![cloning_rep.png](tutorial_pictures/cloning_rep.png)
@@ -122,7 +122,11 @@ Now select 'URL' and enter the URL of this Repository (https://github.com/JonthM
 After the cloning process is finished, the script 'Creating_plots_template.py' can be opened and then modified as desired.
 This is an empty template version of the 'Creating_plots.py' script, which does not contain any already set file path, since these have to be changed to the local ones needed individually.
 
-# Results
+For testing usage, the folder 'plotting_example_data' contains the final shapefiles and XLSX file from the literature review conducted for my Bachelorthesis.
+### Output
+
+The script shows, and saves desired pie- and barcharts as .jpg in the locally specified folders.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
