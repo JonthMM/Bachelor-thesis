@@ -119,13 +119,17 @@ Once GitHub Desktop is installed and set up, clone the repository by clicking on
 
 Now select 'URL' and enter the URL of this Repository (https://github.com/JonthMM/Bachelor-thesis) and select the preferred local folder it should be saved to.
 
-After the cloning process is finished, the script 'Creating_plots_template.py' can be opened and then modified as desired.
-This is an empty template version of the 'Creating_plots.py' script, which does not contain any already set file path, since these have to be changed to the local ones needed individually.
+![cloning_2.png](tutorial_pictures/cloning_2.png)
 
-For testing usage, the folder 'plotting_example_data' contains the final shapefiles and XLSX file from the literature review conducted for my Bachelorthesis.
+After the cloning process is finished, the script 'Creating_plots_template.py' can be opened, then modified as desired and executed.
+This is an empty template version of the 'Creating_plots.py' script, which does not contain any already set file path, since these have to be changed to the local ones needed individually.
+It also includes an example and hints, where and what to change in order the run the example.
+For testing usage, the folder 'plotting_example_data' also contains the final shapefiles and XLSX file from the literature review conducted for my Bachelorthesis.
 ### Output
 
 The script shows, and saves desired pie- and barcharts as .jpg in the locally specified folders.
+
+The example provided in the template includes one pie- and one barplot
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
