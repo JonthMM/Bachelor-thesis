@@ -1,13 +1,13 @@
 services:
   automated_information_retrieval:
     build: .
-    image: main_script_for_bachelor_thesis
+    image: automated_information_retrieval
     container_name: container_for_information_retrieval
     volumes:
       - data_volume:/app/data
     environment:
       - FOLDER_PATH=/app/data/Articles_PDF/
-      - EXCEL_PATH=/app/data/2024Apr_Mana_Review_v2i - Kopie.xlsx
+      - EXCEL_PATH=/app/data/Example.xlsx
 
 volumes:
   data_volume:
