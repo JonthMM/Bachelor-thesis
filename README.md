@@ -81,7 +81,7 @@ When Docker Desktop is installed and set up, the following steps can be taken to
     ```sh 
     docker run -v example_data:/app/data jonathanmw/automated_information_retrieval:arm64
     ```
-
+  
 This will run the pulled Docker Image and put the logs into the internal Docker terminal directly, to allow user to be sure that it started and what it is doing.
 
 
