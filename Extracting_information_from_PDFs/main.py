@@ -35,12 +35,14 @@ from excel_processing import update_excel_with_extracted_data
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Path to the PDFs
-# Docker: os.getenv('FOLDER_PATH', './data/Articles_PDF')
-FOLDER_PATH = os.getenv('FOLDER_PATH', './data/Example_studies') #r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\Example_studies'
+# Docker: os.getenv('FOLDER_PATH', './data/Example_studies')
+# Local: r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\Example_studies'
+FOLDER_PATH = os.getenv('FOLDER_PATH', './data/Example_studies')
 
 # Path to the Excel file where the information needs to be stored
 # Docker: os.getenv('EXCEL_PATH', './data/Example.xlsx')
-EXCEL_PATH =  os.getenv('EXCEL_PATH', './data/Example.xlsx') #r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\Example.xlsx'
+# Local: r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\Example.xlsx'
+EXCEL_PATH =  os.getenv('EXCEL_PATH', './data/Example.xlsx')
 
 # ------------------------------------------------- EXECUTION -------------------------------------------------------- #
 # Looking up if there are PDF files in the given folder 'folder_path'

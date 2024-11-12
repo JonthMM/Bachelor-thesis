@@ -1,7 +1,7 @@
 """
 pdf_processing.py
 
-This script searches for the needed data and saves it to pass it on for further processing by 'excel_processing'
+This script searches for the wanted data and saves it to pass it on for further processing by 'excel_processing'.
 
 Author:
     Jonathan Mattis Wisser
