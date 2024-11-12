@@ -126,17 +126,19 @@ This is an empty template version of the 'Creating_plots.py' script, which does 
 It also includes an example and hints, where and what to change in order the run the example.
 For testing usage, the folder 'plotting_example_data' also contains the final shapefiles and XLSX file from the literature review conducted for my Bachelorthesis.
 
-The script has a dedicated function for pie charts and bar charts and also two more for special bar plots.
-All functions are divided in cases for each factor and its correlation regarding drought definitions and SPEI categories.
-This case division allows to easily expand each function by adding a new case using already implemented code from other cases.
-
-To also simplify the process of further developing the script (for another bachelorthesis or in general), it is rather overly commented to allow for a precise understanding of everything that was done.
-
 ### Output
 
 The script shows, and saves desired pie- and barcharts as .jpg in the locally specified folders.
 
 The example provided in the template includes one pie- and one barplot
+
+### Further development
+
+The script has a dedicated function for pie charts and bar charts and also two more for special bar plots.
+All functions are divided in cases for each factor and its correlation regarding drought definitions and SPEI categories.
+This case division allows to easily expand each function by adding a new case using already implemented code from other cases.
+
+To also simplify the process of further developing the script (for another bachelorthesis or in general), it is rather overly commented to allow for a precise understanding of everything that was done.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
