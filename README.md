@@ -93,7 +93,7 @@ or press the 'run' bottom next to the pulled image in the 'Images' section
 ### Results
 
 The output of the program is an updated Excel Open XML Spreadsheet (XLSX) file.  
-This file can be downloaded from the, by the Image and its Container automatically created, Volume in the 'Volumes' section. 
+This file can be downloaded from the, by the Image and its Container automatically created, Volume in the 'Volumes' section' of Docker Desktop.
 
 ![volume.png](tutorial_pictures/volume.png)
 
@@ -113,7 +113,7 @@ Instead, it is recommended to use the GitHub Desktop application, to clone this 
 [Installation manual for Mac](https://docs.github.com/en/desktop/installing-and-authenticating-to-github-desktop/installing-github-desktop?platform=mac)
 
 ### Usage
-Once GitHub Desktop is installed and set up, clone the repository by clicking on 'File' on the upper left and then selecting 'Clone Repository'
+Once GitHub Desktop is installed and set up, clone the repository by clicking on 'File' on the upper left and then selecting 'Clone Repository'.
 
 ![cloning_rep.png](tutorial_pictures/cloning_rep.png)
 
@@ -130,12 +130,12 @@ For testing usage, the folder 'plotting_example_data' also contains the final sh
 
 The script shows, and saves desired pie- and barcharts as .jpg in the locally specified folders.
 
-The example provided in the template includes one pie- and one barplot
+The example provided in the template includes one pie- and one barplot.
 
 ### Further development
 
-The script has a dedicated function for pie charts and bar charts and also two more for special bar plots.
-All functions are divided in cases for each factor and its correlation regarding drought definitions and SPEI categories.
+The script has dedicated functions for pie- and bar- charts generally and also two more for special bar plot cases.
+All functions are divided in cases for each factor in general as well as its correlation regarding drought definitions and SPEI categories.
 This case division allows to easily expand each function by adding a new case using already implemented code from other cases.
 
 To also simplify the process of further developing the script (for another bachelorthesis or in general), it is rather overly commented to allow for a precise understanding of everything that was done.
@@ -161,7 +161,8 @@ Project Link: [https://github.com/JonthMM/Bachelor-thesis](https://github.com/Jo
 <!-- LINKS -->
 ## Links
 
-More data available here, including the shapefile and their attribute tables as XSLX files, aswell as the manually verified XSLX file.  
+All data is also available here, including the shapefile and their attribute tables as XSLX files, aswell as the manually verified XSLX file.
+This platform, in contrast to GitHub, allows to view and edit XSLX files online.
 https://uni-muenster.sciebo.de/s/Gy1fD6fWTfTYStg
 
 This readme template is based on the BLANK_README.md example of the following project:  
