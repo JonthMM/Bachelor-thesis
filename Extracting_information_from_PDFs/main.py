@@ -16,14 +16,23 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Path to the PDFs
 # Docker: os.getenv('FOLDER_PATH', './data/Articles_PDF')
-folder_path = os.getenv('FOLDER_PATH', './data/Articles_PDF') #r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table'
+folder_path = r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\Example studies'  #os.getenv('FOLDER_PATH', './data/Articles_PDF')
 
 # Path to the Excel file where the information needs to be stored
 # Docker: os.getenv('EXCEL_PATH', './data/Example.xlsx')
-excel_path = os.getenv('EXCEL_PATH', './data/Example.xlsx') #r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\2024Apr_Mana_Review_v2i - Kopie.xlsx'
+excel_path =  r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\Example.xlsx' #os.getenv('EXCEL_PATH', './data/Example.xlsx')
 
-# Use the process_extraction_results() function from the pdf_processing module toe extract the relevant data
-extracted_data = process_extraction_results(folder_path)
+# Looking up if there are PDF files in the given folder 'folder_path'
+pdf_files = [filename for filename in os.listdir(folder_path) if filename.endswith('.pdf')]
 
-# Fill in the information into the Excel file using the update_excel_with_extracted_data() function of the excel_processing module
-update_excel_with_extracted_data(excel_path, extracted_data)
+# For the case that no PDF files found in 'folder_path', this gets logged and the process will not continue!
+if not pdf_files:
+    logging.error(f" 'No searchable PDFs found in: {folder_path}'")
+
+# When there is at least one PDF, continue normally with the execution
+else:
+    # Use the process_extraction_results() function from the pdf_processing module toe extract the relevant data
+    extracted_data = process_extraction_results(folder_path)
+
+    # Fill in the information into the Excel file using the update_excel_with_extracted_data() function of the excel_processing module
+    update_excel_with_extracted_data(excel_path, extracted_data)

@@ -21,7 +21,7 @@ all_studies_shapefile_path = (
 excel_file_path = r"D:\Uni\Bachelorarbeit\2024Apr_Mana_Review_v2i - paper_coords_area_years_plotkeywords_speireanalysis_month_finished.xlsx"
 
 
-# Probably not needed since a pie chart looks way better and has a better overview for this type of analysis
+
 def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
     """
     Generates a stacked bar chart to visualize the distribution of drought quantification keywords, currently only with
@@ -31,13 +31,14 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
     "drought quantification keyword for plots" as stacked bars into a single function.
     This allows for easy extension if more bar charts are needed in the future from the same shapefile data,
     without requiring the creation of additional functions.
-
+    Not needed since a pie chart serves the purpose better since it provides a better overview for this type of analysis
 
     Args:
         shape_or_excel_file_path (str): The path to the Excel file (.xlsx) or shapefile (.shp) to be used for data extraction.
-        chart_type (str): Specifies the type of bar chart to generate. Options are "Drought"
-                          (correlates SPEI drought categories with drought quantification keywords)
-                          or "MODIS SPEI" (correlates SPEI drought categories with MODIS forest types).
+        chart_type (str): Specifies the type of bar chart to generate.
+                        Options are:
+                         - "MODIS drought keyword": Correlates SPEI drought categories with drought quantification keywords.
+
 
     Returns:
         None: The function saves the generated bar chart as a JPG image.
