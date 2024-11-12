@@ -161,7 +161,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Ignore helper Python scripts which are only for testing purposes
+# Ignore the Folder for the helper scripts since they are only used to test out and optimize the functions of the main script and are not part of the thesis
+helper_scripts_for_testing_main\
 find_drought_periods.py
 find_drought_years.py
 find_special_characters.py
@@ -171,6 +172,3 @@ testing_regex_searches.py
 # Ignore my Notes
 Notes
 
-# Ignore the Folder including the helper scripts since they are only used to test out the main script and are not part of the thesis
-helper_scripts_for_testing_main\
-Extracting_information_from_PDFs/data/2024Apr_Mana_Review_v2i.xlsx

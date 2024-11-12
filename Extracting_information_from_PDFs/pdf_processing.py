@@ -1,3 +1,23 @@
+"""
+pdf_processing.py
+
+This script searches for the needed data and saves it to pass it on for further processing by 'excel_processing'
+
+Author:
+    Jonathan Mattis Wisser
+    jmader@uni-muenster.de
+
+Version:
+    1.0
+Datum:
+    2024-11-12
+"""
+
+__author__ = "Jonathan Mattis Wisser"
+__version__ = "1.0"
+__date__ = "2024-11-12"
+
+# ------------------------------------------------- IMPORTS ---------------------------------------------------------- #
 # 'os' for data management (importing files)
 import os
 
@@ -7,21 +27,18 @@ import re
 # PDFMiner to extract the texts from the PDFs
 from pdfminer.high_level import extract_text
 
-# 'time' to make the logging overview more clear
-import time
-
 # Logging for a better understanding of the results and outputs as set up in the main module
 # Logging.info() and logging.error() are used here
 # https://docs.python.org/3/library/logging.html#logging.INFO
 # https://docs.python.org/3/library/logging.html#logging.error
 import logging
 
-
+# ------------------------------------------------- UTILITY ---------------------------------------------------------- #
 def clean_and_remove_control_characters(text):
     """
     Removes all ASCII control characters that are not supported by Openpyxl and interfere with the format,
     replaces '(cid:6)', '(cid:57\)' and '¢' with “′” and other '(cid:\d+)' with '°' using the re.sub() function,
-    to bypass special characters already known (by the helper script 'find_special_characters').
+    to bypass special characters which were find out through testing by printing out the complete texts of PDF files.
 
     Args:
         text (str): The string from which control characters and certain other characters are to be removed.
@@ -190,7 +207,7 @@ def find_matches(line):
         r'\(lat \d{9,10}, long \d{9,10}\)',
 
         # Captures very large numerical values as coordinates with subsequent cardinal points.
-        # Note: Due to a wrong conversation of the PDF the special characters like '°' and "'"
+        # Note: Due to a wrong conversation of some PDFs the special characters like '°' and "'" are either deleted or numbers
         # Note: No word boundary (\b) as coordinates in table
         # Examples: '123456789N', '987654321 W'
         r'(?<!\.)(?!0\.)\d{9,10}\s*[NSEW]',
@@ -209,7 +226,7 @@ def find_matches(line):
 
     return matches
 
-
+# -------------------------------------------- SEARCH & EXTRACT ------------------------------------------------------ #
 def find_study_site(lines):
     """
     Searches for specific terms/keywords that represent a relevant entry in the “Area name” column of the Excel table and returns the relevant rows.
@@ -307,15 +324,15 @@ def find_analyzed_years(lines):
 
         # Captures periods, which are given trough 'from ... to ...'
         # Example: 'from 1991 to 1998'
-        r'(?:from\s*)?(19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) to (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
+        r'(?:from\s*)?(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*to\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
 
         # Captures time periods that are specified by 'between ... and ...'.
         # Examples: 'between 2011 and 2023'
-        r'between (19\d{2}|20(0[0-9]|1[0-9]|2[0-4])) and (19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
+        r'between\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))\s*and\s*(19\d{2}|20(0[0-9]|1[0-9]|2[0-4]))',
 
         # Captures periods with length in days.
         # Examples: 'over a 180-day period'
-        r'over a (\d+)-day period'
+        r'over\s*a\s*(\d+)-day\s*period'
     ]
 
     # List for saving the time periods found
@@ -327,8 +344,8 @@ def find_analyzed_years(lines):
         if "reference" in line.lower():
             break
         for pattern in time_period_patterns:
-            # Search for all occurrences that match the pattern(s) in one of the lines
-            matches = re.findall(pattern, line)
+            # Search for all occurrences that match the pattern(s) in one of the lines, re.IGNORECASE so upper and lowercase is ignored
+            matches = re.findall(pattern, line, re.IGNORECASE)
             for match in matches:
                 # If the match found is a tuple (several parts, e.g. start and end year) continue here for further conversion and validation purposes
                 if isinstance(match, tuple):
@@ -368,7 +385,6 @@ def find_analyzed_years(lines):
                         found_periods.append(period)
 
     return sorted(found_periods)
-
 
 def find_periods_with_drought(lines):
     """
@@ -809,9 +825,11 @@ def extract_spatial_information_from_pdfs(folder_path):
 
     return spatial_data
 
+# ------------------------------------------------- PROCESSING ------------------------------------------------------- #
+
 def logging_extraction_results(pdf_basename, coordinates, coordinate_context_lines, cleaned_study_site_context, drought_characterization_keywords, study_type, analyzed_years, periods_with_drought, single_years_with_drought):
     """
-    This function logs all results of the automated information extraction
+    This function logs all results of the automated information extraction to give an overview of the extracted information in the console.
 
     Args:
         - pdf_basename (str): The file name of the PDF without the file extension (.pdf)
@@ -868,7 +886,7 @@ def logging_extraction_results(pdf_basename, coordinates, coordinate_context_lin
     else:
         logging.info(f"No drought periods found/given")
 
-    # # Logging whether and if so which year(s) are characterized by a drought according to the studies
+    # Logging whether and if so which year(s) are characterized by a drought according to the studies
     if single_years_with_drought:
         logging.info(f"Years were drought was given: '{single_years_with_drought}'")
     else:
@@ -876,9 +894,6 @@ def logging_extraction_results(pdf_basename, coordinates, coordinate_context_lin
 
     # Logging a blank line to separate two PDFs for a better overview
     logging.info("")
-
-    # For a better overview we slow down the logging a little bit
-    # time.sleep(1)
 
 def process_extraction_results(folder_path):
     """

@@ -1,3 +1,23 @@
+"""
+excel_processing.py
+
+This script processes the extracted data from 'pdf_processing' by inserting it into an XSLX file.
+
+Author:
+    Jonathan Mattis Wisser
+    jmader@uni-muenster.de
+
+Version:
+    1.0
+Datum:
+    2024-11-12
+"""
+
+__author__ = "Jonathan Mattis Wisser"
+__version__ = "1.0"
+__date__ = "2024-11-12"
+
+# ------------------------------------------------- IMPORTS ---------------------------------------------------------- #
 # openpyxl zum Arbeiten mit Excel Dateien
 import openpyxl
 
@@ -7,24 +27,8 @@ import openpyxl
 # https://docs.python.org/3/library/logging.html#logging.error
 import logging
 
-"""
-def remove_illegal_characters(excel_data):
-    
-    Entfernt Zeichen, die von Openpyxl nicht unterstützt werden und somit nicht in der Excel-Datei verwendet werden
-    können aus den Informationen, welche in die Excel-Datei übernommen werden sollen
-    https://www.w3schools.com/python/ref_func_ord.asp
 
-    Args:
-        excel_data (str): Der String, aus dem für openpyxl illegale Zeichen entfernt werden sollen.
-
-    Returns:
-        str: Der bereinigte String ohne für openpyxl illegale Zeichen.
-    
-    
-    # Entferne alle ASCII-Steuerzeichen welche von Openpyxl nicht unterstützt werden mithilfe von ord()
-    return ''.join(char for char in excel_data if ord(char) in range(32, 127))
-"""
-
+# ------------------------------------------------- UTILITY ---------------------------------------------------------- #
 def find_first_empty_row(sheet):
     """
     Finds the first empty row in specified columns of an Excel worksheet to define a starting point
@@ -49,6 +53,8 @@ def find_first_empty_row(sheet):
             return row
 
     return sheet.max_row + 1
+
+# ------------------------------------------------- PROCESSING ------------------------------------------------------- #
 def update_excel_with_extracted_data(excel_path, extracted_data):
     """
     Updates the specified worksheet from an Excel file with the data previously extracted from the PDFs by the 'pdf_processing' module
