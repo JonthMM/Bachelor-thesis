@@ -28,7 +28,7 @@ This Python program was implemented, to test the possibilities of automatic info
 and simplify the time-consuming manual
 information retrieval part of literature reviews in general within the scope of a Bachelorthesis.
 
-The literature review conducted in my thesis is in the context of drought characterization and the used definitions in forested ecosystems.
+The literature review conducted in my thesis is in the context of drought characterization including the used drought definitions and their correctness in forested ecosystems.
 Therefore, this program is specifically designed for extracting different information about and in correlation of drought.
 
 
