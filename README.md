@@ -38,6 +38,13 @@ Therefore, this program is specifically designed for extracting different inform
 The program published here is also available via Docker Hub. This allows all users to access and run it and offers the possibility for reproducible working and testing. 
 Example data is made available for users to execute the program without having to provide their own data. Also the example data and results can be downloaded easily through this way.
 
+Included are examples of studies for ignoring originally wrongly found coordinates, incorrectly formatted coordinates in the PDFs  
+which were converted and found by formatting, as well as studies which did not give the coordinates directly  
+to show how the described study area is then searched for and created in the manual verification step to perform the reanalysis.  
+Furthermore, there are examples which show that often several keywords are selected for the manual verification process in order to choose the most decisive one for the study type and drought definitions.
+The examples given also include studies for which automatic information retrieval worked rather poorly.   
+This applies, for example, to the extraction of years with or without drought in order to identify redundancies, but also for studies where nothing at all could be extracted.
+
 ### Prerequisites
 
 To execute the program, Docker Desktop is needed.

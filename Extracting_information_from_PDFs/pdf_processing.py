@@ -134,6 +134,11 @@ def find_matches(line):
         # Examples: "123°456' N", "98°765' W"
         r"\b(?<!\.)(?!0\.)\d{1,3}[°º◦]\s*\d{1,3}[ʹ′'’]?\s*[NSEW]\b",
 
+        # Captures coordinates in the form of degrees, minutes and seconds in tables.
+        # Note: No word boundary (\b) as coordinates in table
+        # Examples: '123°45'67°E', '98°76'54°'
+        r'(?<!\.)\d{1,3}[°º◦]\d{2}[´′’\u0027\u2032]\d{2}[°º◦]?[NSEW]?',
+
         # ------------------- [°º◦] and (?:′|\u2032|\u0027) and ″ pattern -------------------------------------------
         # Note: Unicode specifications for symbols must be used here, otherwise there will be a conflict with the Python syntax because of quotation marks
 
@@ -320,8 +325,8 @@ def find_analyzed_years(lines):
 
     # Iterate over each given line from a PDF to search for the single years which are correlated to drought
     for line in lines:
-        # Stop searching for years if the word 'references' was found, so that years given in the reference section of a study are not included
-        if "references" in line.lower():
+        # Stop searching for years if the word 'reference' was found, so that years given in the reference section of a study are not included
+        if "reference" in line.lower():
             break
         for pattern in time_period_patterns:
             # Search for all occurrences that match the pattern(s) in one of the lines
@@ -416,7 +421,7 @@ def find_periods_with_drought(lines):
 
     # Regex pattern for the keywords 'drought', 'droughts' and 'drier' to ensure that the individual years are related to drought
     # re.IGNORECASE so upper and lower case is ignored here
-    drought_pattern = re.compile(r'\bdroughts?|drier\b', re.IGNORECASE)
+    drought_pattern = re.compile(r'\bdroughts?|drier|big dry\b', re.IGNORECASE)
 
     # List for saving the drought time periods found
     drought_periods = []

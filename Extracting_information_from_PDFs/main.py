@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Path to the PDFs
 # Docker: os.getenv('FOLDER_PATH', './data/Articles_PDF')
-folder_path = r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\Example studies'  #os.getenv('FOLDER_PATH', './data/Articles_PDF')
+folder_path = r'D:\Uni\Bachelorarbeit\Bachelor-thesis\Extracting_information_from_PDFs\data\Example_studies' #r'D:\Uni\Bachelorarbeit\Articles_PDF\add_to_table\All_studies'  #os.getenv('FOLDER_PATH', './data/Example_studies')
 
 # Path to the Excel file where the information needs to be stored
 # Docker: os.getenv('EXCEL_PATH', './data/Example.xlsx')
