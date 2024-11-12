@@ -1,7 +1,8 @@
 """
 Creating_plots.py
 
-This script processes data visually by creating bar- and piecharts.
+This script is a template for the 'Creating_plots.py' script which processes data visually by creating bar- and piecharts.
+This version does not include and hard coded file paths, but provides an example for testing it inlcuding one bar- and one pie chart.
 
 Author:
     Jonathan Mattis Wisser
@@ -30,16 +31,19 @@ import matplotlib.pyplot as plot
 # Add the patches module from matplotlib for a better representation of the legends and giving it the alias mpatches for further usage
 import matplotlib.patches as mpatches
 
+# CHANGE HERE FOR EXAMPLE USAGE
 # Path to the shapefile containing the information needed for all plots depending on the re-analysis data
-reanalysis_shapefile_path = r"D:\Uni\Bachelorarbeit\complete_paper_points\re-analysed paper points with forest\re-analysed_paper_points_with_forest.shp"
+reanalysis_shapefile_path = r"Path\to\your\folder\containing\the\cloned\repository\Plotting\plotting_example_data\reanalyzed_study_locations\reanalysis_shape.shp"
 
+# CHANGE HERE FOR EXAMPLE USAGE
 # Path to the shapefile containing the information needed for all plots depending on the data from all studies (with spatial information)
-all_studies_shapefile_path = r"D:\Uni\Bachelorarbeit\complete_paper_points\complete_paper_points_with_forest.shp"
+all_studies_shapefile_path = r"Path\to\your\folder\containing\the\cloned\repository\Plotting\plotting_example_data\all_study_locations\all_studies_shape.shp"
 
+# CHANGE HERE FOR EXAMPLE USAGE
 # Path to the Excel file containing all data
-excel_file_path = r"D:\Uni\Bachelorarbeit\2024Apr_Mana_Review_v2i - paper_coords_area_years_plotkeywords_speireanalysis_month_finished.xlsx"
+excel_file_path = r"Path\to\your\folder\containing\the\cloned\repository\Plotting\plotting_example_data\final_excel.xlsx"
 
-
+# NOW GO TO the marked line 90 for 'create_reanalysis_based_bar_chart()' and 909 for 'create_pie_chart()' to change the OUTPUT Folders for the examples
 # ------------------------------------------------- BAR CHARTS ------------------------------------------------------- #
 def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
     """
@@ -82,9 +86,13 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         xaxisdescription = "Study type"
         # Title of the plot
         title = "Distribution of SPEI drought categories in correlation with the used study types of the re-analysed paper locations"
-        # Path where the plot is going to be saved
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\re-analysis\No frame on legend\NEW Bar chart for correlation of SPEI drought category and the used study types of the re-analysed paper locations in percent.jpg"
 
+
+########################################## CHANGE HERE #################################################################
+        # Path where the plot is going to be saved
+        output_file_path = r"Path\to\your\local\folder\where\the\image\should\be\saved\Bar chart for correlation of SPEI drought category and the used study types of the re-analysed paper locations in percent.jpg"
+        #output_file_path = r"C:\Users\jonat\Desktop\cloning_rep\Bar chart for correlation of SPEI drought category and the used study types of the re-analysed paper locations in percent.jpg"
+########################################################################################################################
 
     # For continents and SPEI drought categories
     if chart_type == "Continent SPEI":
@@ -100,7 +108,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Title of the plot
         title = "Distribution of SPEI drought categories in correlation with the continents of the re-analysed paper locations"
         # Path where the plot is going to be saved
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\re-analysis\No frame on legend\NEW Bar chart for correlation of SPEI drought category and the continents of the re-analysed paper locations in percent.jpg"
+        output_file_path = r"\NEW Bar chart for correlation of SPEI drought category and the continents of the re-analysed paper locations in percent.jpg"
 
     # For the given drought quantification keywords from the studies and SPEI drought categories
     if chart_type == "Drought keyword SPEI":
@@ -116,7 +124,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Title of the plot
         title = "Distribution of SPEI drought categories in correlation with the given drought quantification keywords from the studies"
         # Path where the plot is going to be saved
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\NEW Bar chart for correlation of SPEI drought category and the given drought quantifications of the studies  in percent.jpg"
+        output_file_path = r"\NEW Bar chart for correlation of SPEI drought category and the given drought quantifications of the studies  in percent.jpg"
 
     # For MODIS forest types and SPEI drought categories
     if chart_type == "MODIS SPEI":
@@ -132,7 +140,7 @@ def create_reanalysis_based_bar_chart(shapefile_path, chart_type):
         # Title of the plot
         title = "Distribution of SPEI drought categories within each MODIS category"
         # Path where the plot is going to be saved
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\re-analysis\No frame on legend\NEW Bar chart for correlation MODIS classes and SPEI drought categories in percent.jpg"
+        output_file_path = r"\Bar chart for correlation MODIS classes and SPEI drought categories in percent.jpg"
 
     # For all cases that somehow use "Category" (The SPEI categories)
     if chart_type in ["Drought keyword SPEI", "MODIS SPEI", "Continent SPEI", "Study type SPEI Bar"]:
@@ -363,7 +371,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
         reanalysed_gdf = geopd.read_file(shape_or_excel_file_path)
 
         # Set the output path for this bar plot
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\Bar plot that shows the correlation between all given drought keywords and if drought was quantified in percent.jpg"
+        output_file_path = r"\Bar plot that shows the correlation between all given drought keywords and if drought was quantified in percent.jpg"
 
         # Grouping the data by "drought quantification keyword for plots" and "was drought quantified**"
         # to count their occurrences and the percentages later
@@ -477,7 +485,7 @@ def create_true_false_bar_chart(shape_or_excel_file_path, chart_type):
         reanalysed_gdf = geopd.read_file(shape_or_excel_file_path)
 
         # Set the output path for this bar plot
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\Bar plot that shows the correctness of the given drought quantification keywords for all re-analyzed paper locations.jpg"
+        output_file_path = r"\Bar plot that shows the correctness of the given drought quantification keywords for all re-analyzed paper locations.jpg"
 
         # Set the title for this case
         title = "Bar plot to show the correctness of the given drought keywords"
@@ -649,7 +657,7 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
         # Title of the plot
         title = "Distribution of given drought quantification keywords within each MODIS category from all paper locations"
         # Path where the plot is going to be saved
-        output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Bar chart for correlation between MODIS classes and given drought quantification keywords from complete paper points shapefile.jpg"
+        output_file_path = r"\Bar chart for correlation between MODIS classes and given drought quantification keywords from complete paper points shapefile.jpg"
 
     # For the (currently only) case with MODIS forest cover on the X-Axis and the given drought keywords as stacked bars
     if chart_type in ["MODIS drought keyword"]:
@@ -761,7 +769,6 @@ def create_drought_keywords_bar_chart(shape_or_excel_file_path, chart_type):
         # https://www.geeksforgeeks.org/matplotlib-pyplot-show-in-python/
         plot.show()
 
-
 # ------------------------------------------------- PIE CHARTS ------------------------------------------------------- #
 def create_pie_chart(shape_or_excel_file_path, chart_type):
     """
@@ -790,7 +797,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                             - "spheres": Percentage overview of drought spheres.
                             - "Spheres SPEI": Breakdown of SPEI categories for each sphere.
                             - "Continent percentage all": Percentage distribution by continent from all locations.
-                            - "Continent percentage" Percentage distribution by continent from reanalyzed locations.
+                            - "Continent percentage": Percentage distribution by continent from reanalyzed locations.
                             - "Continent drought category all": Drought quantification breakdown for each continent from all locations.
                             - "Continent drought category": Drought quantification breakdown for each continent re-analysis locations.
                             - "Continent SPEI": Breakdown of SPEI categories for each continent.
@@ -900,7 +907,12 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             # Set the main title as well as the file name
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib-pyplot-title
             plot.title("Distribution of the drought keywords out of all studies")
-            drought_keywords_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\NEW Pie chart with drought keywords percentages and legend for total numbers from excel updated.jpg"
+
+########################################## CHANGE HERE #################################################################
+            drought_keywords_output_file_path = r"Path\to\your\local\folder\where\the\image\should\be\saved\Pie chart with drought keywords percentages and legend for total numbers from excel updated.jpg"
+            #drought_keywords_output_file_path = r"C:\Users\jonat\Desktop\cloning_rep\Pie chart with drought keywords percentages and legend for total numbers from excel updated.jpg"
+########################################################################################################################
+
 
             # Create and add a legend for the total numbers of drought keywords for a better overview of the data
             # Create the labels out of the SPEI categories for the legend with counts so the total numbers are displayed
@@ -1004,7 +1016,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for the drought spheres",
                 fontsize=16,
             )
-            sphere_category_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\NEW Breakdown pie charts for percentages of drought definitions for the drought spheres from the Excel file.jpg"
+            sphere_category_output_file_path = r"\Breakdown pie charts for percentages of drought definitions for the drought spheres from the Excel file.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -1216,7 +1228,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for the relevant study types",
                 fontsize=16,
             )
-            breakdown_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\NEW Breakdown pie charts for percentages of drought definitions for study types.jpg"
+            breakdown_output_file_path = r"\Breakdown pie charts for percentages of drought definitions for study types.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -1291,7 +1303,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             )
             # Set the output path for this drought category per quantification pie chart
             quant_drought_keywords_output_file_path = (
-                r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\Quantified_drought_keywords_pie_chart.jpg"
+                r"\Quantified_drought_keywords_pie_chart.jpg"
             )
 
             # Set the size of the figure and define the number of subplots
@@ -1412,7 +1424,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             )
             # Set the output path for this quantification correctness pie chart
             quant_correctness_output_file_path = (
-                r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\Quantified_correctness_pie_chart.jpg"
+                r"\Quantified_correctness_pie_chart.jpg"
             )
 
             # Set the size of the figure and define the number of subplots
@@ -1593,7 +1605,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for the re-analysed paper locations MODIS forest types",
                 fontsize=16,
             )
-            modis_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\NEW DATA Breakdown pie charts for percentages of drought definitions for MODIS forest types from re-analysed shapefile.jpg"
+            modis_drought_output_file_path = r"\Breakdown pie charts for percentages of drought definitions for MODIS forest types from re-analysed shapefile.jpg"
 
             # Remove the last unused pie chart since we only have 7 relevant MODIS forest types but 2 rows and 4 columns = 8 pie charts
             # https://www.geeksforgeeks.org/matplotlib-figure-figure-delaxes-in-python/
@@ -1695,7 +1707,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for the relevant study types",
                 fontsize=16,
             )
-            breakdown_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\NEW DATA Breakdown pie charts for percentages of drought definitions for study types for the re-analysed paper locations.jpg"
+            breakdown_output_file_path = r"\Breakdown pie charts for percentages of drought definitions for study types for the re-analysed paper locations.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -1775,7 +1787,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification of the drought spheres",
                 fontsize=16,
             )
-            sphere_category_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\NEW Breakdown pie charts for percentages of drought definitions for the drought spheres from the re-analysis paper points.jpg"
+            sphere_category_output_file_path = r"\Breakdown pie charts for percentages of drought definitions for the drought spheres from the re-analysis paper points.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -1852,7 +1864,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for the re-analysed paper locations continents",
                 fontsize=16,
             )
-            continent_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\NEW Breakdown pie charts for percentages of drought definitions for all continents from re-analysed location shapefile.jpg"
+            continent_drought_output_file_path = r"\Breakdown pie charts for percentages of drought definitions for all continents from re-analysed location shapefile.jpg"
 
             # Remove the last unused pie chart since we only have 7 continents but 2 rows and 4 columns = 8 pie charts
             # https://www.geeksforgeeks.org/matplotlib-figure-figure-delaxes-in-python/
@@ -2090,7 +2102,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             plot.title(
                 "Distribution of the drought keywords out of all re-analysed studies in percentage"
             )
-            drought_keywords_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\Re-worked data\NEW Pie chart with drought keywords percentages and legend for total numbers from re-analysed paper location.jpg"
+            drought_keywords_output_file_path = r"\Re-worked data\NEW Pie chart with drought keywords percentages and legend for total numbers from re-analysed paper location.jpg"
 
             # Create and add a legend for the total numbers of drought keywords for a better overview of the data
             # Create the labels out of the SPEI categories for the legend with counts so the total numbers are displayed
@@ -2180,7 +2192,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
             plot.title(
                 "Distribution of the SPEI categories out of all re-analysed studies in percentage"
             )
-            spei_category_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\NEW Pie chart with complete SPEI drought category percentages and legend for total numbers.jpg"
+            spei_category_output_file_path = r"\Pie chart with complete SPEI drought category percentages and legend for total numbers.jpg"
 
             # Create and add a legend for the total numbers of SPEI categories for a better overview of the data
             # Create the labels out of the SPEI categories for the legend with counts so the total numbers are displayed
@@ -2295,7 +2307,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given SPEI categories from the drought spheres",
                 fontsize=16,
             )
-            sphere_reanalysis_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\NEW Breakdown pie charts for percentages of SPEI categories for the drought spheres from the re-analysed shapefile locations.jpg"
+            sphere_reanalysis_output_file_path = r"\Breakdown pie charts for percentages of SPEI categories for the drought spheres from the re-analysed shapefile locations.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -2390,7 +2402,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given SPEI categories from the study types",
                 fontsize=16,
             )
-            sphere_reanalysis_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\re-analysis\BIGGER NEW Breakdown pie charts for percentages of SPEI categories for the study types of the papers from the re-analysed shapefile locations.jpg"
+            sphere_reanalysis_output_file_path = r"\Breakdown pie charts for percentages of SPEI categories for the study types of the papers from the re-analysed shapefile locations.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -2516,7 +2528,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for all paper locations MODIS forest types",
                 fontsize=16,
             )
-            modis_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\NEW Breakdown pie charts for percentages of drought definitions for MODIS forest types from complete location shapefile.jpg"
+            modis_drought_output_file_path = r"\Breakdown pie charts for percentages of drought definitions for MODIS forest types from complete location shapefile.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -2616,7 +2628,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought spheres for all MODIS forest types from all paper locations",
                 fontsize=16,
             )
-            modis_sphere_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\Re-worked data\Breakdown pie charts for percentages of drought spheres for MODIS forest types from all paper location.jpg"
+            modis_sphere_output_file_path = r"\Breakdown pie charts for percentages of drought spheres for MODIS forest types from all paper location.jpg"
 
             # Ensure that the tight layout is used for a better visualisation (the single pie charts are too close to another if not used)
             # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout
@@ -2869,7 +2881,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
                 "Breakdown of the given drought quantification for all paper locations continents",
                 fontsize=16,
             )
-            continent_drought_output_file_path = r"D:\Uni\Bachelorarbeit\Plots\Aktuell\new data\NEW Breakdown pie charts for percentages of drought definitions for all continents from complete location shapefile.jpg"
+            continent_drought_output_file_path = r"\Breakdown pie charts for percentages of drought definitions for all continents from complete location shapefile.jpg"
 
             # Remove the last unused pie chart since we only have 7 continents but 2 rows and 4 columns = 8 pie charts
             # https://www.geeksforgeeks.org/matplotlib-figure-figure-delaxes-in-python/
@@ -2985,6 +2997,7 @@ def create_pie_chart(shape_or_excel_file_path, chart_type):
 # Generate the SPEI category percentage pie chart
 # create_pie_chart(reanalysis_shapefile_path, "SPEI category percentage")
 
+############################################# EXAMPLE ##################################################################
 # DONE
 # Generate the study type SPEI category bar chart
 create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Study type SPEI Bar")
@@ -3004,9 +3017,10 @@ create_reanalysis_based_bar_chart(reanalysis_shapefile_path, "Study type SPEI Ba
 # -------------------------------------------------------------------------------------
 # General:
 
+############################################# EXAMPLE ##################################################################
 # DONE
 # Generate the drought keywords percentage pie chart from the Excel file to show the general paper contribution
-# create_pie_chart(excel_file_path, "drought keywords percentage excel")
+create_pie_chart(excel_file_path, "drought keywords percentage excel")
 
 # -------------------------------------------------------------------------------------
 # TRUE OR FALSE:

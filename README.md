@@ -122,9 +122,15 @@ Now select 'URL' and enter the URL of this Repository (https://github.com/JonthM
 ![cloning_2.png](tutorial_pictures/cloning_2.png)
 
 After the cloning process is finished, the script 'Creating_plots_template.py' can be opened, then modified as desired and executed.  
-This is an empty template version of the 'Creating_plots.py' script, which does not contain any already set file path, since these have to be changed to the local ones needed individually.  
+This is an empty template version of the 'Creating_plots.py' script, which does not contain any already set file paths, since these have to be changed to the local ones needed individually.  
 It also includes an example and hints, where and what to change in order the run the example.
 For testing usage, the folder 'plotting_example_data' also contains the final shapefiles and XLSX file from the literature review conducted for my Bachelorthesis.
+
+The script has a dedicated function for pie charts and bar charts and also two more for special bar plots.
+All functions are divided in cases for each factor and its correlation regarding drought definitions and SPEI categories.
+This case division allows to easily expand each function by adding a new case using already implemented code from other cases.
+
+To also simplify the process of further developing the script (for another bachelorthesis or in general), it is rather overly commented to allow for a precise understanding of everything that was done.
 
 ### Output
 
