@@ -76,16 +76,14 @@ When Docker Desktop is installed and set up, the following steps can be taken to
 3. Start the Image using Docker Desktop:  
    3.1. For Windows (amd64) operating system:
    ```sh
-    docker run -d -v data_volume:/data jonathanmw/automated_information_retrieval:amd64  
-    ```
+   docker run -v example_data:/app/data jonathanmw/automated_information_retrieval:amd64  
+   ```
    3.2. For Mac (arm64) operating system:  
     ```sh 
-    docker run jonathanmw/automated_information_retrieval:arm64
+    docker run -v example_data:/app/data jonathanmw/automated_information_retrieval:arm64
     ```
 
-or press the 'run' bottom next to the pulled image in the 'Images' section  
-![run.png](tutorial_pictures/run.png)
-
+This will run the pulled Docker Image and put the logs into the internal Docker terminal directly, to allow user to be sure that it started and what it is doing.
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
