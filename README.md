@@ -92,7 +92,7 @@ This will run the pulled Docker Image and put the logs into the internal Docker 
 The output of the program is an updated Excel Open XML Spreadsheet (XLSX) file.  
 This file can be downloaded from the, by the command created, Volume in the 'Volumes' section' of Docker Desktop.
 
-![volume.png](tutorial_pictures/volume.png)
+![volume_example.png](tutorial_pictures/volume_example.png)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
