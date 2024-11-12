@@ -12,7 +12,7 @@
       <a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
+        <li><a href="#usage">Usage</a></li>
         <li><a href="#results">Results</a></li>
       </ul>
     </li>
@@ -56,17 +56,22 @@ When Docker Desktop is installed and set up, the following steps can be taken to
 2. Pull the Docker image from Dockerhub:  
     2.1. For Windows (amd64) operating system:
     ```sh
-    docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:amd64  
+    docker pull --platform linux/arm64 jonathanmw/automated_information_retrieval:amd64  
     ```
     2.2. For Mac (arm64) operating system:  
     ```sh
-    docker pull --platform linux/arm64 jonathanmw/main_script_for_bachelor_thesis:arm64
+    docker pull --platform linux/arm64 jonathanmw/automated_information_retrieval:arm64
     ```
 
    
 3. Start the Image using Docker Desktop:  
+   3.1. For Windows (amd64) operating system:
+   ```sh
+    docker run jonathanmw/automated_information_retrieval:amd64  
+    ```
+   3.2. For Mac (arm64) operating system:  
     ```sh 
-    docker compose up
+    docker run jonathanmw/automated_information_retrieval:arm64
     ```
 
 or press the 'run' bottom next to the pulled image in the 'Images' section  
