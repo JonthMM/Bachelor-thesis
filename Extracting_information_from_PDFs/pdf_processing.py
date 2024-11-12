@@ -134,8 +134,8 @@ def find_matches(line):
         # Examples: "123°456' N", "98°765' W"
         r"\b(?<!\.)(?!0\.)\d{1,3}[°º◦]\s*\d{1,3}[ʹ′'’]?\s*[NSEW]\b",
 
-        # Captures coordinates in the form of degrees, minutes and seconds in tables.
-        # Note: No word boundary (\b) as coordinates in table
+        # Captures coordinates in the form of degrees, minutes and degree in tables and texts.
+        # Note: No word boundary (\b) as coordinates in table also included
         # Examples: '123°45'67°E', '98°76'54°'
         r'(?<!\.)\d{1,3}[°º◦]\d{2}[´′’\u0027\u2032]\d{2}[°º◦]?[NSEW]?',
 
@@ -144,11 +144,9 @@ def find_matches(line):
 
         # Captures coordinates in the form of degrees, minutes and seconds.
         # Examples: '123°45'67″ N', '12°34'56″ S'
-        #r'\b(?<!\.)\d{1,3}(?:[°º◦]|\u00B0)?\s*\d{1,3}(?:′|\u2032|\u0027)?\s*\d{1,3}(?:″|\u2033)?\s*[NSEW]\b',
-        #r'\b(?<!\.)\d{1,3}(?:[°º◦]|\u00B0)?\s*\d{1,3}(?:′|\u2032|\u0027)?\s*\d{1,3}(?:\.\d+)?(?:″|\u2033)?\s*[NSEW]\b',
         r'\b(?<!\.)\d{1,3}(?:[°º◦]|\u00B0)?\s*\d{1,3}(?:′|\u2032|\u0027|´)?\s*\d{1,3}(?:\.\d+)?(?:″|\u2033|˝)?\s*[NSEW]\b',
 
-        # Captures coordinates in the form of degrees, minutes and seconds in tables.
+        # Captures coordinates in the form of degrees, minutes and seconds in tables and texts.
         # Note: No word boundary (\b) as coordinates in table
         # Examples: '123°45'67" ', '98°76'54" '
         r'(?<!\.)\d{1,3}[°º◦]\d{2}[´′’\u0027\u2032]\d{2}["”˝]?',
