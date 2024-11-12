@@ -19,7 +19,7 @@
     <li><a href="#plotting">Plotting</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    li><a href="#links">Links</a></li>
+    <li><a href="#links">Links</a></li>
   </ol>
 
 ## About The Project
@@ -115,12 +115,13 @@ Instead, it is recommended to use the GitHub Desktop application, to clone this 
 # Usage
 Once GitHub Desktop is installed and set up, clone the repository by clicking on 'File' on the upper left and then selecting 'Clone Repository'
 
-![cloning_rep.png](cloning_rep.png)
+![cloning_rep.png](tutorial_pictures/cloning_rep.png)
 
 Now select 'URL' and enter the URL of this Repository (https://github.com/JonthMM/Bachelor-thesis) and select the preferred local folder it should be saved to.
 
 After the cloning process is finished, the script 'Creating_plots_template.py' can be opened and then modified as desired.
 This is an empty template version of the 'Creating_plots.py' script, which does not contain any already set file path, since these have to be changed to the local ones needed individually.
+
 # Results
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
