@@ -42,9 +42,8 @@ Example data is made available for users to execute the program without having t
 Included are examples of studies for ignoring originally wrongly found coordinates, through the PDF format incorrectly formatted coordinates in the PDFs 
 which were converted and found by formatting them back to their original, as well as studies which did not give the coordinates directly 
 to show how the described study area is then searched for and extracted to help the search for coordinates in the manual verification step in order to be able to perform the reanalysis. 
-Furthermore, there are examples which show that often several keywords are selected for the manual verification process in order to choose the most decisive one for the study type and drought definitions.
-The examples given also include studies for which automatic information retrieval worked rather poorly.  
-This applies, for example, to the extraction of years with or without drought in order to identify redundancies, but also for studies where no or only few relevant information could be extracted from the text 
+Furthermore, there are examples which show that often several keywords are selected for the manual verification process in order to choose the most decisive one for the study type and drought definitions.  
+The examples given also include studies for which automatic information retrieval worked rather poorly. This applies, for example, to the extraction of years with or without drought in order to identify redundancies, but also for studies where no or only few relevant information could be extracted from the text 
 due to completely false formating of PDFs or because simply there is no relevant information provided.
 
 ### Prerequisites
@@ -61,6 +60,7 @@ When Docker Desktop is installed and set up, the following steps can be taken to
 1. Open the internal terminal of Docker Desktop on the bottom right:  
    ![Internal Docker Desktop Terminal](tutorial_pictures/Terminal.png)
 
+   or if this option is not available, use the Windows Powershell.
 
 2. Pull the Docker image from Dockerhub:  
     2.1. For Windows (amd64) operating system:
@@ -89,8 +89,10 @@ This will run the pulled Docker Image and put the logs into the internal Docker 
 
 ### Results
 
-The output of the program is an updated Excel Open XML Spreadsheet (XLSX) file.  
-This file can be downloaded from the, by the command created, Volume in the 'Volumes' section' of Docker Desktop.
+The output of the program is an updated Excel Open XML Spreadsheet .xlsx file. 
+This file can be downloaded from the, by the command created, Volume in the 'Volumes' section' of Docker Desktop. (Even if Windows PowerShell was used for execution.)  
+In some cases the file extension .xlsx has to be added in the download window. Also, do not get irritated by the 'MODIFIED' time specification which does not update for the Example.xlsx file. If the terminal shows the 'Excel file was successfully updated!' log, the file is updated with the new data!  
+
 
 ![volume_example.png](tutorial_pictures/volume_example.png)
 
